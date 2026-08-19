@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fitnesstraining.controller.DashboardController"
+      spacing="24">
+    <Label fx:id="greetingLabel" styleClass="screen-title"/>
+    <Label fx:id="roleSummaryLabel" styleClass="muted"/>
+
+    <GridPane hgap="20" vgap="20">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="25" hgrow="ALWAYS"/>
+            <ColumnConstraints percentWidth="25" hgrow="ALWAYS"/>
+            <ColumnConstraints percentWidth="25" hgrow="ALWAYS"/>
+            <ColumnConstraints percentWidth="25" hgrow="ALWAYS"/>
+        </columnConstraints>
+
+        <VBox styleClass="kpi-card" GridPane.columnIndex="0">
+            <padding>
+                <Insets top="22" right="22" bottom="22" left="22"/>
+            </padding>
+            <Label text="Clientes activos" styleClass="kpi-label"/>
+            <Label fx:id="activeClientsValue" styleClass="kpi-value"/>
+        </VBox>
+        <VBox styleClass="kpi-card" GridPane.columnIndex="1">
+            <padding>
+                <Insets top="22" right="22" bottom="22" left="22"/>
+            </padding>
+            <Label text="Presentes ahora" styleClass="kpi-label"/>
+            <Label fx:id="presentValue" styleClass="kpi-value"/>
+        </VBox>
+        <VBox styleClass="kpi-card" GridPane.columnIndex="2">
+            <padding>
+                <Insets top="22" right="22" bottom="22" left="22"/>
+            </padding>
+            <Label text="Membresías por vencer" styleClass="kpi-label"/>
+            <Label fx:id="membershipsValue" styleClass="kpi-value"/>
+        </VBox>
+        <VBox styleClass="kpi-card kpi-card-accent" GridPane.columnIndex="3">
+            <padding>
+                <Insets top="22" right="22" bottom="22" left="22"/>
+            </padding>
+            <Label text="Ingresos del mes" styleClass="kpi-label"/>
+            <Label fx:id="revenueValue" styleClass="kpi-value"/>
+        </VBox>
+    </GridPane>
+
+    <VBox styleClass="kpi-card" spacing="10">
+        <padding>
+            <Insets top="24" right="24" bottom="24" left="24"/>
+        </padding>
+        <Label text="Estado de la plataforma" styleClass="section-title"/>
+        <Label text="Fase 5: autenticación, roles y shell. Los módulos de gestión, entrenamiento y nutrición quedan como navegación protegida hasta su implementación."
+               styleClass="muted"
+               wrapText="true"/>
+    </VBox>
+</VBox>

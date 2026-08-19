@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fitnesstraining.controller.PlaceholderController"
+      styleClass="kpi-card"
+      spacing="12"
+      maxWidth="720">
+    <padding>
+        <Insets top="32" right="32" bottom="32" left="32"/>
+    </padding>
+    <Label fx:id="titleLabel" styleClass="screen-title"/>
+    <Label fx:id="descriptionLabel" styleClass="muted" wrapText="true"/>
+</VBox>

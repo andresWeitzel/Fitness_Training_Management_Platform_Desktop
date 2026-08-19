@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.fitnesstraining.controller.ShellController"
+            styleClass="shell-root">
+
+    <left>
+        <VBox styleClass="sidebar" spacing="8" prefWidth="268" minWidth="248">
+            <padding>
+                <Insets top="28" right="18" bottom="28" left="18"/>
+            </padding>
+            <Label text="FITNESS TRAINING" styleClass="brand"/>
+            <Label text="Management Platform" styleClass="brand-sub"/>
+            <VBox fx:id="navContainer" spacing="6" VBox.vgrow="ALWAYS"/>
+            <Button text="Cerrar sesión" onAction="#onLogout" maxWidth="Infinity" styleClass="ghost-button"/>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="0">
+            <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="20">
+                <padding>
+                    <Insets top="22" right="36" bottom="22" left="36"/>
+                </padding>
+                <Label fx:id="pageTitle" text="Panel" styleClass="page-title" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                <VBox alignment="CENTER_RIGHT" spacing="2">
+                    <Label fx:id="userLabel" styleClass="user-name"/>
+                    <Label fx:id="roleLabel" styleClass="role-pill"/>
+                </VBox>
+            </HBox>
+            <StackPane fx:id="contentHost" styleClass="content-host" VBox.vgrow="ALWAYS">
+                <padding>
+                    <Insets top="28" right="36" bottom="32" left="36"/>
+                </padding>
+            </StackPane>
+        </VBox>
+    </center>
+</BorderPane>

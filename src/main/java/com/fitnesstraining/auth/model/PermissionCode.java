@@ -1,0 +1,16 @@
+package com.fitnesstraining.auth.model;
+
+public enum PermissionCode {
+    DASHBOARD_VIEW,
+    CLIENTS_VIEW,
+    CLIENTS_MANAGE,
+    MEMBERSHIPS_MANAGE,
+    PAYMENTS_MANAGE,
+    CHECKIN_MANAGE,
+    STAFF_MANAGE,
+    TRAINING_MANAGE,
+    ASSESSMENTS_MANAGE,
+    NUTRITION_MANAGE,
+    ANALYTICS_VIEW,
+    SETTINGS_MANAGE
+}
