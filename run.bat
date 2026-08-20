@@ -1,2 +1,2 @@
 @echo off
-mvn javafx:run
+call "%~dp0scripts\start-app.bat"

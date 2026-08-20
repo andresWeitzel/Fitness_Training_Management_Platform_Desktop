@@ -102,6 +102,10 @@ public class Client {
         return deletedAt != null;
     }
 
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
+    }
+
     public Long getId() {
         return id;
     }

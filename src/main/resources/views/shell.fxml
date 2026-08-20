@@ -18,8 +18,13 @@
             <padding>
                 <Insets top="28" right="18" bottom="28" left="18"/>
             </padding>
-            <Label text="FITNESS TRAINING" styleClass="brand"/>
-            <Label text="Management Platform" styleClass="brand-sub"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="FT" styleClass="brand-mark-sm"/>
+                <VBox spacing="1">
+                    <Label text="FITNESS TRAINING" styleClass="brand"/>
+                    <Label text="Management Platform" styleClass="brand-sub"/>
+                </VBox>
+            </HBox>
             <VBox fx:id="navContainer" spacing="6" VBox.vgrow="ALWAYS"/>
             <Button text="Cerrar sesión" onAction="#onLogout" maxWidth="Infinity" styleClass="ghost-button"/>
         </VBox>
@@ -27,15 +32,20 @@
 
     <center>
         <VBox spacing="0">
-            <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="20">
+            <HBox styleClass="topbar window-drag" alignment="CENTER_LEFT" spacing="20">
                 <padding>
-                    <Insets top="22" right="36" bottom="22" left="36"/>
+                    <Insets top="16" right="20" bottom="16" left="36"/>
                 </padding>
                 <Label fx:id="pageTitle" text="Panel" styleClass="page-title" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
                 <VBox alignment="CENTER_RIGHT" spacing="2">
                     <Label fx:id="userLabel" styleClass="user-name"/>
                     <Label fx:id="roleLabel" styleClass="role-pill"/>
                 </VBox>
+                <HBox spacing="6" alignment="CENTER">
+                    <Button text="—" onAction="#onMinimize" styleClass="window-icon" focusTraversable="false"/>
+                    <Button text="□" onAction="#onToggleMaximize" styleClass="window-icon" focusTraversable="false"/>
+                    <Button text="×" onAction="#onClose" styleClass="window-close" focusTraversable="false"/>
+                </HBox>
             </HBox>
             <StackPane fx:id="contentHost" styleClass="content-host" VBox.vgrow="ALWAYS">
                 <padding>

@@ -7,6 +7,8 @@ public record NavItem(
         String label,
         String group,
         PermissionCode permission,
-        String fxml
+        String fxml,
+        boolean implemented,
+        String summary
 ) {
 }

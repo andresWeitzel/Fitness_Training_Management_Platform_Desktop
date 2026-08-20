@@ -16,6 +16,16 @@ public class AccessCredentialRepository {
         this.persistence = persistence;
     }
 
+    public long countActiveByType(CredentialType type) {
+        return persistence.inTransaction(em ->
+                em.createQuery("""
+                                SELECT COUNT(a) FROM AccessCredential a
+                                WHERE a.active = TRUE AND a.type = :type
+                                """, Long.class)
+                        .setParameter("type", type)
+                        .getSingleResult());
+    }
+
     public String nextCode(CredentialType type) {
         String sequence = switch (type) {
             case CLIENT_NUMBER -> "client_number_seq";

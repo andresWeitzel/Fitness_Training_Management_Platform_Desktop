@@ -25,6 +25,23 @@ public class ClientRepository {
                         .getSingleResult());
     }
 
+    public long countInactive() {
+        return persistence.inTransaction(em ->
+                em.createQuery("SELECT COUNT(c) FROM Client c WHERE c.deletedAt IS NOT NULL", Long.class)
+                        .getSingleResult());
+    }
+
+    public List<Client> findRecent(int limit) {
+        return persistence.inTransaction(em ->
+                em.createQuery("""
+                                SELECT c FROM Client c
+                                WHERE c.deletedAt IS NULL
+                                ORDER BY c.createdAt DESC
+                                """, Client.class)
+                        .setMaxResults(limit)
+                        .getResultList());
+    }
+
     public long countAll() {
         return persistence.inTransaction(em ->
                 em.createQuery("SELECT COUNT(c) FROM Client c WHERE c.deletedAt IS NULL", Long.class)

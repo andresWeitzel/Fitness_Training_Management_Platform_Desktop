@@ -3,6 +3,7 @@ package com.fitnesstraining.app;
 import com.fitnesstraining.auth.model.PermissionCode;
 
 import java.util.List;
+import java.util.Optional;
 
 public final class NavigationCatalog {
 
@@ -11,16 +12,30 @@ public final class NavigationCatalog {
 
     public static List<NavItem> items() {
         return List.of(
-                new NavItem("dashboard", "Panel", "Inicio", PermissionCode.DASHBOARD_VIEW, "/views/dashboard.fxml"),
-                new NavItem("clients", "Clientes", "Gestión", PermissionCode.CLIENTS_VIEW, "/views/clients.fxml"),
-                new NavItem("memberships", "Membresías", "Gestión", PermissionCode.MEMBERSHIPS_MANAGE, "/views/placeholder.fxml"),
-                new NavItem("payments", "Pagos", "Gestión", PermissionCode.PAYMENTS_MANAGE, "/views/placeholder.fxml"),
-                new NavItem("checkin", "Recepción", "Gestión", PermissionCode.CHECKIN_MANAGE, "/views/placeholder.fxml"),
-                new NavItem("staff", "Personal", "Gestión", PermissionCode.STAFF_MANAGE, "/views/placeholder.fxml"),
-                new NavItem("training", "Entrenamiento", "Entrenamiento", PermissionCode.TRAINING_MANAGE, "/views/placeholder.fxml"),
-                new NavItem("assessments", "Evaluaciones", "Seguimiento", PermissionCode.ASSESSMENTS_MANAGE, "/views/placeholder.fxml"),
-                new NavItem("nutrition", "Nutrición", "Seguimiento", PermissionCode.NUTRITION_MANAGE, "/views/placeholder.fxml"),
-                new NavItem("analytics", "Analytics", "Analytics", PermissionCode.ANALYTICS_VIEW, "/views/placeholder.fxml")
+                new NavItem("dashboard", "Panel", "Inicio", PermissionCode.DASHBOARD_VIEW,
+                        "/views/dashboard.fxml", true, "Resumen del gimnasio y accesos rápidos."),
+                new NavItem("clients", "Clientes", "Gestión", PermissionCode.CLIENTS_VIEW,
+                        "/views/clients.fxml", true, "Alta, ficha, baja y credenciales (n° cliente, carnet y QR)."),
+                new NavItem("memberships", "Membresías", "Gestión", PermissionCode.MEMBERSHIPS_MANAGE,
+                        "/views/placeholder.fxml", false, "Planes, altas y vencimientos. Aún no migrado."),
+                new NavItem("payments", "Pagos", "Gestión", PermissionCode.PAYMENTS_MANAGE,
+                        "/views/placeholder.fxml", false, "Cobros, mora y recargo. Aún no migrado."),
+                new NavItem("checkin", "Recepción", "Gestión", PermissionCode.CHECKIN_MANAGE,
+                        "/views/placeholder.fxml", false, "Ingreso diario y bloqueo por deuda. Aún no migrado."),
+                new NavItem("staff", "Personal", "Gestión", PermissionCode.STAFF_MANAGE,
+                        "/views/placeholder.fxml", false, "ABM de usuarios y roles. Aún no migrado."),
+                new NavItem("training", "Entrenamiento", "Entrenamiento", PermissionCode.TRAINING_MANAGE,
+                        "/views/placeholder.fxml", false, "Rutinas y ejercicios estructurados. Aún no migrado."),
+                new NavItem("assessments", "Evaluaciones", "Seguimiento", PermissionCode.ASSESSMENTS_MANAGE,
+                        "/views/placeholder.fxml", false, "Historial de evaluaciones físicas. Aún no migrado."),
+                new NavItem("nutrition", "Nutrición", "Seguimiento", PermissionCode.NUTRITION_MANAGE,
+                        "/views/placeholder.fxml", false, "Turnos y planes nutricionales. Aún no migrado."),
+                new NavItem("analytics", "Analytics", "Analytics", PermissionCode.ANALYTICS_VIEW,
+                        "/views/placeholder.fxml", false, "Ingresos y reportes. Aún no migrado.")
         );
+    }
+
+    public static Optional<NavItem> byId(String id) {
+        return items().stream().filter(item -> item.id().equals(id)).findFirst();
     }
 }

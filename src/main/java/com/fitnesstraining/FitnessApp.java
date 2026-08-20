@@ -1,6 +1,7 @@
 package com.fitnesstraining;
 
 import com.fitnesstraining.app.AppContext;
+import com.fitnesstraining.app.WindowChrome;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ public class FitnessApp extends Application {
     @Override
     public void start(Stage stage) {
         Thread.setDefaultUncaughtExceptionHandler((thread, ex) -> log.error("Error no controlado", ex));
+        WindowChrome.prepare(stage);
         appContext = new AppContext(stage);
         appContext.start();
     }
