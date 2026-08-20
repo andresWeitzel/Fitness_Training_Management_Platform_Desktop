@@ -58,6 +58,12 @@ public class SceneNavigator {
         return loaded.root();
     }
 
+    public Parent loadModuleError(String title, String message) {
+        var loaded = views.<PlaceholderController>load("/views/placeholder.fxml");
+        loaded.controller().showError(title, message);
+        return loaded.root();
+    }
+
     private void setScene(Parent root, int width, int height, boolean shell) {
         Scene scene = stage.getScene();
         if (scene == null) {

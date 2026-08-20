@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fitnesstraining.controller.MembershipsController"
+      styleClass="memberships-root"
+      spacing="12"
+      maxWidth="Infinity"
+      maxHeight="Infinity">
+
+    <HBox fx:id="feedbackBanner" styleClass="feedback-banner" alignment="CENTER" spacing="12" visible="false" managed="false">
+        <Label fx:id="feedbackLabel" wrapText="true" HBox.hgrow="ALWAYS"/>
+        <Button fx:id="feedbackDismissButton" text="×" onAction="#onDismissFeedback" styleClass="feedback-dismiss"/>
+    </HBox>
+
+    <HBox fx:id="confirmBanner" styleClass="confirm-banner" alignment="CENTER_LEFT" spacing="14" visible="false" managed="false">
+        <Label fx:id="confirmMessageLabel" wrapText="true" HBox.hgrow="ALWAYS"/>
+        <HBox spacing="8" alignment="CENTER_RIGHT">
+            <Button fx:id="confirmAcceptButton" text="Confirmar" onAction="#onConfirmAccept" styleClass="primary-button"/>
+            <Button fx:id="confirmCancelButton" text="Cancelar" onAction="#onConfirmCancel" styleClass="ghost-button"/>
+        </HBox>
+    </HBox>
+
+<TabPane fx:id="membershipsTabs" styleClass="memberships-tabs" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
+
+    <Tab text="Membresías de clientes">
+        <SplitPane dividerPositions="0.52" styleClass="clients-split">
+            <VBox spacing="12" styleClass="panel-card">
+                <padding>
+                    <Insets top="18" right="18" bottom="18" left="18"/>
+                </padding>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Membresías" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="membershipsCountLabel" styleClass="muted"/>
+                </HBox>
+                <HBox spacing="8" alignment="CENTER_LEFT" styleClass="filter-chip-row">
+                    <Button fx:id="filterActiveMembershipsButton" text="Activas" onAction="#onFilterActiveMemberships" styleClass="filter-chip chip-on"/>
+                    <Button fx:id="filterExpiredMembershipsButton" text="Vencidas" onAction="#onFilterExpiredMemberships" styleClass="filter-chip"/>
+                    <Button fx:id="filterCancelledMembershipsButton" text="Canceladas" onAction="#onFilterCancelledMemberships" styleClass="filter-chip"/>
+                    <Button fx:id="filterAllMembershipsButton" text="Todas" onAction="#onFilterAllMemberships" styleClass="filter-chip"/>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <TextField fx:id="membershipSearchField" promptText="Filtrar por cliente o plan" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="assignMembershipButton" text="Asignar" onAction="#onNewMembership" styleClass="primary-button"/>
+                </HBox>
+                <TableView fx:id="membershipsTable" VBox.vgrow="ALWAYS" styleClass="memberships-table">
+                    <columns>
+                        <TableColumn fx:id="membershipClientColumn" text="Cliente" prefWidth="180" minWidth="140"/>
+                        <TableColumn fx:id="membershipDocumentColumn" text="Documento" prefWidth="110" minWidth="90"/>
+                        <TableColumn fx:id="membershipPlanColumn" text="Plan" prefWidth="120" minWidth="90"/>
+                        <TableColumn fx:id="membershipEndsColumn" text="Vence" prefWidth="100" minWidth="80"/>
+                        <TableColumn fx:id="membershipStatusColumn" text="Estado" prefWidth="90" minWidth="70"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <VBox spacing="10" styleClass="panel-card assignment-panel">
+                <padding>
+                    <Insets top="18" right="18" bottom="18" left="18"/>
+                </padding>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label text="Detalle / asignación" styleClass="section-title"/>
+                        <Label fx:id="membershipSubtitleLabel" styleClass="muted"/>
+                    </VBox>
+                    <Label fx:id="membershipStatusBadge" styleClass="badge-ready"/>
+                </HBox>
+
+                <VBox spacing="10" styleClass="assignment-fields">
+                    <Label text="Cliente" styleClass="field-label"/>
+                    <ComboBox fx:id="clientCombo" promptText="Seleccione un cliente activo" maxWidth="Infinity" styleClass="app-combo"/>
+
+                    <Label text="Plan" styleClass="field-label"/>
+                    <ComboBox fx:id="planCombo" promptText="Seleccione un plan activo" maxWidth="Infinity" styleClass="app-combo"/>
+
+                    <Label text="Fecha de inicio (opcional)" styleClass="field-label"/>
+                    <DatePicker fx:id="startDatePicker" promptText="Hoy si se deja vacío" maxWidth="Infinity" styleClass="app-date-picker"/>
+                </VBox>
+
+                <VBox spacing="8" styleClass="membership-preview">
+                    <Label text="Vista previa de vigencia" styleClass="field-label"/>
+                    <HBox spacing="14">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                            <Label text="Inicio" styleClass="preview-caption"/>
+                            <Label fx:id="membershipStartsLabel" styleClass="preview-value"/>
+                        </VBox>
+                        <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                            <Label text="Fin" styleClass="preview-caption"/>
+                            <Label fx:id="membershipEndsLabel" styleClass="preview-value"/>
+                        </VBox>
+                    </HBox>
+                    <HBox spacing="14">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                            <Label text="Duración" styleClass="preview-caption"/>
+                            <Label fx:id="membershipDurationLabel" styleClass="preview-value"/>
+                        </VBox>
+                        <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                            <Label text="Precio plan" styleClass="preview-caption"/>
+                            <Label fx:id="membershipPriceLabel" styleClass="preview-value"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <Label fx:id="membershipStatusLabel" styleClass="muted" wrapText="true"/>
+
+                <HBox spacing="10">
+                    <Button fx:id="saveMembershipButton" text="Asignar membresía" onAction="#onSaveMembership" styleClass="primary-button"/>
+                    <Button fx:id="renewMembershipButton" text="Renovar" onAction="#onRenewMembership" styleClass="secondary-button"/>
+                    <Button fx:id="cancelMembershipButton" text="Cancelar membresía" onAction="#onCancelMembership" styleClass="danger-button"/>
+                </HBox>
+            </VBox>
+        </SplitPane>
+    </Tab>
+
+    <Tab text="Planes">
+        <SplitPane dividerPositions="0.48" styleClass="clients-split">
+            <VBox spacing="12" styleClass="panel-card">
+                <padding>
+                    <Insets top="18" right="18" bottom="18" left="18"/>
+                </padding>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Catálogo de planes" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="plansCountLabel" styleClass="muted"/>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <TextField fx:id="planSearchField" promptText="Filtrar por nombre" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="newPlanButton" text="Nuevo plan" onAction="#onNewPlan" styleClass="primary-button"/>
+                </HBox>
+                <TableView fx:id="plansTable" VBox.vgrow="ALWAYS" styleClass="memberships-table">
+                    <columns>
+                        <TableColumn fx:id="planNameColumn" text="Plan" prefWidth="160" minWidth="120"/>
+                        <TableColumn fx:id="planDurationColumn" text="Duración" prefWidth="90" minWidth="70"/>
+                        <TableColumn fx:id="planPriceColumn" text="Precio" prefWidth="100" minWidth="80"/>
+                        <TableColumn fx:id="planActiveColumn" text="Estado" prefWidth="90" minWidth="70"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <VBox spacing="8" styleClass="panel-card">
+                <padding>
+                    <Insets top="18" right="18" bottom="18" left="18"/>
+                </padding>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label text="Detalle del plan" styleClass="section-title"/>
+                        <Label fx:id="planSubtitleLabel" styleClass="muted"/>
+                    </VBox>
+                    <Label fx:id="planStatusBadge" styleClass="badge-ready"/>
+                </HBox>
+                <Label text="Nombre" styleClass="field-label"/>
+                <TextField fx:id="planNameField" promptText="Ej. Mensual"/>
+                <Label text="Descripción" styleClass="field-label"/>
+                <TextArea fx:id="planDescriptionField" promptText="Opcional" prefRowCount="3" wrapText="true"/>
+                <HBox spacing="14">
+                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                        <Label text="Duración (días)" styleClass="field-label"/>
+                        <TextField fx:id="planDurationField" promptText="30"/>
+                    </VBox>
+                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                        <Label text="Precio" styleClass="field-label"/>
+                        <TextField fx:id="planPriceField" promptText="0.00"/>
+                    </VBox>
+                </HBox>
+                <CheckBox fx:id="planActiveCheck" text="Plan activo (disponible para altas)"/>
+                <Label fx:id="planStatusLabel" styleClass="muted" wrapText="true"/>
+                <HBox spacing="10">
+                    <Button fx:id="savePlanButton" text="Guardar plan" onAction="#onSavePlan" styleClass="primary-button"/>
+                </HBox>
+            </VBox>
+        </SplitPane>
+    </Tab>
+</TabPane>
+</VBox>

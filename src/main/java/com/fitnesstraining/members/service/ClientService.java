@@ -11,7 +11,10 @@ import com.fitnesstraining.members.model.CredentialType;
 import com.fitnesstraining.members.repository.AccessCredentialRepository;
 import com.fitnesstraining.members.repository.ClientRepository;
 import com.fitnesstraining.members.validation.ClientValidator;
+import com.fitnesstraining.memberships.service.MembershipService;
 import com.fitnesstraining.shared.exception.ValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Clock;
 import java.time.OffsetDateTime;
@@ -20,18 +23,30 @@ import java.util.List;
 
 public class ClientService {
 
+    private static final Logger log = LoggerFactory.getLogger(ClientService.class);
+
     public static final Period CARD_VALIDITY = Period.ofYears(1);
 
     private final ClientRepository clientRepository;
     private final AccessCredentialRepository credentialRepository;
+    private final MembershipService membershipService;
     private final Clock clock;
 
     public ClientService(
             ClientRepository clientRepository,
             AccessCredentialRepository credentialRepository,
             Clock clock) {
+        this(clientRepository, credentialRepository, null, clock);
+    }
+
+    public ClientService(
+            ClientRepository clientRepository,
+            AccessCredentialRepository credentialRepository,
+            MembershipService membershipService,
+            Clock clock) {
         this.clientRepository = clientRepository;
         this.credentialRepository = credentialRepository;
+        this.membershipService = membershipService;
         this.clock = clock;
     }
 
@@ -82,6 +97,7 @@ public class ClientService {
                 null
         );
         credentialRepository.addToClient(saved.getId(), number);
+        assignDefaultMembership(saved.getId());
         return get(saved.getId());
     }
 
@@ -111,6 +127,9 @@ public class ClientService {
         client.deactivate(OffsetDateTime.now(clock));
         clientRepository.save(client);
         credentialRepository.deactivateAllForClient(id);
+        if (membershipService != null) {
+            membershipService.cancelActiveForClient(id);
+        }
     }
 
     public ClientView issueCard(Long clientId) {
@@ -185,5 +204,16 @@ public class ClientService {
                 .map(credential -> CredentialView.from(credential, now))
                 .toList();
         return ClientView.from(client, credentials);
+    }
+
+    private void assignDefaultMembership(Long clientId) {
+        if (membershipService == null) {
+            return;
+        }
+        try {
+            membershipService.assignDefaultToNewClient(clientId);
+        } catch (RuntimeException ex) {
+            log.warn("No se pudo asignar la membresía inicial al cliente {}: {}", clientId, ex.getMessage());
+        }
     }
 }

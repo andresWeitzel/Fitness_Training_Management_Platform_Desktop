@@ -186,7 +186,9 @@ public class ClientsController {
             ClientView saved = selectedId == null
                     ? clientService.create(request)
                     : clientService.update(selectedId, request);
-            statusOk(selectedId == null ? "Cliente registrado." : "Cambios guardados.");
+            statusOk(selectedId == null
+                    ? "Cliente registrado con membresía Mensual asignada."
+                    : "Cambios guardados.");
             reloadTable();
             selectById(saved.id());
         } catch (ValidationException ex) {
@@ -240,15 +242,18 @@ public class ClientsController {
 
     private void setScope(ClientListScope scope) {
         listScope = scope;
-        filterActiveButton.getStyleClass().remove("selected");
-        filterInactiveButton.getStyleClass().remove("selected");
-        filterAllButton.getStyleClass().remove("selected");
-        switch (scope) {
-            case ACTIVE -> filterActiveButton.getStyleClass().add("selected");
-            case INACTIVE -> filterInactiveButton.getStyleClass().add("selected");
-            case ALL -> filterAllButton.getStyleClass().add("selected");
-        }
+        applyChipState(filterActiveButton, scope == ClientListScope.ACTIVE);
+        applyChipState(filterInactiveButton, scope == ClientListScope.INACTIVE);
+        applyChipState(filterAllButton, scope == ClientListScope.ALL);
         reloadTable();
+    }
+
+    private static void applyChipState(Button button, boolean on) {
+        button.getStyleClass().remove("chip-on");
+        button.getStyleClass().remove("selected");
+        if (on) {
+            button.getStyleClass().add("chip-on");
+        }
     }
 
     private void runCredential(java.util.function.Supplier<ClientView> action, String success) {
