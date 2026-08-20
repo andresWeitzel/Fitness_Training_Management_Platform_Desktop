@@ -123,10 +123,24 @@ public class DashboardController {
 
     private void fillModules(AuthenticatedUser user) {
         modulesList.getChildren().clear();
-        NavigationCatalog.items().stream()
+        var visible = NavigationCatalog.items().stream()
                 .filter(item -> !"dashboard".equals(item.id()))
                 .filter(item -> user.hasPermission(item.permission()))
+                .toList();
+        // Mostrar primero los listos y acotar la lista para no saturar el panel.
+        visible.stream()
+                .filter(NavItem::implemented)
                 .forEach(item -> modulesList.getChildren().add(moduleRow(item)));
+        visible.stream()
+                .filter(item -> !item.implemented())
+                .limit(4)
+                .forEach(item -> modulesList.getChildren().add(moduleRow(item)));
+        long remaining = visible.stream().filter(item -> !item.implemented()).count() - 4;
+        if (remaining > 0) {
+            Label more = new Label("+" + remaining + " módulos próximos en el menú lateral");
+            more.getStyleClass().add("muted");
+            modulesList.getChildren().add(more);
+        }
     }
 
     private HBox moduleRow(NavItem item) {

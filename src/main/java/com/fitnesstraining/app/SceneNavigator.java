@@ -71,7 +71,13 @@ public class SceneNavigator {
             scene.setRoot(root);
         }
         WindowChrome.applyTransparentScene(scene);
-        WindowChrome.makeDraggable(stage, lookup(root, ".window-drag"));
+        Node dragHandle = lookup(root, ".window-drag");
+        Node sidebarDrag = lookup(root, ".sidebar-drag");
+        if (sidebarDrag != null && sidebarDrag != dragHandle) {
+            WindowChrome.makeDraggable(stage, dragHandle, sidebarDrag);
+        } else {
+            WindowChrome.makeDraggable(stage, dragHandle);
+        }
 
         stage.setMaximized(false);
         root.getStyleClass().remove("maximized");
@@ -80,10 +86,11 @@ public class SceneNavigator {
             stage.setMinHeight(700);
             stage.setMaxWidth(Double.MAX_VALUE);
             stage.setMaxHeight(Double.MAX_VALUE);
-            stage.setWidth(width);
-            stage.setHeight(height);
-            stage.setMaximized(true);
-            root.getStyleClass().add("maximized");
+            Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+            stage.setWidth(Math.min(width, bounds.getWidth() - 32));
+            stage.setHeight(Math.min(height, bounds.getHeight() - 32));
+            stage.centerOnScreen();
+            WindowChrome.rememberShellBounds(stage);
         } else {
             Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
             stage.setMinWidth(420);

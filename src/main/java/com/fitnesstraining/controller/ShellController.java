@@ -6,12 +6,16 @@ import com.fitnesstraining.app.NavItem;
 import com.fitnesstraining.app.NavigationCatalog;
 import com.fitnesstraining.app.SceneNavigator;
 import com.fitnesstraining.app.SessionContext;
+import com.fitnesstraining.app.WindowChrome;
 import com.fitnesstraining.auth.dto.AuthenticatedUser;
 import com.fitnesstraining.auth.service.AuthorizationService;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -21,11 +25,35 @@ import java.util.Map;
 
 public class ShellController {
 
+    private static final Map<String, String> ROLE_LABELS = Map.of(
+            "ADMIN", "Administrador",
+            "RECEPTIONIST", "Recepción",
+            "TRAINER", "Entrenador",
+            "NUTRITIONIST", "Nutricionista"
+    );
+
+    private static final Map<String, String> NAV_ICONS = Map.ofEntries(
+            Map.entry("dashboard", "Pn"),
+            Map.entry("clients", "Cl"),
+            Map.entry("memberships", "Mb"),
+            Map.entry("payments", "Pg"),
+            Map.entry("checkin", "Rc"),
+            Map.entry("staff", "Ps"),
+            Map.entry("training", "En"),
+            Map.entry("assessments", "Ev"),
+            Map.entry("nutrition", "Nu"),
+            Map.entry("analytics", "An"),
+            Map.entry("settings", "Db")
+    );
+
     @FXML private VBox navContainer;
     @FXML private Label userLabel;
     @FXML private Label roleLabel;
+    @FXML private Label sidebarUserLabel;
+    @FXML private Label sidebarRoleLabel;
     @FXML private Label pageTitle;
     @FXML private StackPane contentHost;
+    @FXML private ScrollPane contentScroll;
 
     private final SessionContext sessionContext;
     private final AuthorizationService authorizationService;
@@ -47,8 +75,11 @@ public class ShellController {
     public void initialize() {
         appContext.registerShell(this);
         AuthenticatedUser user = sessionContext.requireUser();
+        String role = ROLE_LABELS.getOrDefault(user.primaryRole(), user.primaryRole());
         userLabel.setText(user.displayName());
-        roleLabel.setText(user.primaryRole());
+        roleLabel.setText(role);
+        sidebarUserLabel.setText(user.displayName());
+        sidebarRoleLabel.setText(role);
         buildNavigation(user);
     }
 
@@ -75,9 +106,12 @@ public class ShellController {
     @FXML
     public void onToggleMaximize() {
         var stage = appContext.stage();
+        var root = stage.getScene().getRoot();
+        if (!stage.isMaximized()) {
+            WindowChrome.rememberShellBounds(stage);
+        }
         boolean maximize = !stage.isMaximized();
         stage.setMaximized(maximize);
-        var root = stage.getScene().getRoot();
         root.getStyleClass().remove("maximized");
         if (maximize) {
             root.getStyleClass().add("maximized");
@@ -100,15 +134,39 @@ public class ShellController {
             Label groupLabel = new Label(group.toUpperCase());
             groupLabel.getStyleClass().add("nav-group");
             navContainer.getChildren().add(groupLabel);
-            items.forEach(item -> navContainer.getChildren().add(navButton(item)));
+
+            VBox groupBox = new VBox(4);
+            groupBox.getStyleClass().add("nav-group-box");
+            items.forEach(item -> groupBox.getChildren().add(navButton(item)));
+            navContainer.getChildren().add(groupBox);
         });
     }
 
     private Button navButton(NavItem item) {
-        Button button = new Button(item.label());
+        Label icon = new Label(NAV_ICONS.getOrDefault(item.id(), "•"));
+        icon.getStyleClass().add("nav-icon");
+
+        Label title = new Label(item.label());
+        title.getStyleClass().add("nav-label");
+        HBox.setHgrow(title, Priority.ALWAYS);
+
+        HBox content = new HBox(10, icon, title);
+        content.setAlignment(Pos.CENTER_LEFT);
+        if (!item.implemented()) {
+            Label soon = new Label("Pronto");
+            soon.getStyleClass().add("nav-soon-badge");
+            content.getChildren().add(soon);
+        }
+
+        Button button = new Button();
+        button.setGraphic(content);
         button.getStyleClass().add("nav-button");
+        if (!item.implemented()) {
+            button.getStyleClass().add("nav-soon");
+        }
         button.setMaxWidth(Double.MAX_VALUE);
         button.setAlignment(Pos.CENTER_LEFT);
+        button.setUserData(item.id());
         button.setOnAction(event -> open(item));
         return button;
     }
@@ -116,6 +174,9 @@ public class ShellController {
     private void open(NavItem item) {
         pageTitle.setText(item.label());
         highlightNav(item);
+        if (contentScroll != null) {
+            contentScroll.setVvalue(0);
+        }
         if (!item.implemented()) {
             contentHost.getChildren().setAll(navigator.loadPlaceholder(item.label(), item.summary()));
             return;
@@ -130,7 +191,7 @@ public class ShellController {
     private void highlightNav(NavItem item) {
         navContainer.lookupAll(".nav-button").forEach(node -> {
             node.getStyleClass().remove("selected");
-            if (node instanceof Button button && item.label().equals(button.getText())) {
+            if (node instanceof Button button && item.id().equals(String.valueOf(button.getUserData()))) {
                 button.getStyleClass().add("selected");
             }
         });

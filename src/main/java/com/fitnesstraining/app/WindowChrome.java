@@ -97,17 +97,36 @@ public final class WindowChrome {
         return Math.ceil(padStart + max + padEnd + SHADOW_MARGIN);
     }
 
-    public static void makeDraggable(Stage stage, Node handle) {
-        if (handle == null) {
+    public static void makeDraggable(Stage stage, Node... handles) {
+        if (handles == null) {
             return;
         }
+        for (Node handle : handles) {
+            if (handle != null) {
+                attachDragHandler(stage, handle);
+            }
+        }
+    }
+
+    public static void rememberShellBounds(Stage stage) {
+        if (stage != null && !stage.isMaximized()) {
+            restoreWidth = stage.getWidth();
+            restoreHeight = stage.getHeight();
+        }
+    }
+
+    private static double restoreWidth = 1480;
+    private static double restoreHeight = 900;
+
+    private static void attachDragHandler(Stage stage, Node handle) {
         final Delta delta = new Delta();
         handle.setOnMousePressed(event -> {
             if (stage.isMaximized()) {
-                return;
+                restoreFromMaximized(stage, event.getScreenX(), event.getScreenY());
             }
             delta.x = event.getScreenX() - stage.getX();
             delta.y = event.getScreenY() - stage.getY();
+            event.consume();
         });
         handle.setOnMouseDragged(event -> {
             if (stage.isMaximized()) {
@@ -115,7 +134,24 @@ public final class WindowChrome {
             }
             stage.setX(event.getScreenX() - delta.x);
             stage.setY(event.getScreenY() - delta.y);
+            event.consume();
         });
+    }
+
+    private static void restoreFromMaximized(Stage stage, double screenX, double screenY) {
+        if (stage.getScene() == null) {
+            return;
+        }
+        Parent root = stage.getScene().getRoot();
+        root.getStyleClass().remove("maximized");
+        stage.setMaximized(false);
+        Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+        double width = Math.min(restoreWidth, bounds.getWidth() - 32);
+        double height = Math.min(restoreHeight, bounds.getHeight() - 32);
+        stage.setWidth(width);
+        stage.setHeight(height);
+        stage.setX(Math.max(bounds.getMinX(), Math.min(screenX - width * 0.35, bounds.getMaxX() - width)));
+        stage.setY(Math.max(bounds.getMinY(), screenY - 28));
     }
 
     private static final class Delta {
