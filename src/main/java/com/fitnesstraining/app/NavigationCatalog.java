@@ -19,7 +19,7 @@ public final class NavigationCatalog {
                 new NavItem("memberships", "Membresías", "Gestión", PermissionCode.MEMBERSHIPS_MANAGE,
                         "/views/memberships.fxml", true, "Catálogo de planes y asignación a clientes."),
                 new NavItem("payments", "Pagos", "Gestión", PermissionCode.PAYMENTS_MANAGE,
-                        "/views/placeholder.fxml", false, "Cobros, mora y recargo. Aún no migrado."),
+                        "/views/payments.fxml", true, "Cobros de membresía, mora/recargo e ingreso diario."),
                 new NavItem("checkin", "Recepción", "Gestión", PermissionCode.CHECKIN_MANAGE,
                         "/views/placeholder.fxml", false, "Ingreso diario y bloqueo por deuda. Aún no migrado."),
                 new NavItem("staff", "Personal", "Gestión", PermissionCode.STAFF_MANAGE,

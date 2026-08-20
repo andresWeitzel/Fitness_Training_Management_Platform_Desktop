@@ -1,5 +1,6 @@
 package com.fitnesstraining.controller;
 
+import com.fitnesstraining.app.ConfirmDialogs;
 import com.fitnesstraining.app.SessionContext;
 import com.fitnesstraining.auth.dto.AuthenticatedUser;
 import com.fitnesstraining.auth.model.PermissionCode;
@@ -70,8 +71,6 @@ public class MembershipsController {
 
     @FXML private HBox feedbackBanner;
     @FXML private Label feedbackLabel;
-    @FXML private HBox confirmBanner;
-    @FXML private Label confirmMessageLabel;
 
     @FXML private Label membershipsCountLabel;
     @FXML private Button filterActiveMembershipsButton;
@@ -115,7 +114,6 @@ public class MembershipsController {
     private final PauseTransition planSearchDelay = new PauseTransition(Duration.millis(180));
     private final PauseTransition membershipSearchDelay = new PauseTransition(Duration.millis(180));
     private final PauseTransition feedbackHideDelay = new PauseTransition(Duration.seconds(4));
-    private Runnable pendingConfirmAction;
 
     public MembershipsController(
             MembershipService membershipService,
@@ -183,20 +181,6 @@ public class MembershipsController {
     @FXML
     public void onDismissFeedback() {
         hideFeedback();
-    }
-
-    @FXML
-    public void onConfirmAccept() {
-        Runnable action = pendingConfirmAction;
-        hideConfirm();
-        if (action != null) {
-            action.run();
-        }
-    }
-
-    @FXML
-    public void onConfirmCancel() {
-        hideConfirm();
     }
 
     @FXML
@@ -369,21 +353,24 @@ public class MembershipsController {
         if (!canManage || selectedMembershipId == null) {
             return;
         }
-        showConfirm(
-                "¿Renovar la membresía extendiendo la vigencia según la duración del plan actual?",
-                () -> {
-                    try {
-                        ClientMembershipView renewed = membershipService.renewMembership(selectedMembershipId);
-                        showFeedbackOk("Membresía renovada.");
-                        refreshMemberships();
-                        selectMembershipInTable(renewed.id());
-                        loadMembership(renewed.id());
-                    } catch (ValidationException ex) {
-                        showFeedbackError(ex.getMessage());
-                    } catch (RuntimeException ex) {
-                        showFeedbackError(ex.getMessage());
-                    }
-                });
+        if (!ConfirmDialogs.confirm(
+                renewMembershipButton,
+                "Renovar membresía",
+                "¿Renovar esta membresía?",
+                "Se extenderá la vigencia según la duración del plan actual.")) {
+            return;
+        }
+        try {
+            ClientMembershipView renewed = membershipService.renewMembership(selectedMembershipId);
+            showFeedbackOk("Membresía renovada.");
+            refreshMemberships();
+            selectMembershipInTable(renewed.id());
+            loadMembership(renewed.id());
+        } catch (ValidationException ex) {
+            showFeedbackError(ex.getMessage());
+        } catch (RuntimeException ex) {
+            showFeedbackError(ex.getMessage());
+        }
     }
 
     @FXML
@@ -391,25 +378,28 @@ public class MembershipsController {
         if (!canManage || selectedMembershipId == null) {
             return;
         }
-        showConfirm(
-                "¿Cancelar esta membresía? Después podrá reasignar otro plan al mismo cliente.",
-                () -> {
-                    try {
-                        ClientMembershipView cancelled = membershipService.cancelMembership(selectedMembershipId);
-                        showFeedbackOk("Membresía cancelada. Elija un plan y pulse Reasignar.");
-                        if (membershipScope == MembershipListScope.ACTIVE) {
-                            setMembershipScope(MembershipListScope.CANCELLED);
-                        } else {
-                            refreshMemberships();
-                        }
-                        selectMembershipInTable(cancelled.id());
-                        loadMembership(cancelled.id());
-                    } catch (ValidationException ex) {
-                        showFeedbackError(ex.getMessage());
-                    } catch (RuntimeException ex) {
-                        showFeedbackError(ex.getMessage());
-                    }
-                });
+        if (!ConfirmDialogs.confirm(
+                cancelMembershipButton,
+                "Cancelar membresía",
+                "¿Cancelar esta membresía?",
+                "Después podrá reasignar otro plan al mismo cliente.")) {
+            return;
+        }
+        try {
+            ClientMembershipView cancelled = membershipService.cancelMembership(selectedMembershipId);
+            showFeedbackOk("Membresía cancelada. Elija un plan y pulse Reasignar.");
+            if (membershipScope == MembershipListScope.ACTIVE) {
+                setMembershipScope(MembershipListScope.CANCELLED);
+            } else {
+                refreshMemberships();
+            }
+            selectMembershipInTable(cancelled.id());
+            loadMembership(cancelled.id());
+        } catch (ValidationException ex) {
+            showFeedbackError(ex.getMessage());
+        } catch (RuntimeException ex) {
+            showFeedbackError(ex.getMessage());
+        }
     }
 
     private void setupPlansTable() {
@@ -812,7 +802,6 @@ public class MembershipsController {
     }
 
     private void showFeedbackOk(String message) {
-        hideConfirm();
         feedbackBanner.getStyleClass().remove("error");
         feedbackLabel.setText(message);
         feedbackBanner.setVisible(true);
@@ -822,7 +811,6 @@ public class MembershipsController {
     }
 
     private void showFeedbackError(String message) {
-        hideConfirm();
         if (!feedbackBanner.getStyleClass().contains("error")) {
             feedbackBanner.getStyleClass().add("error");
         }
@@ -838,20 +826,5 @@ public class MembershipsController {
         feedbackBanner.setManaged(false);
         feedbackBanner.getStyleClass().remove("error");
         feedbackLabel.setText("");
-    }
-
-    private void showConfirm(String message, Runnable onAccept) {
-        hideFeedback();
-        pendingConfirmAction = onAccept;
-        confirmMessageLabel.setText(message);
-        confirmBanner.setVisible(true);
-        confirmBanner.setManaged(true);
-    }
-
-    private void hideConfirm() {
-        pendingConfirmAction = null;
-        confirmBanner.setVisible(false);
-        confirmBanner.setManaged(false);
-        confirmMessageLabel.setText("");
     }
 }

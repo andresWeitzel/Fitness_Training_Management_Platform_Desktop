@@ -24,9 +24,9 @@ Estado: **I** implementado · **P** planificado · **N** no se implementa en est
 |--------|-----------|--------|
 | Identidad y sesión | Login, roles, menú por permiso, panel | **Cerrado (I)** |
 | Clientes y credenciales | Ficha, listado, baja lógica, n° cliente, carnet, QR | **Cerrado (I)** |
-| Membresías | Planes, alta, vencimientos | P — siguiente tramo |
-| Pagos y mora | Cobro, recargo, reactivar acceso | P |
-| Recepción (check-in) | Ingreso, cupo, bloqueo por deuda | P |
+| Membresías | Planes, alta, vencimientos | **Cerrado (I)** |
+| Pagos y mora | Cobro, recargo, reactivar acceso | **Cerrado (I)** — bloqueo en check-in pendiente |
+| Recepción (check-in) | Ingreso, cupo, bloqueo por deuda | P — siguiente tramo |
 | Personal | ABM de usuarios internos | P (hoy hay seed de desarrollo) |
 | Entrenamiento | Ejercicios y rutinas estructuradas | P |
 | Evaluaciones | Historial de evaluaciones físicas | P |
@@ -71,11 +71,11 @@ Foto de cliente (`photo_path`) está en el esquema; la carga desde la UI **no** 
 | ID | Descripción | Módulo | Estado |
 |----|-------------|--------|--------|
 | RF-11 | Registrar pase diario / ingreso sin membresía vigente | Membresías / Recepción | P |
-| RF-12 | ABM de planes y membresías con vencimiento | Membresías | P |
-| RF-13 | Registrar pago de membresía | Pagos | P |
-| RF-14 | Bloquear acceso si hay deuda (mora) | Pagos / Check-in | P |
-| RF-15 | Registrar pago de mora/recargo y reactivar acceso | Pagos | P |
-| RF-16 | Cobrar ingreso diario | Pagos | P |
+| RF-12 | ABM de planes y membresías con vencimiento | Membresías | I |
+| RF-13 | Registrar pago de membresía | Pagos | I |
+| RF-14 | Bloquear acceso si hay deuda (mora) | Pagos / Check-in | P — API `hasOpenDebt` lista |
+| RF-15 | Registrar pago de mora/recargo y reactivar acceso | Pagos | I |
+| RF-16 | Cobrar ingreso diario | Pagos | I |
 | RF-17 | Registrar check-in (carnet/QR) y cupo diario | Recepción | P |
 | RF-18 | ABM de personal interno y roles | Personal | P |
 | RF-19 | Gestionar ejercicios y rutinas estructuradas | Entrenamiento | P |
@@ -113,8 +113,8 @@ Los ítems **Pronto** del menú ya se ven si el rol tiene permiso; muestran plac
 
 | CU | Nombre | Actor | Estado |
 |----|--------|-------|--------|
-| CU-10 | Gestionar membresías | Admin, Recepción | P |
-| CU-11 | Registrar pagos y mora | Admin, Recepción | P |
+| CU-10 | Gestionar membresías | Admin, Recepción | I |
+| CU-11 | Registrar pagos y mora | Admin, Recepción | I |
 | CU-12 | Controlar ingreso (check-in) | Admin, Recepción | P |
 | CU-13 | Administrar personal | Admin | P |
 | CU-14 | Armar rutina de entrenamiento | Admin, Entrenador | P |
@@ -161,6 +161,22 @@ Queda **cerrado para operación diaria** (admin y recepción) con este contrato:
 **Fuera de este cierre (a propósito):** foto, pase diario, membresía, pagos y control de ingreso.
 
 Siguiente módulo natural: **Membresías** (RF-12, CU-10).
+
+---
+
+## 6b. Cierre del módulo Pagos
+
+Queda **cerrado para operación diaria** (admin y recepción) con este contrato:
+
+1. Registrar cobro de membresía vinculado a una membresía del cliente.
+2. Registrar mora/recargo (pendiente o cobrado) y cancelar pendientes.
+3. Cobrar ingreso diario sin membresía.
+4. Listar y filtrar: todos, cobrados, pendientes, en mora, cancelados.
+5. API `hasOpenDebt(clientId)` lista para que Recepción bloquee el ingreso (RF-14).
+
+**Fuera de este cierre:** bloqueo automático en check-in (RF-14 + CU-12).
+
+Siguiente módulo natural: **Recepción / check-in** (RF-14, RF-17, CU-12).
 
 ---
 

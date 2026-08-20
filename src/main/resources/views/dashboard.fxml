@@ -91,7 +91,8 @@
                 </padding>
                 <Label text="Accesos rápidos" styleClass="section-title"/>
                 <Button fx:id="newClientButton" text="Registrar cliente" onAction="#onOpenClients" maxWidth="Infinity" styleClass="secondary-button"/>
-                <Button text="Membresías y pagos" onAction="#onOpenMemberships" maxWidth="Infinity" styleClass="ghost-button"/>
+                <Button text="Membresías" onAction="#onOpenMemberships" maxWidth="Infinity" styleClass="ghost-button"/>
+                <Button text="Pagos" onAction="#onOpenPayments" maxWidth="Infinity" styleClass="ghost-button"/>
                 <Button text="Recepción / check-in" onAction="#onOpenCheckin" maxWidth="Infinity" styleClass="ghost-button"/>
             </VBox>
             <VBox styleClass="panel-card" spacing="8">

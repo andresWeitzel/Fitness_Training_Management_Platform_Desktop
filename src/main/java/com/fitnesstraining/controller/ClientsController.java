@@ -1,5 +1,6 @@
 package com.fitnesstraining.controller;
 
+import com.fitnesstraining.app.ConfirmDialogs;
 import com.fitnesstraining.app.SessionContext;
 import com.fitnesstraining.auth.dto.AuthenticatedUser;
 import com.fitnesstraining.auth.model.PermissionCode;
@@ -18,9 +19,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -33,7 +32,6 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 public class ClientsController {
 
@@ -203,12 +201,11 @@ public class ClientsController {
         if (selectedId == null) {
             return;
         }
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Dar de baja");
-        confirm.setHeaderText("Dar de baja al cliente");
-        confirm.setContentText("No se borra el historial. El documento queda disponible para un alta nueva.");
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isEmpty() || result.get() != ButtonType.OK) {
+        if (!ConfirmDialogs.confirm(
+                deactivateButton,
+                "Dar de baja",
+                "¿Dar de baja al cliente?",
+                "No se borra el historial. El documento queda disponible para un alta nueva.")) {
             return;
         }
         try {
