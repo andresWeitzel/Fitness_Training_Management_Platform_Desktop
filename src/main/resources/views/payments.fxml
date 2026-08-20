@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fitnesstraining.controller.PaymentsController"
+      styleClass="memberships-root"
+      spacing="12"
+      maxWidth="Infinity"
+      maxHeight="Infinity">
+
+    <HBox fx:id="feedbackBanner" styleClass="feedback-banner" alignment="CENTER" spacing="12" visible="false" managed="false">
+        <Label fx:id="feedbackLabel" wrapText="true" HBox.hgrow="ALWAYS"/>
+        <Button fx:id="feedbackDismissButton" text="×" onAction="#onDismissFeedback" styleClass="feedback-dismiss"/>
+    </HBox>
+
+    <SplitPane dividerPositions="0.52" styleClass="clients-split" VBox.vgrow="ALWAYS">
+        <VBox spacing="12" styleClass="panel-card">
+            <padding>
+                <Insets top="18" right="18" bottom="18" left="18"/>
+            </padding>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Pagos" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                <Label fx:id="paymentsCountLabel" styleClass="muted"/>
+            </HBox>
+            <HBox spacing="8" alignment="CENTER_LEFT" styleClass="filter-chip-row">
+                <Button fx:id="filterAllButton" text="Todos" onAction="#onFilterAll" styleClass="filter-chip chip-on"/>
+                <Button fx:id="filterPaidButton" text="Cobrados" onAction="#onFilterPaid" styleClass="filter-chip"/>
+                <Button fx:id="filterPendingButton" text="Pendientes" onAction="#onFilterPending" styleClass="filter-chip"/>
+                <Button fx:id="filterOverdueButton" text="En mora" onAction="#onFilterOverdue" styleClass="filter-chip"/>
+                <Button fx:id="filterCancelledButton" text="Cancelados" onAction="#onFilterCancelled" styleClass="filter-chip"/>
+            </HBox>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="searchField" promptText="Filtrar por cliente o documento" HBox.hgrow="ALWAYS"/>
+                <Button fx:id="newPaymentButton" text="Nuevo cobro" onAction="#onNewPayment" styleClass="primary-button"/>
+            </HBox>
+            <TableView fx:id="paymentsTable" VBox.vgrow="ALWAYS" styleClass="memberships-table">
+                <columns>
+                    <TableColumn fx:id="clientColumn" text="Cliente" prefWidth="170" minWidth="130"/>
+                    <TableColumn fx:id="typeColumn" text="Tipo" prefWidth="110" minWidth="90"/>
+                    <TableColumn fx:id="amountColumn" text="Monto" prefWidth="100" minWidth="80"/>
+                    <TableColumn fx:id="dateColumn" text="Fecha" prefWidth="100" minWidth="80"/>
+                    <TableColumn fx:id="statusColumn" text="Estado" prefWidth="100" minWidth="80"/>
+                </columns>
+            </TableView>
+        </VBox>
+
+        <VBox spacing="10" styleClass="panel-card assignment-panel">
+            <padding>
+                <Insets top="18" right="18" bottom="18" left="18"/>
+            </padding>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                    <Label text="Detalle / cobro" styleClass="section-title"/>
+                    <Label fx:id="subtitleLabel" styleClass="muted"/>
+                </VBox>
+                <Label fx:id="statusBadge" styleClass="badge-ready"/>
+            </HBox>
+
+            <VBox spacing="10" styleClass="assignment-fields">
+                <Label text="Cliente" styleClass="field-label"/>
+                <ComboBox fx:id="clientCombo" promptText="Seleccione un cliente activo" maxWidth="Infinity" styleClass="app-combo"/>
+
+                <Label text="Tipo" styleClass="field-label"/>
+                <ComboBox fx:id="typeCombo" promptText="Tipo de cobro" maxWidth="Infinity" styleClass="app-combo"/>
+
+                <Label text="Membresía (si aplica)" styleClass="field-label"/>
+                <ComboBox fx:id="membershipCombo" promptText="Opcional según el tipo" maxWidth="Infinity" styleClass="app-combo"/>
+
+                <HBox spacing="14">
+                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                        <Label text="Monto" styleClass="field-label"/>
+                        <TextField fx:id="amountField" promptText="0.00"/>
+                    </VBox>
+                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                        <Label text="Medio de pago" styleClass="field-label"/>
+                        <ComboBox fx:id="methodCombo" promptText="Efectivo, transferencia…" maxWidth="Infinity" styleClass="app-combo"/>
+                    </VBox>
+                </HBox>
+
+                <Label text="Vencimiento (pendientes / mora)" styleClass="field-label"/>
+                <DatePicker fx:id="dueDatePicker" promptText="Opcional" maxWidth="Infinity" styleClass="app-date-picker"/>
+
+                <CheckBox fx:id="markAsPaidCheck" text="Registrar como cobrado ahora" selected="true"/>
+
+                <Label text="Notas" styleClass="field-label"/>
+                <TextArea fx:id="notesField" promptText="Opcional" prefRowCount="3" wrapText="true"/>
+            </VBox>
+
+            <VBox spacing="8" styleClass="membership-preview">
+                <Label text="Resumen" styleClass="field-label"/>
+                <HBox spacing="14">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                        <Label text="Tipo" styleClass="preview-caption"/>
+                        <Label fx:id="previewTypeLabel" styleClass="preview-value"/>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                        <Label text="Monto" styleClass="preview-caption"/>
+                        <Label fx:id="previewAmountLabel" styleClass="preview-value"/>
+                    </VBox>
+                </HBox>
+                <HBox spacing="14">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                        <Label text="Cobrado / vence" styleClass="preview-caption"/>
+                        <Label fx:id="previewDateLabel" styleClass="preview-value"/>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                        <Label text="Medio" styleClass="preview-caption"/>
+                        <Label fx:id="previewMethodLabel" styleClass="preview-value"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <Label fx:id="statusLabel" styleClass="muted" wrapText="true"/>
+
+            <HBox spacing="10">
+                <Button fx:id="saveButton" text="Registrar cobro" onAction="#onSavePayment" styleClass="primary-button"/>
+                <Button fx:id="markPaidButton" text="Marcar cobrado" onAction="#onMarkPaid" styleClass="secondary-button"/>
+                <Button fx:id="cancelButton" text="Cancelar pago" onAction="#onCancelPayment" styleClass="danger-button"/>
+            </HBox>
+        </VBox>
+    </SplitPane>
+</VBox>

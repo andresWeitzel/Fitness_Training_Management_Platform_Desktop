@@ -783,7 +783,11 @@
 }
 
 .badge-ready,
-.badge-soon {
+.badge-soon,
+.badge-paid,
+.badge-pending,
+.badge-overdue,
+.badge-cancelled {
     -fx-font-size: 11px;
     -fx-font-weight: 700;
     -fx-background-radius: 10;
@@ -798,6 +802,38 @@
 .badge-soon {
     -fx-background-color: #F3F6FA;
     -fx-text-fill: #7D8A98;
+}
+
+/* Estados de pago */
+.badge-paid,
+.table-status-badge.badge-paid {
+    -fx-background-color: #E7F8EF;
+    -fx-text-fill: #1B8A4F;
+}
+
+.badge-pending,
+.table-status-badge.badge-pending {
+    -fx-background-color: #FFF6E5;
+    -fx-text-fill: #B86E00;
+}
+
+.badge-overdue,
+.table-status-badge.badge-overdue {
+    -fx-background-color: #FDECEE;
+    -fx-text-fill: #C62828;
+}
+
+.badge-cancelled,
+.table-status-badge.badge-cancelled {
+    -fx-background-color: #EEF1F5;
+    -fx-text-fill: #5F6B7A;
+}
+
+.table-status-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 10;
+    -fx-padding: 4 8 4 8;
 }
 
 .section-title {
@@ -1160,6 +1196,15 @@
     -fx-border-color: #2EA8FF;
 }
 
+.field-invalid,
+.app-combo.field-invalid,
+.app-date-picker.field-invalid,
+.text-field.field-invalid,
+.text-area.field-invalid {
+    -fx-border-color: #E85D6C;
+    -fx-border-width: 1.5;
+}
+
 .app-combo > .list-cell {
     -fx-background-color: transparent;
     -fx-text-fill: #152033;
@@ -1190,16 +1235,80 @@
 
 .combo-box-popup .list-cell {
     -fx-padding: 8 12 8 12;
-    -fx-background-color: transparent;
-}
-
-.combo-box-popup .list-cell:hover {
-    -fx-background-color: #F3F9FF;
-}
-
-.combo-box-popup .list-cell:selected {
-    -fx-background-color: #EAF5FF;
+    -fx-background-color: #FFFFFF;
     -fx-text-fill: #152033;
+}
+
+.combo-box-popup .list-cell:filled:hover,
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #1B8FE6;
+    -fx-text-fill: #FFFFFF;
+}
+
+.combo-box-popup .list-cell:filled:selected,
+.combo-box-popup .list-cell:selected {
+    -fx-background-color: #D9EEFF;
+    -fx-text-fill: #0F2744;
+}
+
+.combo-box-popup .list-cell:filled:selected:hover,
+.combo-box-popup .list-cell:selected:hover {
+    -fx-background-color: #1B8FE6;
+    -fx-text-fill: #FFFFFF;
+}
+
+.combo-box-popup .list-cell .combo-primary,
+.combo-box-popup .list-cell .label {
+    -fx-text-fill: inherit;
+}
+
+.combo-box-popup .list-cell:hover .combo-primary,
+.combo-box-popup .list-cell:hover .label,
+.combo-box-popup .list-cell:selected:hover .combo-primary,
+.combo-box-popup .list-cell:selected:hover .label {
+    -fx-text-fill: #FFFFFF;
+}
+
+.combo-box-popup .list-cell:hover .combo-secondary,
+.combo-box-popup .list-cell:selected:hover .combo-secondary {
+    -fx-text-fill: #EAF5FF;
+}
+
+.app-confirm-dialog {
+    -fx-background-color: #FFFFFF;
+}
+
+.app-confirm-dialog > .content.label {
+    -fx-text-fill: #3A4658;
+    -fx-font-size: 13px;
+}
+
+.app-confirm-dialog:header *.header-panel {
+    -fx-background-color: #F7FAFD;
+}
+
+.app-confirm-dialog:header *.header-panel *.label {
+    -fx-text-fill: #152033;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+}
+
+.app-confirm-dialog .button {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 8 16 8 16;
+    -fx-cursor: hand;
+}
+
+.app-confirm-dialog .button:default {
+    -fx-background-color: #2EA8FF;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: 700;
+}
+
+.app-confirm-dialog .button:cancel {
+    -fx-background-color: #F0F4F8;
+    -fx-text-fill: #3A4658;
 }
 
 .combo-primary {

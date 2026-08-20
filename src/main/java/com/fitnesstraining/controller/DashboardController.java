@@ -90,6 +90,11 @@ public class DashboardController {
     }
 
     @FXML
+    public void onOpenPayments() {
+        appContext.openModule("payments");
+    }
+
+    @FXML
     public void onOpenCheckin() {
         appContext.openModule("checkin");
     }

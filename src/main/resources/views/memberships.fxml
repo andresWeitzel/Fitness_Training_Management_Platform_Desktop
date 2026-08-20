@@ -29,14 +29,6 @@
         <Button fx:id="feedbackDismissButton" text="×" onAction="#onDismissFeedback" styleClass="feedback-dismiss"/>
     </HBox>
 
-    <HBox fx:id="confirmBanner" styleClass="confirm-banner" alignment="CENTER_LEFT" spacing="14" visible="false" managed="false">
-        <Label fx:id="confirmMessageLabel" wrapText="true" HBox.hgrow="ALWAYS"/>
-        <HBox spacing="8" alignment="CENTER_RIGHT">
-            <Button fx:id="confirmAcceptButton" text="Confirmar" onAction="#onConfirmAccept" styleClass="primary-button"/>
-            <Button fx:id="confirmCancelButton" text="Cancelar" onAction="#onConfirmCancel" styleClass="ghost-button"/>
-        </HBox>
-    </HBox>
-
 <TabPane fx:id="membershipsTabs" styleClass="memberships-tabs" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
 
     <Tab text="Membresías de clientes">
