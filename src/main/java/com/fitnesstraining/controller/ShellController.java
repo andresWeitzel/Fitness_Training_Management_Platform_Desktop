@@ -47,10 +47,9 @@ public class ShellController {
     );
 
     @FXML private VBox navContainer;
-    @FXML private Label userLabel;
-    @FXML private Label roleLabel;
     @FXML private Label sidebarUserLabel;
     @FXML private Label sidebarRoleLabel;
+    @FXML private Label sidebarInitialLabel;
     @FXML private Label pageTitle;
     @FXML private StackPane contentHost;
     @FXML private ScrollPane contentScroll;
@@ -76,10 +75,9 @@ public class ShellController {
         appContext.registerShell(this);
         AuthenticatedUser user = sessionContext.requireUser();
         String role = ROLE_LABELS.getOrDefault(user.primaryRole(), user.primaryRole());
-        userLabel.setText(user.displayName());
-        roleLabel.setText(role);
         sidebarUserLabel.setText(user.displayName());
         sidebarRoleLabel.setText(role);
+        sidebarInitialLabel.setText(initials(user.displayName()));
         buildNavigation(user);
     }
 
@@ -195,5 +193,17 @@ public class ShellController {
                 button.getStyleClass().add("selected");
             }
         });
+    }
+
+    private static String initials(String name) {
+        if (name == null || name.isBlank()) {
+            return "FT";
+        }
+        String[] parts = name.trim().split("\\s+");
+        if (parts.length == 1) {
+            String word = parts[0];
+            return word.substring(0, Math.min(2, word.length())).toUpperCase();
+        }
+        return (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase();
     }
 }

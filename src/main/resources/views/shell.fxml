@@ -35,18 +35,23 @@
                 </VBox>
             </ScrollPane>
 
-            <VBox spacing="10" styleClass="sidebar-footer">
+            <VBox spacing="0" styleClass="sidebar-footer">
                 <padding>
-                    <Insets top="14" right="14" bottom="18" left="14"/>
+                    <Insets top="12" right="14" bottom="16" left="14"/>
                 </padding>
-                <VBox spacing="2" styleClass="sidebar-user-card">
+                <VBox spacing="10" styleClass="sidebar-session">
                     <padding>
                         <Insets top="12" right="12" bottom="12" left="12"/>
                     </padding>
-                    <Label fx:id="sidebarUserLabel" styleClass="sidebar-user-name"/>
-                    <Label fx:id="sidebarRoleLabel" styleClass="sidebar-user-role"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label fx:id="sidebarInitialLabel" styleClass="sidebar-avatar"/>
+                        <VBox spacing="1" HBox.hgrow="ALWAYS">
+                            <Label fx:id="sidebarUserLabel" styleClass="sidebar-user-name"/>
+                            <Label fx:id="sidebarRoleLabel" styleClass="sidebar-user-role"/>
+                        </VBox>
+                    </HBox>
+                    <Button text="Cerrar sesión" onAction="#onLogout" maxWidth="Infinity" styleClass="sidebar-logout"/>
                 </VBox>
-                <Button text="Cerrar sesión" onAction="#onLogout" maxWidth="Infinity" styleClass="sidebar-logout"/>
             </VBox>
         </VBox>
     </left>
@@ -58,10 +63,6 @@
                     <Insets top="14" right="20" bottom="14" left="28"/>
                 </padding>
                 <Label fx:id="pageTitle" text="Panel" styleClass="page-title" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                <VBox alignment="CENTER_RIGHT" spacing="2">
-                    <Label fx:id="userLabel" styleClass="user-name"/>
-                    <Label fx:id="roleLabel" styleClass="role-pill"/>
-                </VBox>
                 <HBox spacing="6" alignment="CENTER">
                     <Button text="—" onAction="#onMinimize" styleClass="window-icon" focusTraversable="false"/>
                     <Button text="□" onAction="#onToggleMaximize" styleClass="window-icon" focusTraversable="false"/>

@@ -6,7 +6,6 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -14,33 +13,47 @@
 <SplitPane xmlns="http://javafx.com/javafx/21"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.fitnesstraining.controller.ClientsController"
-           dividerPositions="0.50">
+           dividerPositions="0.48"
+           styleClass="clients-split">
 
-    <VBox spacing="14" styleClass="panel-card">
+    <VBox spacing="12" styleClass="panel-card">
         <padding>
-            <Insets top="22" right="22" bottom="22" left="22"/>
+            <Insets top="18" right="18" bottom="18" left="18"/>
         </padding>
-        <Label text="Listado" styleClass="section-title"/>
-        <HBox spacing="10" alignment="CENTER_LEFT">
-            <TextField fx:id="searchField" promptText="Buscar por DNI, nombre o email" HBox.hgrow="ALWAYS"/>
-            <Button text="Buscar" onAction="#onSearch" styleClass="secondary-button"/>
-            <Button text="Nuevo" onAction="#onNew" styleClass="primary-button"/>
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Listado" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+            <Label fx:id="resultCountLabel" styleClass="muted"/>
         </HBox>
-        <TableView fx:id="clientsTable" VBox.vgrow="ALWAYS">
+        <HBox spacing="8" alignment="CENTER_LEFT">
+            <Button fx:id="filterActiveButton" text="Activos" onAction="#onFilterActive" styleClass="filter-chip selected"/>
+            <Button fx:id="filterInactiveButton" text="Bajas" onAction="#onFilterInactive" styleClass="filter-chip"/>
+            <Button fx:id="filterAllButton" text="Todos" onAction="#onFilterAll" styleClass="filter-chip"/>
+        </HBox>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <TextField fx:id="searchField" promptText="Filtrar por DNI, nombre, email, teléfono o n°" HBox.hgrow="ALWAYS"/>
+            <Button fx:id="newButton" text="Nuevo" onAction="#onNew" styleClass="primary-button"/>
+        </HBox>
+        <TableView fx:id="clientsTable" VBox.vgrow="ALWAYS" styleClass="clients-table">
             <columns>
-                <TableColumn fx:id="documentColumn" text="Documento" prefWidth="120"/>
-                <TableColumn fx:id="nameColumn" text="Cliente" prefWidth="200"/>
-                <TableColumn fx:id="numberColumn" text="N° cliente" prefWidth="120"/>
-                <TableColumn fx:id="statusColumn" text="Estado" prefWidth="100"/>
+                <TableColumn fx:id="documentColumn" text="Documento" prefWidth="110" minWidth="90"/>
+                <TableColumn fx:id="nameColumn" text="Cliente" prefWidth="180" minWidth="140"/>
+                <TableColumn fx:id="numberColumn" text="N° cliente" prefWidth="110" minWidth="90"/>
+                <TableColumn fx:id="statusColumn" text="Estado" prefWidth="90" minWidth="80"/>
             </columns>
         </TableView>
     </VBox>
 
     <VBox spacing="8" styleClass="panel-card">
         <padding>
-            <Insets top="22" right="22" bottom="22" left="22"/>
+            <Insets top="18" right="18" bottom="18" left="18"/>
         </padding>
-        <Label text="Ficha" styleClass="section-title"/>
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                <Label text="Ficha" styleClass="section-title"/>
+                <Label fx:id="fichaSubtitleLabel" styleClass="muted"/>
+            </VBox>
+            <Label fx:id="fichaStatusBadge" styleClass="badge-ready"/>
+        </HBox>
 
         <Label text="Documento" styleClass="field-label"/>
         <TextField fx:id="documentField" promptText="DNI / documento"/>
@@ -62,7 +75,7 @@
         <TextField fx:id="addressField"/>
 
         <Label text="Credenciales de acceso" styleClass="section-title"/>
-        <TextArea fx:id="credentialsArea" editable="false" prefRowCount="5" wrapText="true"/>
+        <VBox fx:id="credentialsBox" spacing="8"/>
 
         <HBox spacing="10">
             <Button fx:id="issueCardButton" text="Emitir carnet" onAction="#onIssueCard" styleClass="secondary-button"/>
