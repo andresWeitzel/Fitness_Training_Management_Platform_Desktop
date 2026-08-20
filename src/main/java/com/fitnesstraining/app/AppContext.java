@@ -47,6 +47,7 @@ public class AppContext {
     private AuthService authService;
     private ClientQueryService clientQueryService;
     private ClientService clientService;
+    private ShellController shellController;
 
     public AppContext(Stage stage) {
         this.stage = stage;
@@ -55,8 +56,6 @@ public class AppContext {
 
     public void start() {
         stage.setTitle(properties.get("app.name", "Fitness Training Management Platform"));
-        stage.setMinWidth(880);
-        stage.setMinHeight(640);
         configStore.load()
                 .ifPresentOrElse(this::connectAndShowLogin, () -> navigator.showDbSetup(null));
         stage.show();
@@ -73,7 +72,7 @@ public class AppContext {
             ClientRepository clientRepository = new ClientRepository(persistenceManager);
             AccessCredentialRepository credentialRepository = new AccessCredentialRepository(persistenceManager);
             authService = new AuthService(userRepository, passwordHasher);
-            clientQueryService = new ClientQueryService(clientRepository);
+            clientQueryService = new ClientQueryService(clientRepository, credentialRepository);
             clientService = new ClientService(clientRepository, credentialRepository, Clock.systemDefaultZone());
             new DevDataSeeder(userRepository, passwordHasher).seedIfEmpty();
             new ClientDemoSeeder(clientRepository, clientService).seedIfEmpty();
@@ -84,13 +83,32 @@ public class AppContext {
         }
     }
 
+    public void openModule(String id) {
+        if (shellController != null) {
+            shellController.openById(id);
+        }
+    }
+
+    public void registerShell(ShellController controller) {
+        this.shellController = controller;
+    }
+
     public void logout() {
         sessionContext.clear();
+        shellController = null;
         navigator.showLogin();
     }
 
     public void openDatabaseSetup() {
         navigator.showDbSetup(null);
+    }
+
+    public void closeStage() {
+        stage.close();
+    }
+
+    public Stage stage() {
+        return stage;
     }
 
     public void shutdown() {
@@ -116,7 +134,7 @@ public class AppContext {
             return new ShellController(sessionContext, authorizationService, navigator, this);
         }
         if (type == DashboardController.class) {
-            return new DashboardController(sessionContext, clientQueryService);
+            return new DashboardController(sessionContext, clientQueryService, this);
         }
         if (type == ClientsController.class) {
             return new ClientsController(clientService, sessionContext, authorizationService);

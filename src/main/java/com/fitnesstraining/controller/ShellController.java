@@ -44,6 +44,7 @@ public class ShellController {
 
     @FXML
     public void initialize() {
+        appContext.registerShell(this);
         AuthenticatedUser user = sessionContext.requireUser();
         userLabel.setText(user.displayName());
         roleLabel.setText(user.primaryRole());
@@ -54,9 +55,37 @@ public class ShellController {
         open(NavigationCatalog.items().getFirst());
     }
 
+    public void openById(String id) {
+        NavigationCatalog.byId(id)
+                .filter(item -> authorizationService.hasPermission(sessionContext.requireUser(), item.permission()))
+                .ifPresent(this::open);
+    }
+
     @FXML
     public void onLogout() {
         appContext.logout();
+    }
+
+    @FXML
+    public void onMinimize() {
+        appContext.stage().setIconified(true);
+    }
+
+    @FXML
+    public void onToggleMaximize() {
+        var stage = appContext.stage();
+        boolean maximize = !stage.isMaximized();
+        stage.setMaximized(maximize);
+        var root = stage.getScene().getRoot();
+        root.getStyleClass().remove("maximized");
+        if (maximize) {
+            root.getStyleClass().add("maximized");
+        }
+    }
+
+    @FXML
+    public void onClose() {
+        appContext.closeStage();
     }
 
     private void buildNavigation(AuthenticatedUser user) {
@@ -86,12 +115,8 @@ public class ShellController {
     private void open(NavItem item) {
         pageTitle.setText(item.label());
         highlightNav(item);
-        if ("/views/placeholder.fxml".equals(item.fxml())) {
-            contentHost.getChildren().setAll(navigator.loadPlaceholder(
-                    item.label(),
-                    "Este módulo se implementará en una fase posterior. La navegación ya respeta los permisos de "
-                            + sessionContext.requireUser().primaryRole() + "."
-            ));
+        if (!item.implemented()) {
+            contentHost.getChildren().setAll(navigator.loadPlaceholder(item.label(), item.summary()));
             return;
         }
         contentHost.getChildren().setAll(navigator.views().load(item.fxml()).root());

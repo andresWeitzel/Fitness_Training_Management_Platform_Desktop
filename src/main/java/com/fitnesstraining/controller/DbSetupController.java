@@ -78,6 +78,11 @@ public class DbSetupController {
         }
     }
 
+    @FXML
+    public void onClose() {
+        appContext.closeStage();
+    }
+
     private void fill(DatabaseSettings settings) {
         hostField.setText(settings.host());
         portField.setText(String.valueOf(settings.port()));

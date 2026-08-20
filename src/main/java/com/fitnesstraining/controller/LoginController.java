@@ -6,12 +6,15 @@ import com.fitnesstraining.app.SessionContext;
 import com.fitnesstraining.auth.dto.AuthenticatedUser;
 import com.fitnesstraining.auth.service.AuthService;
 import com.fitnesstraining.shared.exception.AuthenticationException;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class LoginController {
 
@@ -21,6 +24,8 @@ public class LoginController {
     @FXML private CheckBox showPasswordCheck;
     @FXML private Label errorLabel;
     @FXML private Button loginButton;
+    @FXML private Button demoToggle;
+    @FXML private VBox demoAccountsBox;
 
     private final AuthService authService;
     private final SessionContext sessionContext;
@@ -41,7 +46,6 @@ public class LoginController {
     @FXML
     public void initialize() {
         errorLabel.setText("");
-        usernameField.setText("admin");
         passwordField.setOnAction(event -> onLogin());
         visiblePasswordField.setOnAction(event -> onLogin());
         usernameField.setOnAction(event -> passwordField.requestFocus());
@@ -85,7 +89,52 @@ public class LoginController {
     }
 
     @FXML
+    public void onToggleDemoAccounts() {
+        boolean show = !demoAccountsBox.isVisible();
+        demoAccountsBox.setVisible(show);
+        demoAccountsBox.setManaged(show);
+        demoToggle.setText(show ? "Ocultar cuentas de prueba" : "Mostrar cuentas de prueba");
+        Platform.runLater(() -> {
+            Stage stage = (Stage) demoAccountsBox.getScene().getWindow();
+            stage.sizeToScene();
+        });
+    }
+
+    @FXML
+    public void useAdmin() {
+        fillDemo("admin", "1234");
+    }
+
+    @FXML
+    public void useReceptionist() {
+        fillDemo("empleado1", "emp123");
+    }
+
+    @FXML
+    public void useTrainer() {
+        fillDemo("juan_prof", "prof123");
+    }
+
+    @FXML
+    public void useNutritionist() {
+        fillDemo("maria_nutri", "nutri123");
+    }
+
+    private void fillDemo(String username, String password) {
+        usernameField.setText(username);
+        passwordField.setText(password);
+        visiblePasswordField.setText(password);
+        errorLabel.setText("");
+        loginButton.requestFocus();
+    }
+
+    @FXML
     public void onChangeDatabase() {
         appContext.openDatabaseSetup();
+    }
+
+    @FXML
+    public void onClose() {
+        appContext.closeStage();
     }
 }

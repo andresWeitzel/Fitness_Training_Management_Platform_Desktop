@@ -7,46 +7,66 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <StackPane xmlns="http://javafx.com/javafx/21"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.fitnesstraining.controller.LoginController"
-           styleClass="auth-canvas"
-           alignment="CENTER">
-    <padding>
-        <Insets top="48" right="56" bottom="48" left="56"/>
-    </padding>
+           styleClass="auth-frame">
 
-    <VBox styleClass="auth-card" spacing="10" maxWidth="460" prefWidth="460" alignment="TOP_LEFT">
+    <VBox styleClass="auth-card" spacing="8" prefWidth="460" maxWidth="460" alignment="TOP_LEFT">
         <padding>
-            <Insets top="36" right="40" bottom="36" left="40"/>
+            <Insets top="16" right="32" bottom="32" left="32"/>
         </padding>
 
-        <Label text="FT" styleClass="brand-mark"/>
-        <Label text="FITNESS TRAINING" styleClass="eyebrow"/>
-        <Label text="Iniciar sesión" styleClass="screen-title"/>
-        <Label text="Plataforma de gestión para gimnasios y centros de entrenamiento."
+        <HBox styleClass="window-drag" alignment="CENTER_LEFT" spacing="8">
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="×" onAction="#onClose" styleClass="window-close" focusTraversable="false"/>
+        </HBox>
+
+        <HBox spacing="14" alignment="CENTER_LEFT">
+            <Label text="FT" styleClass="brand-mark"/>
+            <VBox spacing="2">
+                <Label text="FITNESS TRAINING" styleClass="eyebrow"/>
+                <Label text="Iniciar sesión" styleClass="screen-title"/>
+            </VBox>
+        </HBox>
+
+        <Label text="Gestión para gimnasios y centros de entrenamiento."
                styleClass="muted"
                wrapText="true"/>
 
         <Label text="Usuario" styleClass="field-label"/>
-        <TextField fx:id="usernameField" promptText="admin"/>
+        <TextField fx:id="usernameField" promptText="Tu usuario"/>
 
         <Label text="Contraseña" styleClass="field-label"/>
         <StackPane>
-            <PasswordField fx:id="passwordField" promptText="1234"/>
-            <TextField fx:id="visiblePasswordField" promptText="1234" managed="false" visible="false"/>
+            <PasswordField fx:id="passwordField" promptText="Tu contraseña"/>
+            <TextField fx:id="visiblePasswordField" promptText="Tu contraseña" managed="false" visible="false"/>
         </StackPane>
-        <CheckBox fx:id="showPasswordCheck" text="Mostrar contraseña" styleClass="muted"/>
+        <CheckBox fx:id="showPasswordCheck" text="Mostrar contraseña"/>
 
         <Label fx:id="errorLabel" styleClass="status-error" wrapText="true"/>
-        <Label text="Desarrollo: admin / 1234  ·  empleado1 / emp123  ·  juan_prof / prof123  ·  maria_nutri / nutri123"
-               styleClass="muted"
-               wrapText="true"/>
 
         <Button fx:id="loginButton" text="Ingresar" onAction="#onLogin" maxWidth="Infinity" styleClass="primary-button"/>
+
+        <Button fx:id="demoToggle" text="Mostrar cuentas de prueba" onAction="#onToggleDemoAccounts"
+                maxWidth="Infinity" styleClass="hint-button"/>
+
+        <VBox fx:id="demoAccountsBox" spacing="6" visible="false" managed="false" styleClass="hint-panel">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Label text="Clic en una cuenta para completar el acceso" styleClass="hint-caption"/>
+            <Button text="Administrador  ·  admin / 1234" onAction="#useAdmin" maxWidth="Infinity" styleClass="hint-account"/>
+            <Button text="Recepción  ·  empleado1 / emp123" onAction="#useReceptionist" maxWidth="Infinity" styleClass="hint-account"/>
+            <Button text="Entrenador  ·  juan_prof / prof123" onAction="#useTrainer" maxWidth="Infinity" styleClass="hint-account"/>
+            <Button text="Nutricionista  ·  maria_nutri / nutri123" onAction="#useNutritionist" maxWidth="Infinity" styleClass="hint-account"/>
+        </VBox>
+
         <Hyperlink text="Cambiar PostgreSQL" onAction="#onChangeDatabase" styleClass="subtle-link"/>
     </VBox>
 </StackPane>
