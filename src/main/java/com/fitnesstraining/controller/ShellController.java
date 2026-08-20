@@ -19,11 +19,16 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ShellController {
+
+    private static final Logger log = LoggerFactory.getLogger(ShellController.class);
 
     private static final Map<String, String> ROLE_LABELS = Map.of(
             "ADMIN", "Administrador",
@@ -179,11 +184,20 @@ public class ShellController {
             contentHost.getChildren().setAll(navigator.loadPlaceholder(item.label(), item.summary()));
             return;
         }
-        var loaded = navigator.views().load(item.fxml());
-        if (loaded.controller() instanceof DbSetupController dbSetup) {
-            dbSetup.prepare(DbSetupMode.ADMIN, null);
+        try {
+            var loaded = navigator.views().load(item.fxml());
+            if (loaded.controller() instanceof DbSetupController dbSetup) {
+                dbSetup.prepare(DbSetupMode.ADMIN, null);
+            }
+            contentHost.getChildren().setAll(loaded.root());
+        } catch (RuntimeException ex) {
+            log.error("No se pudo abrir el módulo {}", item.id(), ex);
+            String detail = ex.getMessage();
+            if (ex.getCause() != null && ex.getCause().getMessage() != null) {
+                detail = detail + " (" + ex.getCause().getMessage() + ")";
+            }
+            contentHost.getChildren().setAll(navigator.loadModuleError(item.label(), detail));
         }
-        contentHost.getChildren().setAll(loaded.root());
     }
 
     private void highlightNav(NavItem item) {

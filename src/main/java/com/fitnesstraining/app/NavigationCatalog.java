@@ -17,7 +17,7 @@ public final class NavigationCatalog {
                 new NavItem("clients", "Clientes", "Gestión", PermissionCode.CLIENTS_VIEW,
                         "/views/clients.fxml", true, "Alta, ficha, baja y credenciales (n° cliente, carnet y QR)."),
                 new NavItem("memberships", "Membresías", "Gestión", PermissionCode.MEMBERSHIPS_MANAGE,
-                        "/views/placeholder.fxml", false, "Planes, altas y vencimientos. Aún no migrado."),
+                        "/views/memberships.fxml", true, "Catálogo de planes y asignación a clientes."),
                 new NavItem("payments", "Pagos", "Gestión", PermissionCode.PAYMENTS_MANAGE,
                         "/views/placeholder.fxml", false, "Cobros, mora y recargo. Aún no migrado."),
                 new NavItem("checkin", "Recepción", "Gestión", PermissionCode.CHECKIN_MANAGE,

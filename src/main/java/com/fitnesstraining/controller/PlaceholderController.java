@@ -14,4 +14,12 @@ public class PlaceholderController {
         titleLabel.setText(title);
         descriptionLabel.setText(description);
     }
+
+    public void showError(String title, String message) {
+        eyebrowLabel.setText("ERROR AL CARGAR");
+        titleLabel.setText(title);
+        descriptionLabel.setText(message == null || message.isBlank()
+                ? "No se pudo abrir este módulo. Cierre sesión, vuelva a ejecutar run.bat y revise la consola."
+                : message);
+    }
 }

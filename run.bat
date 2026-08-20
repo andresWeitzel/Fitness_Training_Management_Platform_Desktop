@@ -3,7 +3,7 @@ setlocal EnableExtensions
 cd /d "%~dp0"
 
 echo Fitness Training - modo desarrollo
-echo Compilando y ejecutando ultimos cambios...
+echo Compilando desde cero y ejecutando ultimos cambios...
 echo.
 
 where mvn >nul 2>&1
@@ -13,7 +13,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-call mvn -q compile javafx:run
+call mvn -q clean compile javafx:run
 if errorlevel 1 (
     echo.
     echo [ERROR] Fallo la compilacion o el inicio.

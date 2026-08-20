@@ -1,239 +1,127 @@
 # Fitness Training Management Platform
 
-Aplicación de escritorio para la operación de **gimnasios y centros de entrenamiento**: clientes, credenciales de acceso, membresías, cobros, recepción, entrenamiento y nutrición.
+Plataforma de escritorio para **operar un gimnasio o centro de entrenamiento de punta a punta**: recepción, administración, entrenamiento y nutrición en un solo sistema.
 
-Producto nuevo en **Java 21 / JavaFX / PostgreSQL**. No es una traducción línea a línea de [DSOO_ClubDeportivo](https://github.com/andresWeitzel/DSOO_ClubDeportivo) (C# / WinForms / MySQL). Ese sistema se usó como **fuente de ideas y alcance**; se reimplementan las reglas de negocio útiles y se dejan afuera decisiones de diseño que no conviene portar.
+Hoy un centro chico o mediano suele tener el alta de clientes en un lado, los cobros en otro y el ingreso en la puerta sin un criterio único. **Fitness Training** unifica esa operación: el personal trabaja sobre la misma base, con roles claros, y el producto se va ampliando por módulos sin rehacer lo anterior.
 
-| | Origen (club) | Esta plataforma |
-|--|---------------|-----------------|
-| Usuarios de negocio | Socio y visitante | **Cliente** (con planes/membresías cuando existan) |
-| Stack | C# .NET 8, WinForms, MySQL, SPs | Java 21, JavaFX, JPA, Flyway, PostgreSQL |
-| Identidad | Login con SP, claves en claro | BCrypt, roles y permisos |
-| Persistencia | CRUD principalmente por stored procedures | Repositorios + migraciones Flyway |
+La app la usa el **equipo interno** (administración, recepción, entrenadores, nutricionistas). Quien entrena en el centro es un **cliente gestionado** por el sistema; no inicia sesión en este software.
 
 ---
 
-## 1. Introducción
+## Qué resuelve
 
-El sistema informatiza la **gestión diaria de un centro de entrenamiento**: alta de clientes, identificación (número de cliente, carnet y QR), control de acceso futuro, cobros con mora, planes de entrenamiento y seguimiento nutricional.
-
-El personal interno (administración, recepción, entrenadores y nutricionistas) opera la aplicación de escritorio. **El cliente no ingresa** a este software de gestión.
-
-Este README condensa el análisis de alcance (equivalente al documento de análisis del TP del club). El detalle de ejecución técnica está al final.
-
----
-
-## 2. Alcance del sistema
-
-| Módulo | Contenido | Estado |
-|--------|-----------|--------|
-| **Identidad y sesión** | Login, roles, menú filtrado por permiso, panel de inicio | Implementado |
-| **Clientes** | Ficha (documento único, contacto), baja lógica, búsqueda | Implementado |
-| **Credenciales** | Número de cliente (`CLI-xxxxxx`), carnet 12 meses, código QR | Implementado |
-| **Membresías** | Planes, alta de membresía, vencimientos | Planificado |
-| **Pagos y mora** | Cobro, recargo por atraso, reactivar acceso al regularizar | Planificado |
-| **Recepción (check-in)** | Ingreso, capacidad diaria, bloqueo por deuda | Planificado |
-| **Personal** | ABM de usuarios internos y asignación de roles | Planificado (usuarios seed hoy) |
-| **Entrenamiento** | Ejercicios y rutinas **estructuradas** (no texto libre) | Planificado |
-| **Evaluaciones** | Historial de evaluaciones físicas (no pisar el registro anterior) | Planificado |
-| **Nutrición** | Turnos y planes; ficha de salud con historial | Planificado |
-| **Analytics** | Indicadores, vencimientos y mora | Planificado |
-| **Liquidación de haberes** | Sueldos de profesores (último día hábil en el origen) | **Fuera de alcance** en esta etapa |
-
-**Dentro de alcance (ideas que se conservan del club):** mora/recargo, bloqueo de acceso por deuda, capacidad diaria, carnet, ficha de salud, turnos de nutrición, UI según rol.
-
-**Fuera de alcance (no se porta):** capa de negocio en stored procedures, contraseñas en texto plano, borrado físico en cascada, WinForms como servicio, un solo arancel fijo, rutinas en texto libre, ficha médica 1:1 que se sobrescribe, liquidación de sueldos en el primer tramo.
+- **Una ficha por persona.** Documento, contacto, número de cliente, carnet y QR. Alta, edición, consulta y baja lógica sin perder historial.
+- **Operación según el rol.** Cada perfil ve lo que le corresponde. Recepción gestiona clientes; el entrenador consulta; el administrador configura la base y ve el tablero.
+- **Base de datos propia del centro.** PostgreSQL local o en un servidor del gimnasio. Primera instalación guiada; después la conexión la cambia solo un administrador.
+- **Listo para crecer.** La arquitectura está pensada para sumar membresías, cobros, control de ingreso, rutinas, evaluaciones y nutrición sobre los mismos clientes.
 
 ---
 
-## 3. Requerimientos funcionales
+## Visión de producto
 
-Estado: **I** implementado · **P** planificado · **N** no se implementa en esta etapa.
+El camino de crecimiento es el de un centro real:
 
-| ID | Descripción | Módulo | Origen club | Estado |
-|----|-------------|--------|-------------|--------|
-| RF-01 | Iniciar sesión con usuario/contraseña (BCrypt) y sesión por rol | Identidad | Login / `IngresoLogin` | I |
-| RF-02 | Configurar y persistir conexión a PostgreSQL; crear base y migrar (Flyway) | Identidad | `FormConfiguracionConexion` | I |
-| RF-03 | Ver panel con indicadores reales (clientes, carnets, QR, bajas) | Panel | Panel principal | I |
-| RF-04 | Registrar y editar cliente (documento único, nombre, contacto) | Clientes | RF-01 socios | I |
-| RF-05 | Buscar clientes por documento, nombre o email | Clientes | FormSocios | I |
-| RF-06 | Dar de baja lógica (no elimina historial) | Clientes | — (el origen borraba) | I |
-| RF-07 | Asignar número de cliente automático `CLI-xxxxxx` | Credenciales | Socio / carnet | I |
-| RF-08 | Emitir y renovar carnet con vencimiento a 12 meses | Credenciales | RF-03 | I |
-| RF-09 | Generar credencial QR para check-in futuro | Credenciales | — (extensión) | I |
-| RF-10 | Filtrar menú y acciones según permisos (consulta vs gestión) | Identidad | `Permisos.cs` | I |
-| RF-11 | Registrar visitante / pase diario | Clientes | RF-02 | P |
-| RF-12 | ABM de planes y membresías con vencimiento | Membresías | RF-04 cuotas | P |
-| RF-13 | Registrar pago de membresía | Pagos | RF-04 | P |
-| RF-14 | Bloquear acceso si hay deuda (mora) | Pagos / Check-in | RF-05 | P |
-| RF-15 | Registrar pago de mora/recargo y reactivar acceso | Pagos | RF-06 | P |
-| RF-16 | Cobrar ingreso diario (equivalente visitante) | Pagos | RF-07 | P |
-| RF-17 | Registrar check-in (carnet/QR) y cupo diario | Recepción | Acceso club | P |
-| RF-18 | ABM de personal interno y roles | Personal | RF-08 | P |
-| RF-19 | Gestionar ejercicios y rutinas estructuradas | Entrenamiento | RF-10 | P |
-| RF-20 | Registrar evaluaciones físicas con historial | Evaluaciones | — | P |
-| RF-21 | Turnos y planes de nutrición | Nutrición | RF-12 | P |
-| RF-22 | Ficha de salud / restricciones (historial, no overwrite 1:1) | Nutrición | RF-13, RF-14 | P |
-| RF-23 | Listados de vencimientos y mora | Analytics | RF-15, RF-16 | P |
-| RF-24 | Reportes de operación (ingresos, ocupación) | Analytics | RF-17 (parcial) | P |
-| RF-25 | Asistencia diaria de profesores | Personal | RF-09 | N |
-| RF-26 | Liquidar haberes mensuales | Personal | RF-11 | N |
+1. **Identificar** a cada cliente (hoy).
+2. **Vender** un plan (membresías).
+3. **Cobrar** y manejar mora (pagos).
+4. **Controlar el ingreso** con carnet o QR y cupo diario (recepción).
+5. **Entrenar y hacer seguimiento** (rutinas, evaluaciones, nutrición).
+6. **Medir** ocupación, vencimientos e ingresos (analytics).
 
-Foto de cliente (`photo_path`) está prevista en el esquema; la carga desde la UI todavía no.
+Cada módulo se apoya en el anterior. No hace falta un ecosistema de apps sueltas ni una planilla paralela.
 
 ---
 
-## 4. Casos de uso
+## Módulos
 
-| CU | Nombre | Actor | Vista / módulo | Estado |
-|----|--------|-------|----------------|--------|
-| CU-01 | Configurar PostgreSQL | Operador | `db-setup.fxml` | I |
-| CU-02 | Iniciar sesión | Todo personal interno | `login.fxml` | I |
-| CU-03 | Consultar panel | Quien tenga `DASHBOARD_VIEW` | `dashboard.fxml` | I |
-| CU-04 | Registrar / editar cliente | Admin, Recepción | `clients.fxml` | I |
-| CU-05 | Consultar clientes (solo lectura) | Entrenador, Nutricionista | `clients.fxml` | I |
-| CU-06 | Dar de baja cliente | Admin, Recepción | `clients.fxml` | I |
-| CU-07 | Emitir / renovar carnet | Admin, Recepción | `clients.fxml` | I |
-| CU-08 | Generar QR de acceso | Admin, Recepción | `clients.fxml` | I |
-| CU-09 | Cerrar sesión | Todo personal interno | Shell | I |
-| CU-10 | Gestionar membresías | Admin, Recepción | Navegación protegida | P |
-| CU-11 | Registrar pagos y mora | Admin, Recepción | Navegación protegida | P |
-| CU-12 | Controlar ingreso (check-in) | Admin, Recepción | Navegación protegida | P |
-| CU-13 | Administrar personal | Admin | Navegación protegida | P |
-| CU-14 | Armar rutina de entrenamiento | Admin, Entrenador | Navegación protegida | P |
-| CU-15 | Registrar evaluación física | Admin, Entrenador, Nutricionista | Navegación protegida | P |
-| CU-16 | Gestionar nutrición | Admin, Nutricionista | Navegación protegida | P |
-| CU-17 | Consultar analytics | Admin | Navegación protegida | P |
+| Módulo | Qué aporta | Estado |
+|--------|------------|--------|
+| Identidad y panel | Login seguro, menú por permiso, indicadores reales | Disponible |
+| **Clientes y credenciales** | Ficha, listado en vivo, bajas, n° de cliente, carnet 12 meses, QR | **Disponible** |
+| Membresías | Planes, altas y vencimientos | En roadmap |
+| Pagos y mora | Cobro, recargo por atraso, reactivar acceso | En roadmap |
+| Recepción | Check-in con carnet/QR, capacidad diaria, bloqueo por deuda | En roadmap |
+| Personal | Usuarios internos y roles | En roadmap |
+| Entrenamiento | Ejercicios y rutinas estructuradas | En roadmap |
+| Evaluaciones | Historial de evaluaciones físicas | En roadmap |
+| Nutrición | Turnos, planes y ficha de salud con historial | En roadmap |
+| Analytics | Vencimientos, mora, ocupación e ingresos | En roadmap |
 
-Los módulos planificados ya aparecen en el menú si el rol tiene permiso; muestran una pantalla de **próximo módulo**, no datos inventados.
-
-### Control de acceso por rol
-
-La UI filtra el menú (`NavigationCatalog` + `AuthorizationService`). En Clientes, `CLIENTS_VIEW` permite consulta y `CLIENTS_MANAGE` habilita alta, edición, baja y credenciales.
-
-| Módulo | Admin | Recepción | Entrenador | Nutricionista | Cliente |
-|--------|:-----:|:---------:|:----------:|:-------------:|:-------:|
-| Panel (CU-03) | ✓ | ✓ | ✓ | ✓ | — |
-| Clientes consulta (CU-05) | ✓ | ✓ | ✓ | ✓ | — |
-| Clientes gestión + carnet/QR (CU-04, 06–08) | ✓ | ✓ | — | — | — |
-| Membresías (CU-10) | ✓ | ✓ | — | — | — |
-| Pagos / mora (CU-11) | ✓ | ✓ | — | — | — |
-| Recepción / check-in (CU-12) | ✓ | ✓ | — | — | — |
-| Personal (CU-13) | ✓ | — | — | — | — |
-| Entrenamiento (CU-14) | ✓ | — | ✓ | — | — |
-| Evaluaciones (CU-15) | ✓ | — | ✓ | ✓ | — |
-| Nutrición (CU-16) | ✓ | — | — | ✓ | — |
-| Analytics (CU-17) | ✓ | — | — | — | — |
-| Configuración de base | ✓ (desde login) | ✓ | ✓ | ✓ | — |
-
-El **cliente no opera** esta aplicación. Equivale a socio/visitante del club: son sujetos de gestión, no usuarios del escritorio.
-
-Permisos en código: `PermissionCode` y tabla `role_permissions` (Flyway `V1__init_identity.sql`).
+**Siguiente entrega de producto:** membresías, después pagos y recepción.
 
 ---
 
-## 5. Glosario
+## Cómo se escala
 
-| Término | Definición |
-|---------|------------|
-| Cliente | Persona inscripta en el centro (reemplaza “socio” / “visitante” del origen). |
-| Credencial | Identificador de acceso: número de cliente, carnet o QR. |
-| Carnet | Credencial física/lógica con vigencia (hoy 12 meses). |
-| Membresía | Plan contratado con vigencia (cuota del club). |
-| Mora | Deuda vencida; en el origen suspendía el acceso hasta regularizar. |
-| Check-in | Registro de ingreso al predio. |
-| Baja lógica | El cliente deja de estar activo; no se borra el historial. |
-| Rol | Perfil interno: ADMIN, RECEPTIONIST, TRAINER, NUTRITIONIST. |
+| Escenario | Cómo entra el producto |
+|-----------|------------------------|
+| Un mostrador, una PC | App + PostgreSQL en la misma máquina |
+| Varias PCs de recepción / admin | Misma base en un servidor del centro; cada puesto corre la app |
+| Más sedes o más usuarios | Misma plataforma modular: se activan membresías, cobros y check-in sin cambiar de sistema |
+| Crecimiento de datos | PostgreSQL y migraciones de esquema versionadas (Flyway) |
+
+Tecnología: Java 21, JavaFX, JPA/Hibernate, PostgreSQL 16, Flyway. Escritorio nativo en Windows, rápido de operar en mostrador.
 
 ---
 
-## Stack
+## Documentación
 
-Java 21, JavaFX (FXML/CSS), Maven, JPA/Hibernate (schema `validate`), PostgreSQL 16, Flyway, JUnit 5, Mockito. Sin Spring Boot. Arquitectura: **FXML → Controller → Service → Repository → JPA**.
-
----
-
-## Instalación en cliente (entrega)
-
-Documentación completa: [`install/CLIENTE.md`](install/CLIENTE.md).
-
-| Uso | Comando / archivo |
-|-----|-------------------|
-| **Desarrollo (siempre últimos cambios)** | Doble clic en `run.bat` → compila y ejecuta |
-| Probar build empaquetado | `scripts\start-app-packaged.bat` (después de `package.bat`) |
-| Empaquetar para cliente | `package.bat` → carpeta `target\client-dist\` |
-| Base Docker (dev o cliente) | `scripts\start-db.bat` |
-| Backup | `scripts\backup-db.bat` |
-
-Antes de entregar: copiar `.env.example` → `.env` y **cambiar la contraseña** de PostgreSQL.
+| Documento | Contenido |
+|-----------|-----------|
+| **Este README** | Producto, visión y cómo ejecutarlo |
+| [Especificación funcional](docs/especificacion-funcional.md) | Requerimientos, casos de uso y roles |
+| [Instalación](install/CLIENTE.md) | Entrega e instalación en la PC del centro |
 
 ---
 
-## Requisitos para ejecutar (desarrollo)
+## Cómo ejecutar (desarrollo)
 
-- JDK 21
-- Maven 3.9+
-- Docker Desktop (PostgreSQL 16 en contenedor)
-- Windows 10 o superior (la UI es nativa JavaFX; **no** se Dockeriza la app)
-
-## Base de datos (Docker)
-
-La app corre en Windows. Solo Postgres va en Docker.
-
-```bash
-docker compose up -d
-```
-
-Eso se hace **una vez** (o cuando el contenedor no esté levantado). Un cambio en Java/FXML **no** pide rebuild de Docker: alcanza con `mvn javafx:run`.
-
-| Campo | Valor |
-|-------|--------|
-| Host | `localhost` |
-| Puerto | `5432` |
-| Base | `fitness_training` |
-| Usuario | `postgres` |
-| Contraseña | la de `.env` (dev: `postgres` si no creó `.env`) |
-
-Datos en el volumen `fitness_training_pgdata`. Borrar todo: `docker compose down -v`.
-
-Si en el host hay un servicio PostgreSQL de Windows en el mismo puerto, dejarlo detenido para que no ocupe `5432`.
-
-## Cómo ejecutar
+JDK 21 · Maven 3.9+ · Docker Desktop · Windows 10+. Solo PostgreSQL va en contenedor.
 
 ```bash
 copy .env.example .env
 docker compose up -d
 mvn -q test
-mvn javafx:run
 ```
 
-O en Windows: `scripts\start-db.bat` y doble clic en **`run.bat`** (recompila siempre; no usa `target\client\` viejo).
+En Windows: `scripts\start-db.bat` y doble clic en **`run.bat`**.
 
-La primera vez confirma PostgreSQL. Crea la base si hace falta, aplica Flyway y carga usuarios/clientes de desarrollo.
+| Campo | Desarrollo |
+|-------|------------|
+| Host / puerto | `localhost` · `5432` |
+| Base | `fitness_training` |
+| Usuario | `postgres` |
+| Contraseña | la de `.env` (`postgres` si no hay `.env`) |
 
-Configuración: `%USERPROFILE%\.fitness-training\database.properties`.
+Primera vez: se crea la base si hace falta y se aplican las migraciones. Después, un administrador cambia la conexión desde **Sistema → Base de datos**. Configuración local: `%USERPROFILE%\.fitness-training\database.properties`.
 
-## Usuarios de desarrollo
+### Cuentas de desarrollo
 
 | Usuario | Contraseña | Rol |
 |---------|------------|-----|
-| `admin` | `1234` | ADMIN |
-| `empleado1` | `emp123` | RECEPTIONIST |
-| `juan_prof` | `prof123` | TRAINER |
-| `maria_nutri` | `nutri123` | NUTRITIONIST |
+| `admin` | `1234` | Administrador |
+| `empleado1` | `emp123` | Recepción |
+| `juan_prof` | `prof123` | Entrenador |
+| `maria_nutri` | `nutri123` | Nutricionista |
 
-En el login, **Mostrar cuentas de prueba** completa usuario y clave. Las contraseñas se guardan con BCrypt.
+En el login, **Cuentas de prueba** completa usuario y clave.
 
-## Cómo usarlo hoy
+### Recorrido rápido
 
-1. `docker compose up -d` y `mvn javafx:run`.
-2. Conexión: valores de la tabla PostgreSQL → **Continuar al login**.
-3. Entrar como administrador (o mostrar cuentas de prueba).
-4. En el **Panel**: indicadores y accesos rápidos.
-5. En **Clientes**: alta, búsqueda, carnet y QR. Entrenador y nutricionista solo consultan.
+1. Abrir la app con `run.bat`.
+2. Verificar PostgreSQL e ingresar.
+3. Panel con indicadores.
+4. Clientes: alta, filtro, bajas, carnet y QR.
 
-## Estado actual
+---
 
-Implementado: autenticación, roles, shell, panel y módulo de clientes/credenciales.
+## Empaquetado
 
-Siguiente tramo natural: **membresías → pagos (mora/recargo del club) → check-in**.
+| Uso | Comando |
+|-----|---------|
+| Desarrollo | `run.bat` |
+| Carpeta de entrega | `package.bat` → `target\client-dist\` |
+| Probar empaquetado | `scripts\start-app-packaged.bat` |
+| Backup | `scripts\backup-db.bat` |
+
+Antes de entregar: `.env.example` → `.env` y **cambiar la contraseña** de PostgreSQL. Guía: [`install/CLIENTE.md`](install/CLIENTE.md).

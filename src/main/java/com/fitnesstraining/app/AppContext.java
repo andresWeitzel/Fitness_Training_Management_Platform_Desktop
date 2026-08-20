@@ -11,6 +11,7 @@ import com.fitnesstraining.auth.dto.PendingLoginFill;
 import com.fitnesstraining.controller.DemoAccountsController;
 import com.fitnesstraining.controller.DbSetupController;
 import com.fitnesstraining.controller.LoginController;
+import com.fitnesstraining.controller.MembershipsController;
 import com.fitnesstraining.controller.PlaceholderController;
 import com.fitnesstraining.controller.ShellController;
 import com.fitnesstraining.auth.model.PermissionCode;
@@ -19,6 +20,9 @@ import com.fitnesstraining.members.repository.ClientRepository;
 import com.fitnesstraining.members.service.ClientDemoSeeder;
 import com.fitnesstraining.members.service.ClientQueryService;
 import com.fitnesstraining.members.service.ClientService;
+import com.fitnesstraining.memberships.repository.ClientMembershipRepository;
+import com.fitnesstraining.memberships.repository.MembershipPlanRepository;
+import com.fitnesstraining.memberships.service.MembershipService;
 import com.fitnesstraining.shared.config.AppProperties;
 import com.fitnesstraining.shared.config.DatabaseBootstrap;
 import com.fitnesstraining.shared.config.DatabaseConfigStore;
@@ -51,6 +55,7 @@ public class AppContext {
     private AuthService authService;
     private ClientQueryService clientQueryService;
     private ClientService clientService;
+    private MembershipService membershipService;
     private ShellController shellController;
     private PendingLoginFill pendingLogin;
     private String pendingConnectionError;
@@ -211,6 +216,9 @@ public class AppContext {
         if (type == ClientsController.class) {
             return new ClientsController(clientService, sessionContext, authorizationService);
         }
+        if (type == MembershipsController.class) {
+            return new MembershipsController(membershipService, sessionContext, authorizationService);
+        }
         if (type == PlaceholderController.class) {
             return new PlaceholderController();
         }
@@ -225,9 +233,17 @@ public class AppContext {
         UserRepository userRepository = new UserRepository(persistenceManager);
         ClientRepository clientRepository = new ClientRepository(persistenceManager);
         AccessCredentialRepository credentialRepository = new AccessCredentialRepository(persistenceManager);
+        MembershipPlanRepository membershipPlanRepository = new MembershipPlanRepository(persistenceManager);
+        ClientMembershipRepository clientMembershipRepository = new ClientMembershipRepository(persistenceManager);
         authService = new AuthService(userRepository, passwordHasher);
         clientQueryService = new ClientQueryService(clientRepository, credentialRepository);
         clientService = new ClientService(clientRepository, credentialRepository, Clock.systemDefaultZone());
+        membershipService = new MembershipService(
+                membershipPlanRepository,
+                clientMembershipRepository,
+                clientRepository,
+                credentialRepository,
+                Clock.systemDefaultZone());
         new DevDataSeeder(userRepository, passwordHasher).seedIfEmpty();
         new ClientDemoSeeder(clientRepository, clientService).seedIfEmpty();
     }

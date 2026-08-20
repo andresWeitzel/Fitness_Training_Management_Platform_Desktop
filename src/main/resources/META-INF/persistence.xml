@@ -10,6 +10,8 @@
         <class>com.fitnesstraining.auth.model.Permission</class>
         <class>com.fitnesstraining.members.model.Client</class>
         <class>com.fitnesstraining.members.model.AccessCredential</class>
+        <class>com.fitnesstraining.memberships.model.MembershipPlan</class>
+        <class>com.fitnesstraining.memberships.model.ClientMembership</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
