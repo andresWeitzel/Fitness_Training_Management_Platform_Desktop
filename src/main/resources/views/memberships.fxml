@@ -39,64 +39,6 @@
 
 <TabPane fx:id="membershipsTabs" styleClass="memberships-tabs" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
 
-    <Tab text="Planes">
-        <SplitPane dividerPositions="0.48" styleClass="clients-split">
-            <VBox spacing="12" styleClass="panel-card">
-                <padding>
-                    <Insets top="18" right="18" bottom="18" left="18"/>
-                </padding>
-                <HBox alignment="CENTER_LEFT" spacing="10">
-                    <Label text="Catálogo de planes" styleClass="section-title" HBox.hgrow="ALWAYS"/>
-                    <Label fx:id="plansCountLabel" styleClass="muted"/>
-                </HBox>
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <TextField fx:id="planSearchField" promptText="Filtrar por nombre" HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="newPlanButton" text="Nuevo plan" onAction="#onNewPlan" styleClass="primary-button"/>
-                </HBox>
-                <TableView fx:id="plansTable" VBox.vgrow="ALWAYS" styleClass="memberships-table">
-                    <columns>
-                        <TableColumn fx:id="planNameColumn" text="Plan" prefWidth="160" minWidth="120"/>
-                        <TableColumn fx:id="planDurationColumn" text="Duración" prefWidth="90" minWidth="70"/>
-                        <TableColumn fx:id="planPriceColumn" text="Precio" prefWidth="100" minWidth="80"/>
-                        <TableColumn fx:id="planActiveColumn" text="Estado" prefWidth="90" minWidth="70"/>
-                    </columns>
-                </TableView>
-            </VBox>
-
-            <VBox spacing="8" styleClass="panel-card">
-                <padding>
-                    <Insets top="18" right="18" bottom="18" left="18"/>
-                </padding>
-                <HBox alignment="CENTER_LEFT" spacing="10">
-                    <VBox spacing="2" HBox.hgrow="ALWAYS">
-                        <Label text="Detalle del plan" styleClass="section-title"/>
-                        <Label fx:id="planSubtitleLabel" styleClass="muted"/>
-                    </VBox>
-                    <Label fx:id="planStatusBadge" styleClass="badge-ready"/>
-                </HBox>
-                <Label text="Nombre" styleClass="field-label"/>
-                <TextField fx:id="planNameField" promptText="Ej. Mensual"/>
-                <Label text="Descripción" styleClass="field-label"/>
-                <TextArea fx:id="planDescriptionField" promptText="Opcional" prefRowCount="3" wrapText="true"/>
-                <HBox spacing="14">
-                    <VBox spacing="8" HBox.hgrow="ALWAYS">
-                        <Label text="Duración (días)" styleClass="field-label"/>
-                        <TextField fx:id="planDurationField" promptText="30"/>
-                    </VBox>
-                    <VBox spacing="8" HBox.hgrow="ALWAYS">
-                        <Label text="Precio" styleClass="field-label"/>
-                        <TextField fx:id="planPriceField" promptText="0.00"/>
-                    </VBox>
-                </HBox>
-                <CheckBox fx:id="planActiveCheck" text="Plan activo (disponible para altas)"/>
-                <Label fx:id="planStatusLabel" styleClass="muted" wrapText="true"/>
-                <HBox spacing="10">
-                    <Button fx:id="savePlanButton" text="Guardar plan" onAction="#onSavePlan" styleClass="primary-button"/>
-                </HBox>
-            </VBox>
-        </SplitPane>
-    </Tab>
-
     <Tab text="Membresías de clientes">
         <SplitPane dividerPositions="0.52" styleClass="clients-split">
             <VBox spacing="12" styleClass="panel-card">
@@ -107,7 +49,7 @@
                     <Label text="Membresías" styleClass="section-title" HBox.hgrow="ALWAYS"/>
                     <Label fx:id="membershipsCountLabel" styleClass="muted"/>
                 </HBox>
-                <HBox spacing="8" alignment="CENTER_LEFT">
+                <HBox spacing="8" alignment="CENTER_LEFT" styleClass="filter-chip-row">
                     <Button fx:id="filterActiveMembershipsButton" text="Activas" onAction="#onFilterActiveMemberships" styleClass="filter-chip selected"/>
                     <Button fx:id="filterExpiredMembershipsButton" text="Vencidas" onAction="#onFilterExpiredMemberships" styleClass="filter-chip"/>
                     <Button fx:id="filterAllMembershipsButton" text="Todas" onAction="#onFilterAllMemberships" styleClass="filter-chip"/>
@@ -180,6 +122,64 @@
                     <Button fx:id="saveMembershipButton" text="Asignar membresía" onAction="#onAssignMembership" styleClass="primary-button"/>
                     <Button fx:id="renewMembershipButton" text="Renovar" onAction="#onRenewMembership" styleClass="secondary-button"/>
                     <Button fx:id="cancelMembershipButton" text="Cancelar membresía" onAction="#onCancelMembership" styleClass="danger-button"/>
+                </HBox>
+            </VBox>
+        </SplitPane>
+    </Tab>
+
+    <Tab text="Planes">
+        <SplitPane dividerPositions="0.48" styleClass="clients-split">
+            <VBox spacing="12" styleClass="panel-card">
+                <padding>
+                    <Insets top="18" right="18" bottom="18" left="18"/>
+                </padding>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Catálogo de planes" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="plansCountLabel" styleClass="muted"/>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <TextField fx:id="planSearchField" promptText="Filtrar por nombre" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="newPlanButton" text="Nuevo plan" onAction="#onNewPlan" styleClass="primary-button"/>
+                </HBox>
+                <TableView fx:id="plansTable" VBox.vgrow="ALWAYS" styleClass="memberships-table">
+                    <columns>
+                        <TableColumn fx:id="planNameColumn" text="Plan" prefWidth="160" minWidth="120"/>
+                        <TableColumn fx:id="planDurationColumn" text="Duración" prefWidth="90" minWidth="70"/>
+                        <TableColumn fx:id="planPriceColumn" text="Precio" prefWidth="100" minWidth="80"/>
+                        <TableColumn fx:id="planActiveColumn" text="Estado" prefWidth="90" minWidth="70"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <VBox spacing="8" styleClass="panel-card">
+                <padding>
+                    <Insets top="18" right="18" bottom="18" left="18"/>
+                </padding>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label text="Detalle del plan" styleClass="section-title"/>
+                        <Label fx:id="planSubtitleLabel" styleClass="muted"/>
+                    </VBox>
+                    <Label fx:id="planStatusBadge" styleClass="badge-ready"/>
+                </HBox>
+                <Label text="Nombre" styleClass="field-label"/>
+                <TextField fx:id="planNameField" promptText="Ej. Mensual"/>
+                <Label text="Descripción" styleClass="field-label"/>
+                <TextArea fx:id="planDescriptionField" promptText="Opcional" prefRowCount="3" wrapText="true"/>
+                <HBox spacing="14">
+                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                        <Label text="Duración (días)" styleClass="field-label"/>
+                        <TextField fx:id="planDurationField" promptText="30"/>
+                    </VBox>
+                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                        <Label text="Precio" styleClass="field-label"/>
+                        <TextField fx:id="planPriceField" promptText="0.00"/>
+                    </VBox>
+                </HBox>
+                <CheckBox fx:id="planActiveCheck" text="Plan activo (disponible para altas)"/>
+                <Label fx:id="planStatusLabel" styleClass="muted" wrapText="true"/>
+                <HBox spacing="10">
+                    <Button fx:id="savePlanButton" text="Guardar plan" onAction="#onSavePlan" styleClass="primary-button"/>
                 </HBox>
             </VBox>
         </SplitPane>

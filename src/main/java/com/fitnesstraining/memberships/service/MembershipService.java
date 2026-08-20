@@ -196,6 +196,22 @@ public class MembershipService {
         return toMembershipView(membership, now);
     }
 
+    public void assignDefaultToNewClient(Long clientId) {
+        planRepository.findDefaultActive().ifPresent(plan ->
+                assignMembership(new AssignMembershipRequest(clientId, plan.getId(), null)));
+    }
+
+    public void cancelActiveForClient(Long clientId) {
+        OffsetDateTime now = now();
+        membershipRepository.findActiveByClientId(clientId).ifPresent(membership -> {
+            refreshStatusIfNeeded(membership, now);
+            if (membership.getStatus() != MembershipStatus.CANCELLED) {
+                membership.cancel(now);
+                membershipRepository.save(membership);
+            }
+        });
+    }
+
     private void syncExpiredStatuses(OffsetDateTime now) {
         membershipRepository.list(MembershipListScope.ALL, now).stream()
                 .filter(m -> m.getStatus() == MembershipStatus.ACTIVE && m.isExpired(now))

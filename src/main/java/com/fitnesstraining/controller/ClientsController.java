@@ -186,7 +186,9 @@ public class ClientsController {
             ClientView saved = selectedId == null
                     ? clientService.create(request)
                     : clientService.update(selectedId, request);
-            statusOk(selectedId == null ? "Cliente registrado." : "Cambios guardados.");
+            statusOk(selectedId == null
+                    ? "Cliente registrado con membresía Mensual asignada."
+                    : "Cambios guardados.");
             reloadTable();
             selectById(saved.id());
         } catch (ValidationException ex) {

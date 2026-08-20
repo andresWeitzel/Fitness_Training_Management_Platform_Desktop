@@ -895,8 +895,21 @@
 }
 
 .table-row-cell:selected {
-    -fx-background-color: #EAF5FF;
+    -fx-background-color: #D7EEFF;
     -fx-text-background-color: #152033;
+    -fx-border-color: transparent transparent transparent #2EA8FF;
+    -fx-border-width: 0 0 0 3;
+}
+
+.table-row-cell:selected .text {
+    -fx-fill: #152033;
+}
+
+.clients-table .table-row-cell:selected,
+.memberships-table .table-row-cell:selected {
+    -fx-background-color: #D7EEFF;
+    -fx-border-color: transparent transparent transparent #2EA8FF;
+    -fx-border-width: 0 0 0 3;
 }
 
 .table-cell {
@@ -908,29 +921,55 @@
     -fx-text-fill: #7D8A98;
 }
 
-.filter-chip {
-    -fx-background-color: #F7FAFD;
-    -fx-text-fill: #5C6B7A;
+.filter-chip-row {
+    -fx-spacing: 8;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.button.filter-chip {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #7D8A98;
     -fx-font-size: 12px;
     -fx-font-weight: 700;
     -fx-background-radius: 999;
     -fx-border-radius: 999;
-    -fx-border-color: #E4EAF1;
-    -fx-border-width: 1;
-    -fx-padding: 6 12 6 12;
+    -fx-border-color: #D7E0EA;
+    -fx-border-width: 1.5;
+    -fx-padding: 7 14 7 14;
     -fx-cursor: hand;
+    -fx-effect: null;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
 }
 
-.filter-chip:hover {
-    -fx-background-color: #EAF5FF;
+.button.filter-chip:hover {
+    -fx-background-color: #F3F9FF;
     -fx-text-fill: #1B8FE6;
     -fx-border-color: #B8E4FF;
 }
 
-.filter-chip.selected {
-    -fx-background-color: #2EA8FF;
+.button.filter-chip:pressed {
+    -fx-background-color: #EAF5FF;
+    -fx-text-fill: #1B8FE6;
+}
+
+.button.filter-chip:focused {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #7D8A98;
+    -fx-border-color: #D7E0EA;
+}
+
+.button.filter-chip.selected,
+.button.filter-chip.selected:hover,
+.button.filter-chip.selected:pressed,
+.button.filter-chip.selected:focused {
+    -fx-background-color: linear-gradient(to bottom, #4BB6FF, #2EA8FF);
     -fx-text-fill: #FFFFFF;
-    -fx-border-color: #2EA8FF;
+    -fx-border-color: #1B8FE6;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(gaussian, rgba(46, 168, 255, 0.35), 8, 0.22, 0, 2);
 }
 
 .credential-card {
@@ -993,37 +1032,40 @@
 
 .memberships-tabs > .tab-header-area {
     -fx-background-color: transparent;
-    -fx-padding: 0 0 10 0;
+    -fx-padding: 0 0 0 0;
 }
 
 .memberships-tabs > .tab-header-area > .tab-header-background {
-    -fx-background-color: transparent;
+    -fx-background-color: #E8EEF5;
+    -fx-background-radius: 14 14 0 0;
     -fx-border-color: transparent;
     -fx-effect: null;
 }
 
 .memberships-tabs > .tab-header-area > .headers-region {
     -fx-background-color: transparent;
+    -fx-padding: 6 6 0 6;
 }
 
 .memberships-tabs > .tab-header-area > .headers-region > .tab {
-    -fx-background-color: #F7FAFD;
-    -fx-background-radius: 12 12 0 0;
-    -fx-border-color: #E4EAF1;
-    -fx-border-width: 1 1 0 1;
-    -fx-border-radius: 12 12 0 0;
-    -fx-padding: 10 18 10 18;
+    -fx-background-color: transparent;
+    -fx-background-radius: 10 10 0 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 3 0;
+    -fx-padding: 10 20 10 20;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
 }
 
 .memberships-tabs > .tab-header-area > .headers-region > .tab:selected {
     -fx-background-color: #FFFFFF;
-    -fx-border-color: #E8EEF5 #E8EEF5 transparent #E8EEF5;
+    -fx-border-color: transparent transparent #2EA8FF transparent;
+    -fx-border-width: 0 0 3 0;
+    -fx-effect: dropshadow(gaussian, rgba(21, 32, 51, 0.08), 8, 0.18, 0, -1);
 }
 
 .memberships-tabs > .tab-header-area > .headers-region > .tab:hover {
-    -fx-background-color: #EAF5FF;
+    -fx-background-color: rgba(255, 255, 255, 0.55);
 }
 
 .memberships-tabs > .tab-header-area > .headers-region > .tab:selected:hover {
@@ -1031,19 +1073,20 @@
 }
 
 .memberships-tabs > .tab-header-area > .headers-region > .tab > .tab-label {
-    -fx-text-fill: #5C6B7A;
+    -fx-text-fill: #7D8A98;
     -fx-font-size: 13px;
-    -fx-font-weight: 700;
+    -fx-font-weight: 600;
 }
 
 .memberships-tabs > .tab-header-area > .headers-region > .tab:selected > .tab-label {
-    -fx-text-fill: #152033;
+    -fx-text-fill: #1B8FE6;
+    -fx-font-weight: 800;
 }
 
 .memberships-tabs > .tab-content-area {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
-    -fx-padding: 0;
+    -fx-padding: 12 0 0 0;
 }
 
 .feedback-banner,

@@ -24,7 +24,7 @@
             <Label text="Listado" styleClass="section-title" HBox.hgrow="ALWAYS"/>
             <Label fx:id="resultCountLabel" styleClass="muted"/>
         </HBox>
-        <HBox spacing="8" alignment="CENTER_LEFT">
+        <HBox spacing="8" alignment="CENTER_LEFT" styleClass="filter-chip-row">
             <Button fx:id="filterActiveButton" text="Activos" onAction="#onFilterActive" styleClass="filter-chip selected"/>
             <Button fx:id="filterInactiveButton" text="Bajas" onAction="#onFilterInactive" styleClass="filter-chip"/>
             <Button fx:id="filterAllButton" text="Todos" onAction="#onFilterAll" styleClass="filter-chip"/>

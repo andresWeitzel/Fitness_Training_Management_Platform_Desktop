@@ -37,6 +37,17 @@ public class MembershipPlanRepository {
         return persistence.inTransaction(em -> Optional.ofNullable(em.find(MembershipPlan.class, id)));
     }
 
+    public Optional<MembershipPlan> findDefaultActive() {
+        List<MembershipPlan> active = findActive();
+        return active.stream()
+                .filter(plan -> "mensual".equalsIgnoreCase(plan.getName()))
+                .findFirst()
+                .or(() -> active.stream()
+                        .min(java.util.Comparator
+                                .comparingInt(MembershipPlan::getDurationDays)
+                                .thenComparing(MembershipPlan::getName, String.CASE_INSENSITIVE_ORDER)));
+    }
+
     public boolean existsName(String name, Long excludeId) {
         return persistence.inTransaction(em -> {
             String jpql = excludeId == null

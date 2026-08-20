@@ -22,6 +22,7 @@ import com.fitnesstraining.members.service.ClientQueryService;
 import com.fitnesstraining.members.service.ClientService;
 import com.fitnesstraining.memberships.repository.ClientMembershipRepository;
 import com.fitnesstraining.memberships.repository.MembershipPlanRepository;
+import com.fitnesstraining.memberships.service.MembershipDemoSeeder;
 import com.fitnesstraining.memberships.service.MembershipService;
 import com.fitnesstraining.shared.config.AppProperties;
 import com.fitnesstraining.shared.config.DatabaseBootstrap;
@@ -237,15 +238,21 @@ public class AppContext {
         ClientMembershipRepository clientMembershipRepository = new ClientMembershipRepository(persistenceManager);
         authService = new AuthService(userRepository, passwordHasher);
         clientQueryService = new ClientQueryService(clientRepository, credentialRepository);
-        clientService = new ClientService(clientRepository, credentialRepository, Clock.systemDefaultZone());
         membershipService = new MembershipService(
                 membershipPlanRepository,
                 clientMembershipRepository,
                 clientRepository,
                 credentialRepository,
                 Clock.systemDefaultZone());
+        clientService = new ClientService(
+                clientRepository,
+                credentialRepository,
+                membershipService,
+                Clock.systemDefaultZone());
         new DevDataSeeder(userRepository, passwordHasher).seedIfEmpty();
         new ClientDemoSeeder(clientRepository, clientService).seedIfEmpty();
+        new MembershipDemoSeeder(clientRepository, clientMembershipRepository, membershipService)
+                .seedMissingForActiveClients();
     }
 
     private void shutdownPersistence() {

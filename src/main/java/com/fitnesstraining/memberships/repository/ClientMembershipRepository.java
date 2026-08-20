@@ -53,37 +53,39 @@ public class ClientMembershipRepository {
     }
 
     public List<ClientMembership> list(MembershipListScope scope, OffsetDateTime now) {
-        return persistence.inTransaction(em ->
-                em.createQuery("""
-                                SELECT m FROM ClientMembership m
-                                JOIN FETCH m.client c
-                                JOIN FETCH m.plan p
-                                WHERE %s
-                                ORDER BY m.endsAt DESC, c.lastName, c.firstName
-                                """.formatted(scopePredicate(scope)), ClientMembership.class)
-                        .setParameter("now", now)
-                        .getResultList());
+        return persistence.inTransaction(em -> {
+            var query = em.createQuery("""
+                            SELECT m FROM ClientMembership m
+                            JOIN FETCH m.client c
+                            JOIN FETCH m.plan p
+                            WHERE %s
+                            ORDER BY m.endsAt DESC, c.lastName, c.firstName
+                            """.formatted(scopePredicate(scope)), ClientMembership.class);
+            bindNowIfNeeded(query, scope, now);
+            return query.getResultList();
+        });
     }
 
     public List<ClientMembership> search(String term, MembershipListScope scope, OffsetDateTime now) {
         String like = "%" + term.trim().toLowerCase() + "%";
-        return persistence.inTransaction(em ->
-                em.createQuery("""
-                                SELECT m FROM ClientMembership m
-                                JOIN FETCH m.client c
-                                JOIN FETCH m.plan p
-                                WHERE (%s)
-                                  AND (
-                                    lower(c.documentNumber) LIKE :term
-                                    OR lower(c.firstName) LIKE :term
-                                    OR lower(c.lastName) LIKE :term
-                                    OR lower(p.name) LIKE :term
-                                  )
-                                ORDER BY m.endsAt DESC, c.lastName, c.firstName
-                                """.formatted(scopePredicate(scope)), ClientMembership.class)
-                        .setParameter("term", like)
-                        .setParameter("now", now)
-                        .getResultList());
+        return persistence.inTransaction(em -> {
+            var query = em.createQuery("""
+                            SELECT m FROM ClientMembership m
+                            JOIN FETCH m.client c
+                            JOIN FETCH m.plan p
+                            WHERE (%s)
+                              AND (
+                                lower(c.documentNumber) LIKE :term
+                                OR lower(c.firstName) LIKE :term
+                                OR lower(c.lastName) LIKE :term
+                                OR lower(p.name) LIKE :term
+                              )
+                            ORDER BY m.endsAt DESC, c.lastName, c.firstName
+                            """.formatted(scopePredicate(scope)), ClientMembership.class)
+                    .setParameter("term", like);
+            bindNowIfNeeded(query, scope, now);
+            return query.getResultList();
+        });
     }
 
     public ClientMembership save(ClientMembership membership) {
@@ -95,6 +97,15 @@ public class ClientMembershipRepository {
             }
             return em.merge(membership);
         });
+    }
+
+    private static void bindNowIfNeeded(
+            jakarta.persistence.TypedQuery<ClientMembership> query,
+            MembershipListScope scope,
+            OffsetDateTime now) {
+        if (scope != MembershipListScope.ALL) {
+            query.setParameter("now", now);
+        }
     }
 
     private static String scopePredicate(MembershipListScope scope) {
