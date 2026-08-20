@@ -166,11 +166,48 @@ public class MembershipService {
         return toMembershipView(membership, now);
     }
 
+    public ClientMembershipView changePlan(Long membershipId, Long planId) {
+        OffsetDateTime now = now();
+        ClientMembership membership = membershipRepository.findById(membershipId)
+                .orElseThrow(() -> new AppException("Membresía no encontrada."));
+        refreshStatusIfNeeded(membership, now);
+
+        MembershipStatus status = membership.effectiveStatus(now);
+        if (status == MembershipStatus.CANCELLED) {
+            throw new ValidationException(
+                    "La membresía está cancelada. Use reasignar para activar un plan nuevo.");
+        }
+        if (status == MembershipStatus.EXPIRED) {
+            throw new ValidationException(
+                    "La membresía está vencida. Use reasignar para activar un plan nuevo.");
+        }
+
+        MembershipPlan plan = planRepository.findById(planId)
+                .orElseThrow(() -> new ValidationException("Plan no encontrado."));
+        if (!plan.isActive()) {
+            throw new ValidationException("El plan seleccionado no está activo.");
+        }
+        if (membership.getPlan().getId().equals(plan.getId())) {
+            throw new ValidationException("Seleccione un plan distinto al actual.");
+        }
+
+        OffsetDateTime endsAt = now.plusDays(plan.getDurationDays());
+        membership.changePlan(plan, now, endsAt, now);
+        membershipRepository.save(membership);
+        return toMembershipView(membership, now);
+    }
+
     public ClientMembershipView renewMembership(Long id) {
         OffsetDateTime now = now();
         ClientMembership membership = membershipRepository.findById(id)
                 .orElseThrow(() -> new AppException("Membresía no encontrada."));
         refreshStatusIfNeeded(membership, now);
+
+        MembershipStatus status = membership.effectiveStatus(now);
+        if (status == MembershipStatus.CANCELLED) {
+            throw new ValidationException(
+                    "La membresía está cancelada. Use reasignar para activar un plan nuevo.");
+        }
 
         MembershipPlan plan = membership.getPlan();
         if (!plan.isActive()) {
@@ -194,6 +231,24 @@ public class MembershipService {
         membership.cancel(now);
         membershipRepository.save(membership);
         return toMembershipView(membership, now);
+    }
+
+    public ClientMembershipView reassignMembership(Long previousMembershipId, Long planId, LocalDate startDate) {
+        ClientMembership previous = membershipRepository.findById(previousMembershipId)
+                .orElseThrow(() -> new AppException("Membresía no encontrada."));
+        OffsetDateTime now = now();
+        refreshStatusIfNeeded(previous, now);
+
+        MembershipStatus status = previous.effectiveStatus(now);
+        if (status == MembershipStatus.ACTIVE) {
+            throw new ValidationException(
+                    "La membresía sigue activa. Cambie el plan o cancele antes de reasignar.");
+        }
+
+        return assignMembership(new AssignMembershipRequest(
+                previous.getClient().getId(),
+                planId,
+                startDate));
     }
 
     public void assignDefaultToNewClient(Long clientId) {

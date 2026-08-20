@@ -76,6 +76,7 @@ public class MembershipsController {
     @FXML private Label membershipsCountLabel;
     @FXML private Button filterActiveMembershipsButton;
     @FXML private Button filterExpiredMembershipsButton;
+    @FXML private Button filterCancelledMembershipsButton;
     @FXML private Button filterAllMembershipsButton;
     @FXML private TextField membershipSearchField;
     @FXML private Button assignMembershipButton;
@@ -106,6 +107,7 @@ public class MembershipsController {
 
     private Long selectedPlanId;
     private Long selectedMembershipId;
+    private MembershipStatus selectedMembershipStatus;
     private boolean canManage;
     private MembershipListScope membershipScope = MembershipListScope.ACTIVE;
     private List<MembershipPlanSummary> allPlans = List.of();
@@ -246,6 +248,11 @@ public class MembershipsController {
     }
 
     @FXML
+    public void onFilterCancelledMemberships() {
+        setMembershipScope(MembershipListScope.CANCELLED);
+    }
+
+    @FXML
     public void onFilterAllMemberships() {
         setMembershipScope(MembershipListScope.ALL);
     }
@@ -253,17 +260,22 @@ public class MembershipsController {
     @FXML
     public void onNewMembership() {
         selectedMembershipId = null;
-        clientCombo.setDisable(false);
-        planCombo.setDisable(false);
-        startDatePicker.setDisable(false);
+        selectedMembershipStatus = null;
+        clientCombo.setDisable(!canManage);
+        planCombo.setDisable(!canManage);
+        startDatePicker.setDisable(!canManage);
         startDatePicker.setValue(null);
+        clientCombo.getSelectionModel().clearSelection();
+        planCombo.getSelectionModel().clearSelection();
         membershipSubtitleLabel.setText("Asignar membresía a un cliente");
         membershipStatusBadge.setText("Nueva");
         membershipStartsLabel.setText("—");
         membershipEndsLabel.setText("—");
         membershipDurationLabel.setText("—");
         membershipPriceLabel.setText("—");
-        membershipStatusLabel.setText(canManage ? "Seleccione cliente y plan, luego asigne." : "Solo lectura.");
+        membershipStatusLabel.setText(canManage
+                ? "Seleccione cliente y plan, luego asigne."
+                : "Solo lectura.");
         saveMembershipButton.setText("Asignar membresía");
         saveMembershipButton.setDisable(!canManage);
         renewMembershipButton.setDisable(true);
@@ -273,10 +285,22 @@ public class MembershipsController {
     }
 
     @FXML
-    public void onAssignMembership() {
+    public void onSaveMembership() {
         if (!canManage) {
             return;
         }
+        if (selectedMembershipId == null) {
+            assignNewMembership();
+            return;
+        }
+        if (selectedMembershipStatus == MembershipStatus.ACTIVE) {
+            changeSelectedPlan();
+            return;
+        }
+        reassignSelectedMembership();
+    }
+
+    private void assignNewMembership() {
         try {
             ClientMembershipOption client = clientCombo.getValue();
             MembershipPlanSummary plan = planCombo.getValue();
@@ -289,7 +313,49 @@ public class MembershipsController {
                     startDatePicker.getValue());
             ClientMembershipView saved = membershipService.assignMembership(request);
             showFeedbackOk("Membresía asignada correctamente.");
+            setMembershipScope(MembershipListScope.ACTIVE);
             refreshMemberships();
+            selectMembershipInTable(saved.id());
+            loadMembership(saved.id());
+        } catch (ValidationException ex) {
+            showFeedbackError(ex.getMessage());
+        } catch (RuntimeException ex) {
+            showFeedbackError(ex.getMessage());
+        }
+    }
+
+    private void changeSelectedPlan() {
+        try {
+            MembershipPlanSummary plan = planCombo.getValue();
+            if (plan == null) {
+                throw new ValidationException("Seleccione el nuevo plan.");
+            }
+            ClientMembershipView saved = membershipService.changePlan(selectedMembershipId, plan.id());
+            showFeedbackOk("Plan actualizado: " + saved.planName() + ".");
+            refreshMemberships();
+            selectMembershipInTable(saved.id());
+            loadMembership(saved.id());
+        } catch (ValidationException ex) {
+            showFeedbackError(ex.getMessage());
+        } catch (RuntimeException ex) {
+            showFeedbackError(ex.getMessage());
+        }
+    }
+
+    private void reassignSelectedMembership() {
+        try {
+            MembershipPlanSummary plan = planCombo.getValue();
+            if (plan == null) {
+                throw new ValidationException("Seleccione un plan para reasignar.");
+            }
+            ClientMembershipView saved = membershipService.reassignMembership(
+                    selectedMembershipId,
+                    plan.id(),
+                    startDatePicker.getValue());
+            showFeedbackOk("Membresía reasignada y activa.");
+            setMembershipScope(MembershipListScope.ACTIVE);
+            refreshMemberships();
+            selectMembershipInTable(saved.id());
             loadMembership(saved.id());
         } catch (ValidationException ex) {
             showFeedbackError(ex.getMessage());
@@ -304,12 +370,13 @@ public class MembershipsController {
             return;
         }
         showConfirm(
-                "¿Renovar la membresía extendiendo la vigencia según la duración del plan?",
+                "¿Renovar la membresía extendiendo la vigencia según la duración del plan actual?",
                 () -> {
                     try {
                         ClientMembershipView renewed = membershipService.renewMembership(selectedMembershipId);
                         showFeedbackOk("Membresía renovada.");
                         refreshMemberships();
+                        selectMembershipInTable(renewed.id());
                         loadMembership(renewed.id());
                     } catch (ValidationException ex) {
                         showFeedbackError(ex.getMessage());
@@ -325,12 +392,17 @@ public class MembershipsController {
             return;
         }
         showConfirm(
-                "¿Cancelar esta membresía? El cliente quedará sin acceso por este plan.",
+                "¿Cancelar esta membresía? Después podrá reasignar otro plan al mismo cliente.",
                 () -> {
                     try {
                         ClientMembershipView cancelled = membershipService.cancelMembership(selectedMembershipId);
-                        showFeedbackOk("Membresía cancelada.");
-                        refreshMemberships();
+                        showFeedbackOk("Membresía cancelada. Elija un plan y pulse Reasignar.");
+                        if (membershipScope == MembershipListScope.ACTIVE) {
+                            setMembershipScope(MembershipListScope.CANCELLED);
+                        } else {
+                            refreshMemberships();
+                        }
+                        selectMembershipInTable(cancelled.id());
                         loadMembership(cancelled.id());
                     } catch (ValidationException ex) {
                         showFeedbackError(ex.getMessage());
@@ -543,27 +615,51 @@ public class MembershipsController {
     private void loadMembership(Long id) {
         ClientMembershipView view = membershipService.getMembership(id);
         selectedMembershipId = view.id();
-        clientCombo.setDisable(true);
-        planCombo.setDisable(true);
-        startDatePicker.setDisable(true);
+        selectedMembershipStatus = view.status();
 
         selectClient(view.clientId());
         selectPlan(view.planId());
+        startDatePicker.setValue(null);
 
         membershipSubtitleLabel.setText(view.clientName() + " · " + view.planName());
         membershipStartsLabel.setText(formatDate(view.startsAt().toLocalDate()));
         membershipEndsLabel.setText(formatDate(view.endsAt().toLocalDate()));
         membershipDurationLabel.setText(view.durationDays() + " días");
         membershipPriceLabel.setText(formatMoney(view.planPrice()));
-        membershipStatusLabel.setText("Membresía #" + view.id());
-        saveMembershipButton.setText("Asignar membresía");
-        saveMembershipButton.setDisable(true);
+        applyMembershipBadge(view.status());
 
-        MembershipStatus status = view.status();
-        applyMembershipBadge(status);
-        boolean actionable = canManage && status != MembershipStatus.CANCELLED;
-        renewMembershipButton.setDisable(!actionable);
-        cancelMembershipButton.setDisable(!actionable || status == MembershipStatus.CANCELLED);
+        clientCombo.setDisable(true);
+        boolean editable = canManage;
+        planCombo.setDisable(!editable);
+
+        if (view.status() == MembershipStatus.ACTIVE) {
+            startDatePicker.setDisable(true);
+            saveMembershipButton.setText("Cambiar plan");
+            saveMembershipButton.setDisable(!editable);
+            renewMembershipButton.setDisable(!editable);
+            cancelMembershipButton.setDisable(!editable);
+            membershipStatusLabel.setText(editable
+                    ? "Puede cambiar el plan (p. ej. a Trimestral/Anual), renovar o cancelar."
+                    : "Solo lectura.");
+            return;
+        }
+
+        startDatePicker.setDisable(!editable);
+        saveMembershipButton.setText("Reasignar membresía");
+        saveMembershipButton.setDisable(!editable);
+        renewMembershipButton.setDisable(true);
+        cancelMembershipButton.setDisable(true);
+        membershipStatusLabel.setText(editable
+                ? "Membresía " + labelForStatus(view.status().name(), false).toLowerCase()
+                + ". Elija un plan y pulse Reasignar para volver a activarla."
+                : "Solo lectura.");
+    }
+
+    private void selectMembershipInTable(Long id) {
+        membershipsTable.getItems().stream()
+                .filter(item -> item.id().equals(id))
+                .findFirst()
+                .ifPresent(item -> membershipsTable.getSelectionModel().select(item));
     }
 
     private void selectClient(Long clientId) {
@@ -590,7 +686,23 @@ public class MembershipsController {
     }
 
     private void updatePlanPreview(MembershipPlanSummary plan) {
-        if (selectedMembershipId != null || plan == null) {
+        if (plan == null) {
+            return;
+        }
+        if (selectedMembershipId != null && selectedMembershipStatus == MembershipStatus.ACTIVE) {
+            membershipDurationLabel.setText(plan.durationDays() + " días");
+            membershipPriceLabel.setText(formatMoney(plan.price()));
+            LocalDate start = LocalDate.now();
+            membershipStartsLabel.setText(formatDate(start));
+            membershipEndsLabel.setText(formatDate(start.plusDays(plan.durationDays())));
+            return;
+        }
+        if (selectedMembershipId != null && selectedMembershipStatus != MembershipStatus.ACTIVE) {
+            membershipDurationLabel.setText(plan.durationDays() + " días");
+            membershipPriceLabel.setText(formatMoney(plan.price()));
+            LocalDate start = startDatePicker.getValue() == null ? LocalDate.now() : startDatePicker.getValue();
+            membershipStartsLabel.setText(formatDate(start));
+            membershipEndsLabel.setText(formatDate(start.plusDays(plan.durationDays())));
             return;
         }
         membershipDurationLabel.setText(plan.durationDays() + " días");
@@ -624,15 +736,19 @@ public class MembershipsController {
 
     private void setMembershipScope(MembershipListScope scope) {
         membershipScope = scope;
-        filterActiveMembershipsButton.getStyleClass().remove("selected");
-        filterExpiredMembershipsButton.getStyleClass().remove("selected");
-        filterAllMembershipsButton.getStyleClass().remove("selected");
-        switch (scope) {
-            case ACTIVE -> filterActiveMembershipsButton.getStyleClass().add("selected");
-            case EXPIRED -> filterExpiredMembershipsButton.getStyleClass().add("selected");
-            case ALL -> filterAllMembershipsButton.getStyleClass().add("selected");
-        }
+        applyChipState(filterActiveMembershipsButton, scope == MembershipListScope.ACTIVE);
+        applyChipState(filterExpiredMembershipsButton, scope == MembershipListScope.EXPIRED);
+        applyChipState(filterCancelledMembershipsButton, scope == MembershipListScope.CANCELLED);
+        applyChipState(filterAllMembershipsButton, scope == MembershipListScope.ALL);
         refreshMemberships();
+    }
+
+    private static void applyChipState(Button button, boolean on) {
+        button.getStyleClass().remove("chip-on");
+        button.getStyleClass().remove("selected");
+        if (on) {
+            button.getStyleClass().add("chip-on");
+        }
     }
 
     private void applyMembershipBadge(MembershipStatus status) {

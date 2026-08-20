@@ -103,7 +103,7 @@ public class ClientMembershipRepository {
             jakarta.persistence.TypedQuery<ClientMembership> query,
             MembershipListScope scope,
             OffsetDateTime now) {
-        if (scope != MembershipListScope.ALL) {
+        if (scope == MembershipListScope.ACTIVE || scope == MembershipListScope.EXPIRED) {
             query.setParameter("now", now);
         }
     }
@@ -117,6 +117,7 @@ public class ClientMembershipRepository {
                         OR m.status = com.fitnesstraining.memberships.model.MembershipStatus.EXPIRED
                     )
                     """;
+            case CANCELLED -> "m.status = com.fitnesstraining.memberships.model.MembershipStatus.CANCELLED";
             case ALL -> "1 = 1";
         };
     }

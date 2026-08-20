@@ -88,6 +88,19 @@ public class ClientMembership {
         this.updatedAt = now;
     }
 
+    public void changePlan(
+            MembershipPlan plan,
+            OffsetDateTime startsAt,
+            OffsetDateTime endsAt,
+            OffsetDateTime now) {
+        this.plan = plan;
+        this.startsAt = startsAt;
+        this.endsAt = endsAt;
+        this.status = MembershipStatus.ACTIVE;
+        this.cancelledAt = null;
+        this.updatedAt = now;
+    }
+
     public boolean isExpired(OffsetDateTime now) {
         return !endsAt.isAfter(now);
     }

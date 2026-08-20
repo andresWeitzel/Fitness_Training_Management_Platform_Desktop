@@ -50,8 +50,9 @@
                     <Label fx:id="membershipsCountLabel" styleClass="muted"/>
                 </HBox>
                 <HBox spacing="8" alignment="CENTER_LEFT" styleClass="filter-chip-row">
-                    <Button fx:id="filterActiveMembershipsButton" text="Activas" onAction="#onFilterActiveMemberships" styleClass="filter-chip selected"/>
+                    <Button fx:id="filterActiveMembershipsButton" text="Activas" onAction="#onFilterActiveMemberships" styleClass="filter-chip chip-on"/>
                     <Button fx:id="filterExpiredMembershipsButton" text="Vencidas" onAction="#onFilterExpiredMemberships" styleClass="filter-chip"/>
+                    <Button fx:id="filterCancelledMembershipsButton" text="Canceladas" onAction="#onFilterCancelledMemberships" styleClass="filter-chip"/>
                     <Button fx:id="filterAllMembershipsButton" text="Todas" onAction="#onFilterAllMemberships" styleClass="filter-chip"/>
                 </HBox>
                 <HBox spacing="10" alignment="CENTER_LEFT">
@@ -119,7 +120,7 @@
                 <Label fx:id="membershipStatusLabel" styleClass="muted" wrapText="true"/>
 
                 <HBox spacing="10">
-                    <Button fx:id="saveMembershipButton" text="Asignar membresía" onAction="#onAssignMembership" styleClass="primary-button"/>
+                    <Button fx:id="saveMembershipButton" text="Asignar membresía" onAction="#onSaveMembership" styleClass="primary-button"/>
                     <Button fx:id="renewMembershipButton" text="Renovar" onAction="#onRenewMembership" styleClass="secondary-button"/>
                     <Button fx:id="cancelMembershipButton" text="Cancelar membresía" onAction="#onCancelMembership" styleClass="danger-button"/>
                 </HBox>

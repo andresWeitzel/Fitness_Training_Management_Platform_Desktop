@@ -101,6 +101,55 @@ class MembershipServiceTest {
                 ex.getMessage());
     }
 
+    @Test
+    void changePlanUpdatesActiveMembership() {
+        Client client = activeClient(1L);
+        MembershipPlan monthly = plan(2L, 30);
+        MembershipPlan quarterly = withId(
+                MembershipPlan.create("Trimestral", null, 90, BigDecimal.valueOf(2000), NOW), 3L);
+        ClientMembership existing = withId(
+                ClientMembership.assign(client, monthly, NOW.minusDays(5), NOW.plusDays(25), NOW), 10L);
+
+        when(membershipRepository.findById(10L)).thenReturn(Optional.of(existing));
+        when(planRepository.findById(3L)).thenReturn(Optional.of(quarterly));
+        when(membershipRepository.save(any(ClientMembership.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        var view = membershipService.changePlan(10L, 3L);
+
+        assertEquals("Trimestral", view.planName());
+        assertEquals(MembershipStatus.ACTIVE, view.status());
+        assertEquals(90, view.durationDays());
+        verify(membershipRepository).save(existing);
+    }
+
+    @Test
+    void reassignsAfterCancel() {
+        Client client = activeClient(1L);
+        MembershipPlan monthly = plan(2L, 30);
+        MembershipPlan quarterly = withId(
+                MembershipPlan.create("Trimestral", null, 90, BigDecimal.valueOf(2000), NOW), 3L);
+        ClientMembership cancelled = withId(
+                ClientMembership.assign(client, monthly, NOW.minusDays(5), NOW.plusDays(25), NOW), 10L);
+        cancelled.cancel(NOW);
+
+        when(membershipRepository.findById(10L)).thenReturn(Optional.of(cancelled));
+        when(clientRepository.findActiveById(1L)).thenReturn(Optional.of(client));
+        when(planRepository.findById(3L)).thenReturn(Optional.of(quarterly));
+        when(membershipRepository.findActiveByClientId(1L)).thenReturn(Optional.empty());
+        when(membershipRepository.save(any(ClientMembership.class))).thenAnswer(inv -> {
+            ClientMembership membership = inv.getArgument(0);
+            if (membership.getId() == null) {
+                return withId(membership, 11L);
+            }
+            return membership;
+        });
+
+        var view = membershipService.reassignMembership(10L, 3L, null);
+
+        assertEquals(MembershipStatus.ACTIVE, view.status());
+        assertEquals("Trimestral", view.planName());
+    }
+
     private static Client activeClient(Long id) {
         Client client = Client.register("12345678", "Ana", "Garcia", null, null, null, NOW);
         return withId(client, id);
