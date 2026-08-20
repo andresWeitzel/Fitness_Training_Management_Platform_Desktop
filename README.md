@@ -159,7 +159,8 @@ Documentación completa: [`install/CLIENTE.md`](install/CLIENTE.md).
 
 | Uso | Comando / archivo |
 |-----|-------------------|
-| Desarrollo (Maven) | `run.bat` o `scripts\start-app.bat` |
+| **Desarrollo (siempre últimos cambios)** | Doble clic en `run.bat` → compila y ejecuta |
+| Probar build empaquetado | `scripts\start-app-packaged.bat` (después de `package.bat`) |
 | Empaquetar para cliente | `package.bat` → carpeta `target\client-dist\` |
 | Base Docker (dev o cliente) | `scripts\start-db.bat` |
 | Backup | `scripts\backup-db.bat` |
@@ -206,7 +207,7 @@ mvn -q test
 mvn javafx:run
 ```
 
-O en Windows: `scripts\start-db.bat` y `run.bat`.
+O en Windows: `scripts\start-db.bat` y doble clic en **`run.bat`** (recompila siempre; no usa `target\client\` viejo).
 
 La primera vez confirma PostgreSQL. Crea la base si hace falta, aplica Flyway y carga usuarios/clientes de desarrollo.
 

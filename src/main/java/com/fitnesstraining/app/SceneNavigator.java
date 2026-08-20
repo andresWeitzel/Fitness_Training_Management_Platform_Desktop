@@ -3,6 +3,7 @@ package com.fitnesstraining.app;
 import com.fitnesstraining.controller.DbSetupController;
 import com.fitnesstraining.controller.PlaceholderController;
 import com.fitnesstraining.controller.ShellController;
+import com.fitnesstraining.app.DbSetupMode;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
@@ -25,15 +26,24 @@ public class SceneNavigator {
         return views;
     }
 
+    public void showDemoAccounts() {
+        var loaded = views.load("/views/demo-accounts.fxml");
+        setScene(loaded.root(), 520, 620, false);
+        WindowChrome.fitStage(loaded.root());
+    }
+
     public void showDbSetup(String errorMessage) {
         var loaded = views.load("/views/db-setup.fxml");
         DbSetupController controller = (DbSetupController) loaded.controller();
-        controller.prepare(errorMessage);
-        setScene(loaded.root(), 560, 760, false);
+        controller.prepare(DbSetupMode.INSTALL, errorMessage);
+        setScene(loaded.root(), 520, 560, false);
+        WindowChrome.fitStage(loaded.root());
     }
 
     public void showLogin() {
-        setScene(views.load("/views/login.fxml").root(), 500, 680, false);
+        var loaded = views.load("/views/login.fxml");
+        setScene(loaded.root(), 520, 480, false);
+        WindowChrome.fitStage(loaded.root());
     }
 
     public void showShell() {
@@ -61,7 +71,13 @@ public class SceneNavigator {
             scene.setRoot(root);
         }
         WindowChrome.applyTransparentScene(scene);
-        WindowChrome.makeDraggable(stage, lookup(root, ".window-drag"));
+        Node dragHandle = lookup(root, ".window-drag");
+        Node sidebarDrag = lookup(root, ".sidebar-drag");
+        if (sidebarDrag != null && sidebarDrag != dragHandle) {
+            WindowChrome.makeDraggable(stage, dragHandle, sidebarDrag);
+        } else {
+            WindowChrome.makeDraggable(stage, dragHandle);
+        }
 
         stage.setMaximized(false);
         root.getStyleClass().remove("maximized");
@@ -70,22 +86,19 @@ public class SceneNavigator {
             stage.setMinHeight(700);
             stage.setMaxWidth(Double.MAX_VALUE);
             stage.setMaxHeight(Double.MAX_VALUE);
-            stage.setWidth(width);
-            stage.setHeight(height);
-            stage.setMaximized(true);
-            root.getStyleClass().add("maximized");
+            Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+            stage.setWidth(Math.min(width, bounds.getWidth() - 32));
+            stage.setHeight(Math.min(height, bounds.getHeight() - 32));
+            stage.centerOnScreen();
+            WindowChrome.rememberShellBounds(stage);
         } else {
             Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
             stage.setMinWidth(420);
-            stage.setMinHeight(480);
+            stage.setMinHeight(380);
             stage.setMaxWidth(bounds.getWidth() - 24);
             stage.setMaxHeight(bounds.getHeight() - 24);
             stage.setWidth(width);
             stage.setHeight(height);
-            Platform.runLater(() -> {
-                stage.sizeToScene();
-                stage.centerOnScreen();
-            });
         }
     }
 

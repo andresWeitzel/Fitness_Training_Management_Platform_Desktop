@@ -1,20 +1,30 @@
 package com.fitnesstraining.controller;
 
 import com.fitnesstraining.app.AppContext;
+import com.fitnesstraining.app.DbConnectionSnapshot;
+import com.fitnesstraining.app.WindowChrome;
 import com.fitnesstraining.app.SceneNavigator;
 import com.fitnesstraining.app.SessionContext;
 import com.fitnesstraining.auth.dto.AuthenticatedUser;
+import com.fitnesstraining.auth.dto.PendingLoginFill;
 import com.fitnesstraining.auth.service.AuthService;
+import com.fitnesstraining.shared.config.DatabaseBootstrap;
+import com.fitnesstraining.shared.config.DatabaseConfigStore;
+import com.fitnesstraining.shared.config.DatabaseSettings;
+import com.fitnesstraining.shared.exception.AppException;
 import com.fitnesstraining.shared.exception.AuthenticationException;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 
 public class LoginController {
 
@@ -24,23 +34,32 @@ public class LoginController {
     @FXML private CheckBox showPasswordCheck;
     @FXML private Label errorLabel;
     @FXML private Button loginButton;
-    @FXML private Button demoToggle;
-    @FXML private VBox demoAccountsBox;
+    @FXML private HBox connectionBar;
+    @FXML private Label connectionStatusLabel;
+    @FXML private ProgressIndicator connectionSpinner;
+    @FXML private Button verifyConnectionButton;
+    @FXML private StackPane rootPane;
 
-    private final AuthService authService;
+    private Tooltip connectionTooltip;
+
     private final SessionContext sessionContext;
     private final SceneNavigator navigator;
     private final AppContext appContext;
+    private final DatabaseConfigStore configStore;
+    private final DatabaseBootstrap databaseBootstrap;
 
     public LoginController(
             AuthService authService,
             SessionContext sessionContext,
             SceneNavigator navigator,
-            AppContext appContext) {
-        this.authService = authService;
+            AppContext appContext,
+            DatabaseConfigStore configStore,
+            DatabaseBootstrap databaseBootstrap) {
         this.sessionContext = sessionContext;
         this.navigator = navigator;
         this.appContext = appContext;
+        this.configStore = configStore;
+        this.databaseBootstrap = databaseBootstrap;
     }
 
     @FXML
@@ -51,11 +70,38 @@ public class LoginController {
         usernameField.setOnAction(event -> passwordField.requestFocus());
         visiblePasswordField.textProperty().bindBidirectional(passwordField.textProperty());
         showPasswordCheck.selectedProperty().addListener((obs, was, show) -> togglePasswordVisible(show));
+        errorLabel.textProperty().addListener((obs, old, text) -> {
+            boolean hasError = text != null && !text.isBlank();
+            errorLabel.setManaged(hasError);
+            errorLabel.setVisible(hasError);
+            fitWindow();
+        });
+        appContext.consumePendingLogin().ifPresent(this::applyFill);
+        var startupError = appContext.consumePendingConnectionError();
+        if (startupError.isPresent()) {
+            showConnectionError(startupError.get());
+        } else if (appContext.connectionSnapshot().status() == DbConnectionSnapshot.Status.UNKNOWN
+                && !appContext.isDatabaseReady()) {
+            showConnectionError("PostgreSQL no está disponible. Usá «Comprobar» para reintentar.");
+        } else {
+            restoreConnectionSnapshot();
+        }
+        fitWindow();
+    }
+
+    private void fitWindow() {
+        WindowChrome.fitStage(rootPane);
     }
 
     @FXML
     public void onLogin() {
         errorLabel.setText("");
+        AuthService authService = appContext.authService().orElse(null);
+        if (authService == null) {
+            errorLabel.setText("La base de datos no está disponible. Comprobá la conexión.");
+            showConnectionError("PostgreSQL no está disponible. Usá «Comprobar» para reintentar.");
+            return;
+        }
         loginButton.setDisable(true);
         try {
             AuthenticatedUser user = authService.login(usernameField.getText(), currentPassword());
@@ -68,6 +114,54 @@ public class LoginController {
         } finally {
             loginButton.setDisable(false);
         }
+    }
+
+    @FXML
+    public void onVerifyConnection() {
+        configStore.load().ifPresentOrElse(this::runConnectionCheck, () -> showConnectionError(
+                "No hay configuración de PostgreSQL. Completá la instalación inicial."));
+    }
+
+    private void runConnectionCheck(DatabaseSettings settings) {
+        verifyConnectionButton.setDisable(true);
+        loginButton.setDisable(true);
+        showConnectionPending();
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() {
+                databaseBootstrap.testConnection(settings);
+                return null;
+            }
+        };
+        task.setOnSucceeded(event -> Platform.runLater(() -> {
+            try {
+                if (!appContext.isDatabaseReady()) {
+                    appContext.ensureDatabaseReady(settings);
+                }
+                showConnectionOk(settings);
+            } catch (Exception ex) {
+                String message = ex instanceof AppException appEx
+                        ? appEx.getMessage()
+                        : "Conexión correcta, pero no se pudo preparar la aplicación: " + ex.getMessage();
+                showConnectionError(message);
+            } finally {
+                verifyConnectionButton.setDisable(false);
+                loginButton.setDisable(false);
+                fitWindow();
+            }
+        }));
+        task.setOnFailed(event -> Platform.runLater(() -> {
+            Throwable ex = task.getException();
+            String message = ex instanceof AppException appEx
+                    ? appEx.getMessage()
+                    : "No se pudo conectar: " + ex.getMessage();
+            showConnectionError(message);
+            verifyConnectionButton.setDisable(false);
+            loginButton.setDisable(false);
+            fitWindow();
+        }));
+        new Thread(task, "login-connection-check").start();
     }
 
     private String currentPassword() {
@@ -89,48 +183,84 @@ public class LoginController {
     }
 
     @FXML
-    public void onToggleDemoAccounts() {
-        boolean show = !demoAccountsBox.isVisible();
-        demoAccountsBox.setVisible(show);
-        demoAccountsBox.setManaged(show);
-        demoToggle.setText(show ? "Ocultar cuentas de prueba" : "Mostrar cuentas de prueba");
-        Platform.runLater(() -> {
-            Stage stage = (Stage) demoAccountsBox.getScene().getWindow();
-            stage.sizeToScene();
-        });
+    public void onOpenDemoAccounts() {
+        appContext.openDemoAccounts();
     }
 
-    @FXML
-    public void useAdmin() {
-        fillDemo("admin", "1234");
-    }
-
-    @FXML
-    public void useReceptionist() {
-        fillDemo("empleado1", "emp123");
-    }
-
-    @FXML
-    public void useTrainer() {
-        fillDemo("juan_prof", "prof123");
-    }
-
-    @FXML
-    public void useNutritionist() {
-        fillDemo("maria_nutri", "nutri123");
-    }
-
-    private void fillDemo(String username, String password) {
-        usernameField.setText(username);
-        passwordField.setText(password);
-        visiblePasswordField.setText(password);
+    private void applyFill(PendingLoginFill fill) {
+        usernameField.setText(fill.username());
+        passwordField.setText(fill.password());
+        visiblePasswordField.setText(fill.password());
         errorLabel.setText("");
-        loginButton.requestFocus();
+        usernameField.requestFocus();
+        fitWindow();
     }
 
-    @FXML
-    public void onChangeDatabase() {
-        appContext.openDatabaseSetup();
+    private void restoreConnectionSnapshot() {
+        DbConnectionSnapshot snapshot = appContext.connectionSnapshot();
+        switch (snapshot.status()) {
+            case CONNECTED -> applyConnectionState("db-status-ok", "Conectada", snapshot.tooltip());
+            case DISCONNECTED -> applyConnectionState("db-status-error", "Sin conexión", snapshot.tooltip());
+            default -> showConnectionIdle();
+        }
+        connectionSpinner.setManaged(false);
+        connectionSpinner.setVisible(false);
+        verifyConnectionButton.setText(snapshot.status() == DbConnectionSnapshot.Status.DISCONNECTED
+                ? "Reintentar"
+                : "Comprobar");
+    }
+
+    private void showConnectionIdle() {
+        applyConnectionState("db-status-unknown", "Sin verificar", null);
+        connectionSpinner.setManaged(false);
+        connectionSpinner.setVisible(false);
+        verifyConnectionButton.setText("Comprobar");
+        appContext.saveConnectionSnapshot(DbConnectionSnapshot.unknown());
+    }
+
+    private void showConnectionPending() {
+        applyConnectionState("db-status-pending", "Comprobando…", null);
+        connectionSpinner.setManaged(true);
+        connectionSpinner.setVisible(true);
+        verifyConnectionButton.setText("Comprobando…");
+    }
+
+    private void showConnectionOk(DatabaseSettings settings) {
+        String tooltip = tooltipFor(settings);
+        applyConnectionState("db-status-ok", "Conectada", tooltip);
+        connectionSpinner.setManaged(false);
+        connectionSpinner.setVisible(false);
+        verifyConnectionButton.setText("Comprobar");
+        appContext.saveConnectionSnapshot(DbConnectionSnapshot.connected(tooltip));
+    }
+
+    private void showConnectionError(String details) {
+        applyConnectionState("db-status-error", "Sin conexión", details);
+        connectionSpinner.setManaged(false);
+        connectionSpinner.setVisible(false);
+        verifyConnectionButton.setText("Reintentar");
+        appContext.saveConnectionSnapshot(DbConnectionSnapshot.disconnected(details));
+    }
+
+    private void applyConnectionState(String styleClass, String statusText, String tooltipText) {
+        connectionBar.getStyleClass().removeAll(
+                "db-status-unknown", "db-status-ok", "db-status-error", "db-status-pending");
+        connectionBar.getStyleClass().add(styleClass);
+        connectionStatusLabel.setText(statusText);
+        if (connectionTooltip != null) {
+            Tooltip.uninstall(connectionBar, connectionTooltip);
+            connectionTooltip = null;
+        }
+        if (tooltipText != null && !tooltipText.isBlank()) {
+            connectionTooltip = new Tooltip(tooltipText);
+            connectionTooltip.setWrapText(true);
+            connectionTooltip.setMaxWidth(360);
+            Tooltip.install(connectionBar, connectionTooltip);
+        }
+    }
+
+    private static String tooltipFor(DatabaseSettings settings) {
+        return settings.host() + ":" + settings.port() + " · " + settings.database();
     }
 
     @FXML
