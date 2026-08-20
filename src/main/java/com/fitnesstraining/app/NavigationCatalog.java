@@ -23,7 +23,7 @@ public final class NavigationCatalog {
                 new NavItem("checkin", "Recepción", "Gestión", PermissionCode.CHECKIN_MANAGE,
                         "/views/checkin.fxml", true, "Ingreso con carnet/QR, histórico y bloqueo por deuda."),
                 new NavItem("staff", "Personal", "Gestión", PermissionCode.STAFF_MANAGE,
-                        "/views/placeholder.fxml", false, "ABM de usuarios y roles. Aún no migrado."),
+                        "/views/staff.fxml", true, "ABM de usuarios internos y asignación de roles."),
                 new NavItem("training", "Entrenamiento", "Entrenamiento", PermissionCode.TRAINING_MANAGE,
                         "/views/placeholder.fxml", false, "Rutinas y ejercicios estructurados. Aún no migrado."),
                 new NavItem("assessments", "Evaluaciones", "Seguimiento", PermissionCode.ASSESSMENTS_MANAGE,

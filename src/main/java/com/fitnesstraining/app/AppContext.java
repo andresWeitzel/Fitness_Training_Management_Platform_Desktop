@@ -3,6 +3,7 @@ package com.fitnesstraining.app;
 import com.fitnesstraining.auth.repository.UserRepository;
 import com.fitnesstraining.auth.service.AuthService;
 import com.fitnesstraining.auth.service.AuthorizationService;
+import com.fitnesstraining.auth.service.DemoCredentialStore;
 import com.fitnesstraining.auth.service.DevDataSeeder;
 import com.fitnesstraining.auth.service.PasswordHasher;
 import com.fitnesstraining.controller.ClientsController;
@@ -14,6 +15,7 @@ import com.fitnesstraining.controller.LoginController;
 import com.fitnesstraining.controller.MembershipsController;
 import com.fitnesstraining.controller.PaymentsController;
 import com.fitnesstraining.controller.CheckInController;
+import com.fitnesstraining.controller.StaffController;
 import com.fitnesstraining.controller.PlaceholderController;
 import com.fitnesstraining.controller.ShellController;
 import com.fitnesstraining.auth.model.PermissionCode;
@@ -32,6 +34,8 @@ import com.fitnesstraining.payments.service.PaymentService;
 import com.fitnesstraining.checkin.repository.CheckInRepository;
 import com.fitnesstraining.checkin.service.CheckInDemoSeeder;
 import com.fitnesstraining.checkin.service.CheckInService;
+import com.fitnesstraining.staff.service.StaffService;
+import com.fitnesstraining.auth.repository.RoleRepository;
 import com.fitnesstraining.shared.config.AppProperties;
 import com.fitnesstraining.shared.config.DatabaseBootstrap;
 import com.fitnesstraining.shared.config.DatabaseConfigStore;
@@ -43,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Clock;
+import java.util.List;
 import java.util.Optional;
 
 public class AppContext {
@@ -61,12 +66,15 @@ public class AppContext {
     private final SceneNavigator navigator;
 
     private PersistenceManager persistenceManager;
+    private UserRepository userRepository;
     private AuthService authService;
     private ClientQueryService clientQueryService;
     private ClientService clientService;
     private MembershipService membershipService;
     private PaymentService paymentService;
     private CheckInService checkInService;
+    private StaffService staffService;
+    private DemoCredentialStore demoCredentialStore = new DemoCredentialStore();
     private ShellController shellController;
     private PendingLoginFill pendingLogin;
     private String pendingConnectionError;
@@ -122,6 +130,7 @@ public class AppContext {
     public void logout() {
         sessionContext.clear();
         shellController = null;
+        refreshDemoCredentials();
         navigator.showLogin();
     }
 
@@ -132,6 +141,17 @@ public class AppContext {
 
     public void openDemoAccounts() {
         navigator.showDemoAccounts();
+    }
+
+    public List<DemoCredentialStore.DemoAccount> demoPanelAccounts() {
+        if (userRepository == null || demoCredentialStore == null) {
+            return List.of();
+        }
+        return demoCredentialStore.buildPanelAccounts(userRepository, passwordHasher);
+    }
+
+    public void refreshDemoCredentials() {
+        demoPanelAccounts();
     }
 
     public void returnToLogin() {
@@ -236,6 +256,9 @@ public class AppContext {
         if (type == CheckInController.class) {
             return new CheckInController(checkInService, sessionContext, authorizationService);
         }
+        if (type == StaffController.class) {
+            return new StaffController(staffService, sessionContext, authorizationService);
+        }
         if (type == PlaceholderController.class) {
             return new PlaceholderController();
         }
@@ -247,13 +270,15 @@ public class AppContext {
         flywayMigrator.migrate(settings);
         boolean showSql = Boolean.parseBoolean(properties.get("hibernate.show_sql", "false"));
         persistenceManager = new PersistenceManager(settings, showSql);
-        UserRepository userRepository = new UserRepository(persistenceManager);
+        userRepository = new UserRepository(persistenceManager);
+        RoleRepository roleRepository = new RoleRepository(persistenceManager);
         ClientRepository clientRepository = new ClientRepository(persistenceManager);
         AccessCredentialRepository credentialRepository = new AccessCredentialRepository(persistenceManager);
         MembershipPlanRepository membershipPlanRepository = new MembershipPlanRepository(persistenceManager);
         ClientMembershipRepository clientMembershipRepository = new ClientMembershipRepository(persistenceManager);
         PaymentRepository paymentRepository = new PaymentRepository(persistenceManager);
         CheckInRepository checkInRepository = new CheckInRepository(persistenceManager);
+        demoCredentialStore = new DemoCredentialStore();
         authService = new AuthService(userRepository, passwordHasher);
         clientQueryService = new ClientQueryService(clientRepository, credentialRepository);
         membershipService = new MembershipService(
@@ -275,12 +300,19 @@ public class AppContext {
                 clientMembershipRepository,
                 paymentRepository,
                 Clock.systemDefaultZone());
+        staffService = new StaffService(
+                userRepository,
+                roleRepository,
+                passwordHasher,
+                demoCredentialStore,
+                Clock.systemDefaultZone());
         clientService = new ClientService(
                 clientRepository,
                 credentialRepository,
                 membershipService,
                 Clock.systemDefaultZone());
         new DevDataSeeder(userRepository, passwordHasher).seedIfEmpty();
+        demoCredentialStore.reconcile(userRepository, passwordHasher);
         new ClientDemoSeeder(clientRepository, clientService).seedIfEmpty();
         new MembershipDemoSeeder(clientRepository, clientMembershipRepository, membershipService)
                 .seedMissingForActiveClients();
@@ -301,5 +333,9 @@ public class AppContext {
             persistenceManager.close();
             persistenceManager = null;
         }
+        userRepository = null;
+        authService = null;
+        staffService = null;
+        demoCredentialStore = new DemoCredentialStore();
     }
 }

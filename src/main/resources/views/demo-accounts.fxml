@@ -33,16 +33,18 @@
             </VBox>
         </HBox>
 
-        <Label text="Elegí un rol para completar usuario y contraseña en el login."
+        <Label text="Siempre muestra los 4 roles según Personal (usuario y clave vigentes en la base)."
                styleClass="muted"
                wrapText="true"/>
 
-        <VBox spacing="6" styleClass="demo-list">
-            <Button text="Administrador  ·  admin / 1234" onAction="#useAdmin" maxWidth="Infinity" styleClass="demo-pick"/>
-            <Button text="Recepción  ·  empleado1 / emp123" onAction="#useReceptionist" maxWidth="Infinity" styleClass="demo-pick"/>
-            <Button text="Entrenador  ·  juan_prof / prof123" onAction="#useTrainer" maxWidth="Infinity" styleClass="demo-pick"/>
-            <Button text="Nutricionista  ·  maria_nutri / nutri123" onAction="#useNutritionist" maxWidth="Infinity" styleClass="demo-pick"/>
-        </VBox>
+        <VBox fx:id="accountsBox" spacing="6" styleClass="demo-list"/>
+
+        <Label fx:id="emptyHintLabel"
+               text="No hay usuarios activos. Creá o reactivá personal para usar cuentas de prueba."
+               styleClass="muted"
+               wrapText="true"
+               managed="false"
+               visible="false"/>
 
         <Button text="Volver al login" onAction="#onBackToLogin" maxWidth="Infinity" styleClass="auth-action-button"/>
     </VBox>
