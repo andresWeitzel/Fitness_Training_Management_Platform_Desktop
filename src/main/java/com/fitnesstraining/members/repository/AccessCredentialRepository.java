@@ -77,6 +77,30 @@ public class AccessCredentialRepository {
                 .map(AccessCredential::getCode);
     }
 
+    public Optional<AccessCredential> findUsableByCode(String code, java.time.OffsetDateTime now) {
+        return findActiveByCode(code).filter(credential -> credential.isUsable(now));
+    }
+
+    public Optional<AccessCredential> findActiveByCode(String code) {
+        if (code == null || code.isBlank()) {
+            return Optional.empty();
+        }
+        return persistence.inTransaction(em ->
+                em.createQuery("""
+                                SELECT a FROM AccessCredential a
+                                JOIN FETCH a.client c
+                                WHERE lower(a.code) = lower(:code)
+                                  AND a.active = TRUE
+                                ORDER BY a.issuedAt DESC
+                                """, AccessCredential.class)
+                        .setParameter("code", code.trim())
+                        .setMaxResults(5)
+                        .getResultList()
+                        .stream()
+                        .filter(credential -> credential.getClient() != null && !credential.getClient().isDeleted())
+                        .findFirst());
+    }
+
     public AccessCredential addToClient(Long clientId, AccessCredential credential) {
         return persistence.inTransaction(em -> {
             Client client = em.find(Client.class, clientId);

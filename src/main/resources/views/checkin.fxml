@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fitnesstraining.controller.CheckInController"
+      styleClass="memberships-root"
+      spacing="12"
+      maxWidth="Infinity"
+      maxHeight="Infinity">
+
+    <HBox fx:id="feedbackBanner" styleClass="feedback-banner" alignment="CENTER" spacing="12" visible="false" managed="false">
+        <Label fx:id="feedbackLabel" wrapText="true" HBox.hgrow="ALWAYS"/>
+        <Button text="×" onAction="#onDismissFeedback" styleClass="feedback-dismiss"/>
+    </HBox>
+
+    <HBox spacing="12">
+        <VBox spacing="4" styleClass="panel-card" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets top="14" right="16" bottom="14" left="16"/>
+            </padding>
+            <Label text="Ingresos de hoy" styleClass="kpi-label"/>
+            <Label fx:id="entriesValueLabel" styleClass="kpi-value"/>
+            <Label fx:id="entriesDetailLabel" styleClass="muted"/>
+        </VBox>
+        <VBox spacing="4" styleClass="panel-card" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets top="14" right="16" bottom="14" left="16"/>
+            </padding>
+            <Label text="Personas distintas" styleClass="kpi-label"/>
+            <Label fx:id="uniqueValueLabel" styleClass="kpi-value"/>
+            <Label text="Sin cupo en recepción (el cupo aplica a turnos/actividades)" styleClass="muted" wrapText="true"/>
+        </VBox>
+    </HBox>
+
+    <SplitPane dividerPositions="0.42" styleClass="clients-split" VBox.vgrow="ALWAYS">
+        <VBox spacing="12" styleClass="panel-card">
+            <padding>
+                <Insets top="18" right="18" bottom="18" left="18"/>
+            </padding>
+            <Label text="Control de ingreso" styleClass="section-title"/>
+            <Label text="Documento, n° de cliente, carnet o código QR" styleClass="muted"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="lookupField" promptText="Ej. 30111222 · CLI-000001 · CARD-… · QR-…" HBox.hgrow="ALWAYS"/>
+                <Button fx:id="evaluateButton" text="Verificar" onAction="#onEvaluate" styleClass="secondary-button"/>
+            </HBox>
+
+            <VBox spacing="10" styleClass="assignment-fields">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Resultado" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="resultBadge" styleClass="badge-pending"/>
+                </HBox>
+                <Label fx:id="resultMessageLabel" styleClass="muted" wrapText="true"/>
+
+                <HBox spacing="14">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                        <Label text="Cliente" styleClass="preview-caption"/>
+                        <Label fx:id="clientNameLabel" styleClass="preview-value"/>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                        <Label text="Documento" styleClass="preview-caption"/>
+                        <Label fx:id="clientDocumentLabel" styleClass="preview-value"/>
+                    </VBox>
+                </HBox>
+                <HBox spacing="14">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                        <Label text="Acceso" styleClass="preview-caption"/>
+                        <Label fx:id="accessModeLabel" styleClass="preview-value"/>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                        <Label text="Credencial" styleClass="preview-caption"/>
+                        <Label fx:id="credentialLabel" styleClass="preview-value"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <Label fx:id="statusLabel" styleClass="muted" wrapText="true"/>
+
+            <HBox spacing="10">
+                <Button fx:id="registerButton" text="Registrar ingreso" onAction="#onRegister" styleClass="primary-button"/>
+                <Button fx:id="clearButton" text="Limpiar" onAction="#onClear" styleClass="ghost-button"/>
+            </HBox>
+        </VBox>
+
+        <TabPane styleClass="memberships-tabs" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+            <Tab text="Hoy">
+                <SplitPane orientation="VERTICAL" dividerPositions="0.52" styleClass="clients-split">
+                    <VBox spacing="10" styleClass="panel-card">
+                        <padding>
+                            <Insets top="14" right="14" bottom="14" left="14"/>
+                        </padding>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Ingresos de hoy" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="todayCountLabel" styleClass="muted"/>
+                            <Button text="Actualizar" onAction="#onRefreshLists" styleClass="ghost-button"/>
+                        </HBox>
+                        <TableView fx:id="todayTable" VBox.vgrow="ALWAYS" styleClass="memberships-table">
+                            <columns>
+                                <TableColumn fx:id="todayTimeColumn" text="Hora" prefWidth="70" minWidth="60"/>
+                                <TableColumn fx:id="todayClientColumn" text="Cliente" prefWidth="160" minWidth="120"/>
+                                <TableColumn fx:id="todayDocumentColumn" text="Documento" prefWidth="100" minWidth="80"/>
+                                <TableColumn fx:id="todayModeColumn" text="Modo" prefWidth="100" minWidth="80"/>
+                                <TableColumn fx:id="todayCredentialColumn" text="Ingresó con" prefWidth="100" minWidth="80"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                    <VBox fx:id="todayDetailBox" spacing="10" styleClass="panel-card">
+                        <padding>
+                            <Insets top="14" right="14" bottom="14" left="14"/>
+                        </padding>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Detalle del ingreso" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="todayDetailBadge" styleClass="badge-pending"/>
+                        </HBox>
+                        <Label fx:id="todayDetailSummaryLabel" styleClass="muted" wrapText="true"/>
+                        <HBox spacing="14">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                                <Label text="Cliente" styleClass="preview-caption"/>
+                                <Label fx:id="todayDetailClientLabel" styleClass="preview-value"/>
+                            </VBox>
+                            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                                <Label text="Contacto" styleClass="preview-caption"/>
+                                <Label fx:id="todayDetailContactLabel" styleClass="preview-value"/>
+                            </VBox>
+                        </HBox>
+                        <HBox spacing="14">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                                <Label text="Modo de acceso" styleClass="preview-caption"/>
+                                <Label fx:id="todayDetailModeLabel" styleClass="preview-value"/>
+                            </VBox>
+                            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                                <Label text="Usó al ingresar" styleClass="preview-caption"/>
+                                <Label fx:id="todayDetailUsedLabel" styleClass="preview-value"/>
+                            </VBox>
+                        </HBox>
+                        <Label text="Credenciales del cliente" styleClass="field-label"/>
+                        <VBox fx:id="todayCredentialsBox" spacing="8"/>
+                    </VBox>
+                </SplitPane>
+            </Tab>
+
+            <Tab text="Histórico">
+                <SplitPane orientation="VERTICAL" dividerPositions="0.52" styleClass="clients-split">
+                    <VBox spacing="10" styleClass="panel-card">
+                        <padding>
+                            <Insets top="14" right="14" bottom="14" left="14"/>
+                        </padding>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Histórico de ingresos" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                            <DatePicker fx:id="historyDatePicker" promptText="Fecha" styleClass="app-date-picker"/>
+                            <Button text="Buscar" onAction="#onLoadHistory" styleClass="secondary-button"/>
+                        </HBox>
+                        <Label fx:id="historyCountLabel" styleClass="muted"/>
+                        <TableView fx:id="historyTable" VBox.vgrow="ALWAYS" styleClass="memberships-table">
+                            <columns>
+                                <TableColumn fx:id="historyTimeColumn" text="Hora" prefWidth="70" minWidth="60"/>
+                                <TableColumn fx:id="historyClientColumn" text="Cliente" prefWidth="160" minWidth="120"/>
+                                <TableColumn fx:id="historyDocumentColumn" text="Documento" prefWidth="100" minWidth="80"/>
+                                <TableColumn fx:id="historyModeColumn" text="Modo" prefWidth="100" minWidth="80"/>
+                                <TableColumn fx:id="historyCredentialColumn" text="Ingresó con" prefWidth="100" minWidth="80"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                    <VBox spacing="10" styleClass="panel-card">
+                        <padding>
+                            <Insets top="14" right="14" bottom="14" left="14"/>
+                        </padding>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Detalle del ingreso" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="historyDetailBadge" styleClass="badge-pending"/>
+                        </HBox>
+                        <Label fx:id="historyDetailSummaryLabel" styleClass="muted" wrapText="true"/>
+                        <HBox spacing="14">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                                <Label text="Cliente" styleClass="preview-caption"/>
+                                <Label fx:id="historyDetailClientLabel" styleClass="preview-value"/>
+                            </VBox>
+                            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                                <Label text="Contacto" styleClass="preview-caption"/>
+                                <Label fx:id="historyDetailContactLabel" styleClass="preview-value"/>
+                            </VBox>
+                        </HBox>
+                        <HBox spacing="14">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                                <Label text="Modo de acceso" styleClass="preview-caption"/>
+                                <Label fx:id="historyDetailModeLabel" styleClass="preview-value"/>
+                            </VBox>
+                            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                                <Label text="Usó al ingresar" styleClass="preview-caption"/>
+                                <Label fx:id="historyDetailUsedLabel" styleClass="preview-value"/>
+                            </VBox>
+                        </HBox>
+                        <Label text="Credenciales del cliente" styleClass="field-label"/>
+                        <VBox fx:id="historyCredentialsBox" spacing="8"/>
+                    </VBox>
+                </SplitPane>
+            </Tab>
+        </TabPane>
+    </SplitPane>
+</VBox>

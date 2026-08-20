@@ -13,6 +13,7 @@
         <class>com.fitnesstraining.memberships.model.MembershipPlan</class>
         <class>com.fitnesstraining.memberships.model.ClientMembership</class>
         <class>com.fitnesstraining.payments.model.Payment</class>
+        <class>com.fitnesstraining.checkin.model.CheckIn</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>

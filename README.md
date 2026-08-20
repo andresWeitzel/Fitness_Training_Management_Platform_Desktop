@@ -39,15 +39,15 @@ Cada módulo se apoya en el anterior. No hace falta un ecosistema de apps suelta
 | Identidad y panel | Login seguro, menú por permiso, indicadores reales | Disponible |
 | **Clientes y credenciales** | Ficha, listado en vivo, bajas, n° de cliente, carnet 12 meses, QR | **Disponible** |
 | Membresías | Planes, altas y vencimientos | **Disponible** |
-| **Pagos y mora** | Cobro de membresía, mora/recargo, ingreso diario | **Disponible** |
-| Recepción | Check-in con carnet/QR, capacidad diaria, bloqueo por deuda | En roadmap |
+| Pagos y mora | Cobro, recargo por atraso, reactivar acceso | **Disponible** |
+| **Recepción** | Check-in con carnet/QR, histórico y bloqueo por deuda | **Disponible** |
 | Personal | Usuarios internos y roles | En roadmap |
 | Entrenamiento | Ejercicios y rutinas estructuradas | En roadmap |
 | Evaluaciones | Historial de evaluaciones físicas | En roadmap |
 | Nutrición | Turnos, planes y ficha de salud con historial | En roadmap |
 | Analytics | Vencimientos, mora, ocupación e ingresos | En roadmap |
 
-**Siguiente entrega de producto:** recepción (check-in) y bloqueo por deuda.
+**Siguiente entrega de producto:** personal (ABM de usuarios) y entrenamiento.
 
 ---
 
