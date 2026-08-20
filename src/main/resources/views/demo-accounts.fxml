@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.fitnesstraining.controller.DemoAccountsController"
+           styleClass="auth-frame"
+           alignment="TOP_CENTER"
+           fx:id="rootPane">
+
+    <VBox spacing="8" alignment="TOP_LEFT" styleClass="auth-card" prefWidth="440" maxWidth="440" maxHeight="-Infinity">
+        <padding>
+            <Insets top="14" right="28" bottom="22" left="28"/>
+        </padding>
+
+        <HBox styleClass="window-drag" alignment="CENTER_LEFT" spacing="8">
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="×" onAction="#onClose" styleClass="window-close" focusTraversable="false"/>
+        </HBox>
+
+        <HBox spacing="14" alignment="CENTER_LEFT">
+            <Label text="FT" styleClass="brand-mark"/>
+            <VBox spacing="2">
+                <Label text="DESARROLLO" styleClass="eyebrow"/>
+                <Label text="Cuentas de prueba" styleClass="screen-title"/>
+            </VBox>
+        </HBox>
+
+        <Label text="Elegí un rol para completar usuario y contraseña en el login."
+               styleClass="muted"
+               wrapText="true"/>
+
+        <VBox spacing="6" styleClass="demo-list">
+            <Button text="Administrador  ·  admin / 1234" onAction="#useAdmin" maxWidth="Infinity" styleClass="demo-pick"/>
+            <Button text="Recepción  ·  empleado1 / emp123" onAction="#useReceptionist" maxWidth="Infinity" styleClass="demo-pick"/>
+            <Button text="Entrenador  ·  juan_prof / prof123" onAction="#useTrainer" maxWidth="Infinity" styleClass="demo-pick"/>
+            <Button text="Nutricionista  ·  maria_nutri / nutri123" onAction="#useNutritionist" maxWidth="Infinity" styleClass="demo-pick"/>
+        </VBox>
+
+        <Button text="Volver al login" onAction="#onBackToLogin" maxWidth="Infinity" styleClass="auth-action-button"/>
+    </VBox>
+</StackPane>

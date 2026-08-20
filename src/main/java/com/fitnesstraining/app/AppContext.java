@@ -7,10 +7,13 @@ import com.fitnesstraining.auth.service.DevDataSeeder;
 import com.fitnesstraining.auth.service.PasswordHasher;
 import com.fitnesstraining.controller.ClientsController;
 import com.fitnesstraining.controller.DashboardController;
+import com.fitnesstraining.auth.dto.PendingLoginFill;
+import com.fitnesstraining.controller.DemoAccountsController;
 import com.fitnesstraining.controller.DbSetupController;
 import com.fitnesstraining.controller.LoginController;
 import com.fitnesstraining.controller.PlaceholderController;
 import com.fitnesstraining.controller.ShellController;
+import com.fitnesstraining.auth.model.PermissionCode;
 import com.fitnesstraining.members.repository.AccessCredentialRepository;
 import com.fitnesstraining.members.repository.ClientRepository;
 import com.fitnesstraining.members.service.ClientDemoSeeder;
@@ -27,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Clock;
+import java.util.Optional;
 
 public class AppContext {
 
@@ -48,6 +52,9 @@ public class AppContext {
     private ClientQueryService clientQueryService;
     private ClientService clientService;
     private ShellController shellController;
+    private PendingLoginFill pendingLogin;
+    private String pendingConnectionError;
+    private DbConnectionSnapshot connectionSnapshot = DbConnectionSnapshot.unknown();
 
     public AppContext(Stage stage) {
         this.stage = stage;
@@ -63,24 +70,27 @@ public class AppContext {
 
     public void connectAndShowLogin(DatabaseSettings settings) {
         try {
-            shutdownPersistence();
-            databaseBootstrap.ensureDatabaseExists(settings);
-            flywayMigrator.migrate(settings);
-            boolean showSql = Boolean.parseBoolean(properties.get("hibernate.show_sql", "false"));
-            persistenceManager = new PersistenceManager(settings, showSql);
-            UserRepository userRepository = new UserRepository(persistenceManager);
-            ClientRepository clientRepository = new ClientRepository(persistenceManager);
-            AccessCredentialRepository credentialRepository = new AccessCredentialRepository(persistenceManager);
-            authService = new AuthService(userRepository, passwordHasher);
-            clientQueryService = new ClientQueryService(clientRepository, credentialRepository);
-            clientService = new ClientService(clientRepository, credentialRepository, Clock.systemDefaultZone());
-            new DevDataSeeder(userRepository, passwordHasher).seedIfEmpty();
-            new ClientDemoSeeder(clientRepository, clientService).seedIfEmpty();
+            prepareDatabaseConnection(settings);
             navigator.showLogin();
         } catch (Exception ex) {
             log.error("No se pudo inicializar PostgreSQL", ex);
-            navigator.showDbSetup(ex.getMessage());
+            if (configStore.exists()) {
+                pendingConnectionError = ex.getMessage();
+                navigator.showLogin();
+            } else {
+                navigator.showDbSetup(ex.getMessage());
+            }
         }
+    }
+
+    public void reconnectFromAdmin(DatabaseSettings settings) {
+        prepareDatabaseConnection(settings);
+    }
+
+    public void prepareDatabaseConnection(DatabaseSettings settings) {
+        shutdownPersistence();
+        configStore.save(settings);
+        initializePersistence(settings);
     }
 
     public void openModule(String id) {
@@ -100,7 +110,62 @@ public class AppContext {
     }
 
     public void openDatabaseSetup() {
-        navigator.showDbSetup(null);
+        authorizationService.require(sessionContext.requireUser(), PermissionCode.SETTINGS_MANAGE);
+        openModule("settings");
+    }
+
+    public void openDemoAccounts() {
+        navigator.showDemoAccounts();
+    }
+
+    public void returnToLogin() {
+        if (sessionContext.isAuthenticated()) {
+            return;
+        }
+        navigator.showLogin();
+    }
+
+    public void returnToLoginWith(String username, String password) {
+        pendingLogin = new PendingLoginFill(username, password);
+        returnToLogin();
+    }
+
+    public Optional<PendingLoginFill> consumePendingLogin() {
+        PendingLoginFill fill = pendingLogin;
+        pendingLogin = null;
+        return Optional.ofNullable(fill);
+    }
+
+    public Optional<String> consumePendingConnectionError() {
+        String message = pendingConnectionError;
+        pendingConnectionError = null;
+        return Optional.ofNullable(message);
+    }
+
+    public boolean canReturnToLogin() {
+        return configStore.exists();
+    }
+
+    public boolean isDatabaseReady() {
+        return authService != null;
+    }
+
+    public Optional<AuthService> authService() {
+        return Optional.ofNullable(authService);
+    }
+
+    public void ensureDatabaseReady(DatabaseSettings settings) {
+        if (authService == null) {
+            prepareDatabaseConnection(settings);
+        }
+    }
+
+    public DbConnectionSnapshot connectionSnapshot() {
+        return connectionSnapshot;
+    }
+
+    public void saveConnectionSnapshot(DbConnectionSnapshot snapshot) {
+        this.connectionSnapshot = snapshot == null ? DbConnectionSnapshot.unknown() : snapshot;
     }
 
     public void closeStage() {
@@ -123,12 +188,19 @@ public class AppContext {
         return configStore;
     }
 
+    public DatabaseBootstrap databaseBootstrap() {
+        return databaseBootstrap;
+    }
+
     Object createController(Class<?> type) {
+        if (type == DemoAccountsController.class) {
+            return new DemoAccountsController(this);
+        }
         if (type == DbSetupController.class) {
             return new DbSetupController(this, configStore, databaseBootstrap, properties);
         }
         if (type == LoginController.class) {
-            return new LoginController(authService, sessionContext, navigator, this);
+            return new LoginController(authService, sessionContext, navigator, this, configStore, databaseBootstrap);
         }
         if (type == ShellController.class) {
             return new ShellController(sessionContext, authorizationService, navigator, this);
@@ -143,6 +215,21 @@ public class AppContext {
             return new PlaceholderController();
         }
         throw new IllegalArgumentException("No hay factory para " + type.getName());
+    }
+
+    private void initializePersistence(DatabaseSettings settings) {
+        databaseBootstrap.ensureDatabaseExists(settings);
+        flywayMigrator.migrate(settings);
+        boolean showSql = Boolean.parseBoolean(properties.get("hibernate.show_sql", "false"));
+        persistenceManager = new PersistenceManager(settings, showSql);
+        UserRepository userRepository = new UserRepository(persistenceManager);
+        ClientRepository clientRepository = new ClientRepository(persistenceManager);
+        AccessCredentialRepository credentialRepository = new AccessCredentialRepository(persistenceManager);
+        authService = new AuthService(userRepository, passwordHasher);
+        clientQueryService = new ClientQueryService(clientRepository, credentialRepository);
+        clientService = new ClientService(clientRepository, credentialRepository, Clock.systemDefaultZone());
+        new DevDataSeeder(userRepository, passwordHasher).seedIfEmpty();
+        new ClientDemoSeeder(clientRepository, clientService).seedIfEmpty();
     }
 
     private void shutdownPersistence() {

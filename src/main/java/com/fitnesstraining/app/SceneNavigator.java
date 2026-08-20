@@ -3,6 +3,7 @@ package com.fitnesstraining.app;
 import com.fitnesstraining.controller.DbSetupController;
 import com.fitnesstraining.controller.PlaceholderController;
 import com.fitnesstraining.controller.ShellController;
+import com.fitnesstraining.app.DbSetupMode;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
@@ -25,15 +26,24 @@ public class SceneNavigator {
         return views;
     }
 
+    public void showDemoAccounts() {
+        var loaded = views.load("/views/demo-accounts.fxml");
+        setScene(loaded.root(), 520, 620, false);
+        WindowChrome.fitStage(loaded.root());
+    }
+
     public void showDbSetup(String errorMessage) {
         var loaded = views.load("/views/db-setup.fxml");
         DbSetupController controller = (DbSetupController) loaded.controller();
-        controller.prepare(errorMessage);
-        setScene(loaded.root(), 560, 760, false);
+        controller.prepare(DbSetupMode.INSTALL, errorMessage);
+        setScene(loaded.root(), 520, 560, false);
+        WindowChrome.fitStage(loaded.root());
     }
 
     public void showLogin() {
-        setScene(views.load("/views/login.fxml").root(), 500, 680, false);
+        var loaded = views.load("/views/login.fxml");
+        setScene(loaded.root(), 520, 480, false);
+        WindowChrome.fitStage(loaded.root());
     }
 
     public void showShell() {
@@ -77,15 +87,11 @@ public class SceneNavigator {
         } else {
             Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
             stage.setMinWidth(420);
-            stage.setMinHeight(480);
+            stage.setMinHeight(380);
             stage.setMaxWidth(bounds.getWidth() - 24);
             stage.setMaxHeight(bounds.getHeight() - 24);
             stage.setWidth(width);
             stage.setHeight(height);
-            Platform.runLater(() -> {
-                stage.sizeToScene();
-                stage.centerOnScreen();
-            });
         }
     }
 

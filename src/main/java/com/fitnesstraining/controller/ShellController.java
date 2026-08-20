@@ -1,6 +1,7 @@
 package com.fitnesstraining.controller;
 
 import com.fitnesstraining.app.AppContext;
+import com.fitnesstraining.app.DbSetupMode;
 import com.fitnesstraining.app.NavItem;
 import com.fitnesstraining.app.NavigationCatalog;
 import com.fitnesstraining.app.SceneNavigator;
@@ -119,7 +120,11 @@ public class ShellController {
             contentHost.getChildren().setAll(navigator.loadPlaceholder(item.label(), item.summary()));
             return;
         }
-        contentHost.getChildren().setAll(navigator.views().load(item.fxml()).root());
+        var loaded = navigator.views().load(item.fxml());
+        if (loaded.controller() instanceof DbSetupController dbSetup) {
+            dbSetup.prepare(DbSetupMode.ADMIN, null);
+        }
+        contentHost.getChildren().setAll(loaded.root());
     }
 
     private void highlightNav(NavItem item) {

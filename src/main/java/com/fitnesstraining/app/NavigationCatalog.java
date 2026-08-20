@@ -31,7 +31,9 @@ public final class NavigationCatalog {
                 new NavItem("nutrition", "Nutrición", "Seguimiento", PermissionCode.NUTRITION_MANAGE,
                         "/views/placeholder.fxml", false, "Turnos y planes nutricionales. Aún no migrado."),
                 new NavItem("analytics", "Analytics", "Analytics", PermissionCode.ANALYTICS_VIEW,
-                        "/views/placeholder.fxml", false, "Ingresos y reportes. Aún no migrado.")
+                        "/views/placeholder.fxml", false, "Ingresos y reportes. Aún no migrado."),
+                new NavItem("settings", "Base de datos", "Sistema", PermissionCode.SETTINGS_MANAGE,
+                        "/views/database-settings.fxml", true, "Conexión PostgreSQL, migraciones y reconexión.")
         );
     }
 
