@@ -6,6 +6,7 @@ import com.fitnesstraining.members.dto.ClientView;
 import com.fitnesstraining.members.dto.CredentialView;
 import com.fitnesstraining.members.model.AccessCredential;
 import com.fitnesstraining.members.model.Client;
+import com.fitnesstraining.members.model.ClientListScope;
 import com.fitnesstraining.members.model.CredentialType;
 import com.fitnesstraining.members.repository.AccessCredentialRepository;
 import com.fitnesstraining.members.repository.ClientRepository;
@@ -39,9 +40,13 @@ public class ClientService {
     }
 
     public List<ClientSummary> list(String query) {
+        return list(query, ClientListScope.ACTIVE);
+    }
+
+    public List<ClientSummary> list(String query, ClientListScope scope) {
         List<Client> clients = query == null || query.isBlank()
-                ? clientRepository.findAllActiveRecords()
-                : clientRepository.search(query);
+                ? clientRepository.list(scope)
+                : clientRepository.search(query, scope);
         return clients.stream()
                 .map(client -> ClientSummary.from(
                         client,
@@ -82,7 +87,7 @@ public class ClientService {
 
     public ClientView update(Long id, ClientRequest request) {
         ClientRequest data = ClientValidator.normalizeAndValidate(request);
-        Client client = requireClient(id);
+        Client client = requireActiveClient(id);
         if (clientRepository.existsDocument(data.documentNumber(), id)) {
             throw new ValidationException("Ya existe un cliente con ese documento.");
         }
@@ -102,14 +107,14 @@ public class ClientService {
     }
 
     public void deactivate(Long id) {
-        Client client = requireClient(id);
+        Client client = requireActiveClient(id);
         client.deactivate(OffsetDateTime.now(clock));
         clientRepository.save(client);
         credentialRepository.deactivateAllForClient(id);
     }
 
     public ClientView issueCard(Long clientId) {
-        Client client = requireClient(clientId);
+        Client client = requireActiveClient(clientId);
         OffsetDateTime now = OffsetDateTime.now(clock);
         AccessCredential existing = credentialRepository
                 .findActiveByClientAndType(client.getId(), CredentialType.CARD)
@@ -133,6 +138,7 @@ public class ClientService {
     }
 
     public ClientView renewCard(Long clientId) {
+        requireActiveClient(clientId);
         OffsetDateTime now = OffsetDateTime.now(clock);
         AccessCredential card = credentialRepository
                 .findActiveByClientAndType(clientId, CredentialType.CARD)
@@ -143,7 +149,7 @@ public class ClientService {
     }
 
     public ClientView issueQr(Long clientId) {
-        requireClient(clientId);
+        requireActiveClient(clientId);
         OffsetDateTime now = OffsetDateTime.now(clock);
         if (credentialRepository.findActiveByClientAndType(clientId, CredentialType.QR)
                 .filter(credential -> credential.isUsable(now))
@@ -163,6 +169,14 @@ public class ClientService {
     private Client requireClient(Long id) {
         return clientRepository.findById(id)
                 .orElseThrow(() -> new ValidationException("Cliente no encontrado."));
+    }
+
+    private Client requireActiveClient(Long id) {
+        Client client = requireClient(id);
+        if (client.isDeleted()) {
+            throw new ValidationException("El cliente está dado de baja. Solo se puede consultar.");
+        }
+        return client;
     }
 
     private ClientView toView(Client client) {
