@@ -75,11 +75,41 @@ public class PaymentDemoSeeder {
                 ? PaymentService.DEFAULT_DAILY_PASS_AMOUNT
                 : membership.getPlan().getPrice();
 
-        return switch (index % 3) {
-            case 0 -> scenarioPaidMembershipAndOverdue(clientId, membershipId, planPrice);
-            case 1 -> scenarioPendingAndDailyPass(clientId, membershipId, planPrice);
+        return switch (index % 4) {
+            case 0 -> scenarioCleanPaidMembership(clientId, membershipId, planPrice);
+            case 1 -> scenarioPaidMembershipAndOverdue(clientId, membershipId, planPrice);
+            case 2 -> scenarioPendingAndDailyPass(clientId, membershipId, planPrice);
             default -> scenarioMixedHistory(clientId, membershipId, planPrice);
         };
+    }
+
+    private static List<RegisterPaymentRequest> scenarioCleanPaidMembership(
+            Long clientId,
+            Long membershipId,
+            BigDecimal planPrice) {
+        List<RegisterPaymentRequest> requests = new ArrayList<>();
+        if (membershipId != null) {
+            requests.add(new RegisterPaymentRequest(
+                    clientId,
+                    membershipId,
+                    PaymentType.MEMBERSHIP,
+                    planPrice,
+                    PaymentMethod.CASH,
+                    null,
+                    true,
+                    "Membresía al día (sin deuda)"));
+        } else {
+            requests.add(new RegisterPaymentRequest(
+                    clientId,
+                    null,
+                    PaymentType.DAILY_PASS,
+                    PaymentService.DEFAULT_DAILY_PASS_AMOUNT,
+                    PaymentMethod.CASH,
+                    null,
+                    true,
+                    "Pase diario al día"));
+        }
+        return requests;
     }
 
     private static List<RegisterPaymentRequest> scenarioPaidMembershipAndOverdue(

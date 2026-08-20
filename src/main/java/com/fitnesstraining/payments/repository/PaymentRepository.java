@@ -82,6 +82,26 @@ public class PaymentRepository {
         return count != null && count > 0;
     }
 
+    public boolean hasPaidDailyPassOnDay(Long clientId, OffsetDateTime dayStart, OffsetDateTime dayEnd) {
+        Long count = persistence.inTransaction(em ->
+                em.createQuery("""
+                                SELECT COUNT(p) FROM Payment p
+                                WHERE p.client.id = :clientId
+                                  AND p.status = :paid
+                                  AND p.type = :dailyPass
+                                  AND p.paidAt IS NOT NULL
+                                  AND p.paidAt >= :dayStart
+                                  AND p.paidAt < :dayEnd
+                                """, Long.class)
+                        .setParameter("clientId", clientId)
+                        .setParameter("paid", PaymentStatus.PAID)
+                        .setParameter("dailyPass", com.fitnesstraining.payments.model.PaymentType.DAILY_PASS)
+                        .setParameter("dayStart", dayStart)
+                        .setParameter("dayEnd", dayEnd)
+                        .getSingleResult());
+        return count != null && count > 0;
+    }
+
     public long countByClientId(Long clientId) {
         Long count = persistence.inTransaction(em ->
                 em.createQuery("""

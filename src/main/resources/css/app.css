@@ -1026,6 +1026,24 @@
     -fx-text-fill: #152033;
     -fx-font-size: 13px;
     -fx-font-weight: 700;
+    -fx-cursor: hand;
+}
+
+.credential-copy-button {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #1B8FE6;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #B8E4FF;
+    -fx-border-width: 1;
+    -fx-padding: 6 10 6 10;
+    -fx-cursor: hand;
+}
+
+.credential-copy-button:hover {
+    -fx-background-color: #EAF5FF;
 }
 
 .clients-table .column-header-background {

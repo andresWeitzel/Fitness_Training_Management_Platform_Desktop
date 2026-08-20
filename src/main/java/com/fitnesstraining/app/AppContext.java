@@ -13,6 +13,7 @@ import com.fitnesstraining.controller.DbSetupController;
 import com.fitnesstraining.controller.LoginController;
 import com.fitnesstraining.controller.MembershipsController;
 import com.fitnesstraining.controller.PaymentsController;
+import com.fitnesstraining.controller.CheckInController;
 import com.fitnesstraining.controller.PlaceholderController;
 import com.fitnesstraining.controller.ShellController;
 import com.fitnesstraining.auth.model.PermissionCode;
@@ -28,6 +29,9 @@ import com.fitnesstraining.memberships.service.MembershipService;
 import com.fitnesstraining.payments.repository.PaymentRepository;
 import com.fitnesstraining.payments.service.PaymentDemoSeeder;
 import com.fitnesstraining.payments.service.PaymentService;
+import com.fitnesstraining.checkin.repository.CheckInRepository;
+import com.fitnesstraining.checkin.service.CheckInDemoSeeder;
+import com.fitnesstraining.checkin.service.CheckInService;
 import com.fitnesstraining.shared.config.AppProperties;
 import com.fitnesstraining.shared.config.DatabaseBootstrap;
 import com.fitnesstraining.shared.config.DatabaseConfigStore;
@@ -62,6 +66,7 @@ public class AppContext {
     private ClientService clientService;
     private MembershipService membershipService;
     private PaymentService paymentService;
+    private CheckInService checkInService;
     private ShellController shellController;
     private PendingLoginFill pendingLogin;
     private String pendingConnectionError;
@@ -228,6 +233,9 @@ public class AppContext {
         if (type == PaymentsController.class) {
             return new PaymentsController(paymentService, sessionContext, authorizationService);
         }
+        if (type == CheckInController.class) {
+            return new CheckInController(checkInService, sessionContext, authorizationService);
+        }
         if (type == PlaceholderController.class) {
             return new PlaceholderController();
         }
@@ -245,6 +253,7 @@ public class AppContext {
         MembershipPlanRepository membershipPlanRepository = new MembershipPlanRepository(persistenceManager);
         ClientMembershipRepository clientMembershipRepository = new ClientMembershipRepository(persistenceManager);
         PaymentRepository paymentRepository = new PaymentRepository(persistenceManager);
+        CheckInRepository checkInRepository = new CheckInRepository(persistenceManager);
         authService = new AuthService(userRepository, passwordHasher);
         clientQueryService = new ClientQueryService(clientRepository, credentialRepository);
         membershipService = new MembershipService(
@@ -259,6 +268,13 @@ public class AppContext {
                 clientMembershipRepository,
                 credentialRepository,
                 Clock.systemDefaultZone());
+        checkInService = new CheckInService(
+                checkInRepository,
+                clientRepository,
+                credentialRepository,
+                clientMembershipRepository,
+                paymentRepository,
+                Clock.systemDefaultZone());
         clientService = new ClientService(
                 clientRepository,
                 credentialRepository,
@@ -269,6 +285,14 @@ public class AppContext {
         new MembershipDemoSeeder(clientRepository, clientMembershipRepository, membershipService)
                 .seedMissingForActiveClients();
         new PaymentDemoSeeder(clientRepository, clientMembershipRepository, paymentRepository, paymentService)
+                .seedIfEmpty();
+        new CheckInDemoSeeder(
+                clientRepository,
+                credentialRepository,
+                clientMembershipRepository,
+                paymentRepository,
+                checkInRepository,
+                checkInService)
                 .seedIfEmpty();
     }
 

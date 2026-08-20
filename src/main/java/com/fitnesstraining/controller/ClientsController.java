@@ -25,6 +25,8 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -324,6 +326,7 @@ public class ClientsController {
         type.getStyleClass().add("credential-type");
         Label code = new Label(credential.code());
         code.getStyleClass().add("credential-code");
+        code.setOnMouseClicked(event -> copyCredential(credential));
         Label meta = new Label(credentialMeta(credential));
         meta.getStyleClass().add("muted");
         VBox text = new VBox(2, type, code, meta);
@@ -331,10 +334,24 @@ public class ClientsController {
         HBox.setHgrow(spacer, Priority.ALWAYS);
         Label status = new Label(credential.statusLabel());
         status.getStyleClass().add("VIGENTE".equals(credential.statusLabel()) ? "badge-ready" : "badge-soon");
-        HBox row = new HBox(10, text, spacer, status);
+        Button copyButton = new Button("Copiar");
+        copyButton.getStyleClass().add("credential-copy-button");
+        copyButton.setOnAction(event -> copyCredential(credential));
+        HBox row = new HBox(10, text, spacer, status, copyButton);
         row.setAlignment(Pos.CENTER_LEFT);
         row.getStyleClass().add("credential-card");
         return row;
+    }
+
+    private void copyCredential(CredentialView credential) {
+        if (credential == null || credential.code() == null || credential.code().isBlank()) {
+            statusError("No hay código para copiar.");
+            return;
+        }
+        ClipboardContent content = new ClipboardContent();
+        content.putString(credential.code());
+        Clipboard.getSystemClipboard().setContent(content);
+        statusOk(credential.typeLabel() + " copiado: " + credential.code());
     }
 
     private String credentialMeta(CredentialView credential) {

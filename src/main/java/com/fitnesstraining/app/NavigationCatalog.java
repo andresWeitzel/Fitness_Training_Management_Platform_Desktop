@@ -21,7 +21,7 @@ public final class NavigationCatalog {
                 new NavItem("payments", "Pagos", "Gestión", PermissionCode.PAYMENTS_MANAGE,
                         "/views/payments.fxml", true, "Cobros de membresía, mora/recargo e ingreso diario."),
                 new NavItem("checkin", "Recepción", "Gestión", PermissionCode.CHECKIN_MANAGE,
-                        "/views/placeholder.fxml", false, "Ingreso diario y bloqueo por deuda. Aún no migrado."),
+                        "/views/checkin.fxml", true, "Ingreso con carnet/QR, histórico y bloqueo por deuda."),
                 new NavItem("staff", "Personal", "Gestión", PermissionCode.STAFF_MANAGE,
                         "/views/placeholder.fxml", false, "ABM de usuarios y roles. Aún no migrado."),
                 new NavItem("training", "Entrenamiento", "Entrenamiento", PermissionCode.TRAINING_MANAGE,

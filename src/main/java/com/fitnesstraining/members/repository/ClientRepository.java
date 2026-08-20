@@ -57,6 +57,23 @@ public class ClientRepository {
         return findById(id).filter(client -> !client.isDeleted());
     }
 
+    public Optional<Client> findActiveByDocument(String documentNumber) {
+        if (documentNumber == null || documentNumber.isBlank()) {
+            return Optional.empty();
+        }
+        return persistence.inTransaction(em ->
+                em.createQuery("""
+                                SELECT c FROM Client c
+                                WHERE lower(c.documentNumber) = lower(:document)
+                                  AND c.deletedAt IS NULL
+                                """, Client.class)
+                        .setParameter("document", documentNumber.trim())
+                        .setMaxResults(1)
+                        .getResultList()
+                        .stream()
+                        .findFirst());
+    }
+
     public boolean existsDocument(String documentNumber, Long excludeId) {
         return persistence.inTransaction(em -> {
             String jpql = excludeId == null
