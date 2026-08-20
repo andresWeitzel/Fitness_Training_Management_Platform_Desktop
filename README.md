@@ -41,13 +41,13 @@ Cada módulo se apoya en el anterior. No hace falta un ecosistema de apps suelta
 | Membresías | Planes, altas y vencimientos | **Disponible** |
 | Pagos y mora | Cobro, recargo por atraso, reactivar acceso | **Disponible** |
 | **Recepción** | Check-in con carnet/QR, histórico y bloqueo por deuda | **Disponible** |
-| Personal | Usuarios internos y roles | En roadmap |
+| Personal | Usuarios internos y roles | **Disponible** |
 | Entrenamiento | Ejercicios y rutinas estructuradas | En roadmap |
 | Evaluaciones | Historial de evaluaciones físicas | En roadmap |
 | Nutrición | Turnos, planes y ficha de salud con historial | En roadmap |
 | Analytics | Vencimientos, mora, ocupación e ingresos | En roadmap |
 
-**Siguiente entrega de producto:** personal (ABM de usuarios) y entrenamiento.
+**Siguiente entrega de producto:** entrenamiento (rutinas) y evaluaciones.
 
 ---
 

@@ -27,8 +27,8 @@ Estado: **I** implementado · **P** planificado · **N** no se implementa en est
 | Membresías | Planes, alta, vencimientos | **Cerrado (I)** |
 | Pagos y mora | Cobro, recargo, reactivar acceso | **Cerrado (I)** |
 | Recepción (check-in) | Ingreso, histórico, bloqueo por deuda | **Cerrado (I)** |
-| Personal | ABM de usuarios internos | P — siguiente tramo |
-| Entrenamiento | Ejercicios y rutinas estructuradas | P |
+| Personal | ABM de usuarios internos | **Cerrado (I)** |
+| Entrenamiento | Ejercicios y rutinas estructuradas | P — siguiente tramo |
 | Evaluaciones | Historial de evaluaciones físicas | P |
 | Nutrición | Turnos, planes, ficha de salud con historial | P |
 | Analytics | Indicadores, vencimientos, mora | P |
@@ -77,7 +77,7 @@ Foto de cliente (`photo_path`) está en el esquema; la carga desde la UI **no** 
 | RF-15 | Registrar pago de mora/recargo y reactivar acceso | Pagos | I |
 | RF-16 | Cobrar ingreso diario | Pagos | I |
 | RF-17 | Registrar check-in (carnet/QR) e histórico de ingresos | Recepción | I |
-| RF-18 | ABM de personal interno y roles | Personal | P |
+| RF-18 | ABM de personal interno y roles | Personal | I |
 | RF-19 | Gestionar ejercicios y rutinas estructuradas | Entrenamiento | P |
 | RF-20 | Registrar evaluaciones físicas con historial | Evaluaciones | P |
 | RF-21 | Turnos y planes de nutrición | Nutrición | P |
@@ -116,7 +116,7 @@ Los ítems **Pronto** del menú ya se ven si el rol tiene permiso; muestran plac
 | CU-10 | Gestionar membresías | Admin, Recepción | I |
 | CU-11 | Registrar pagos y mora | Admin, Recepción | I |
 | CU-12 | Controlar ingreso (check-in) | Admin, Recepción | I |
-| CU-13 | Administrar personal | Admin | P |
+| CU-13 | Administrar personal | Admin | I |
 | CU-14 | Armar rutina de entrenamiento | Admin, Entrenador | P |
 | CU-15 | Registrar evaluación física | Admin, Entrenador, Nutricionista | P |
 | CU-16 | Gestionar nutrición | Admin, Nutricionista | P |
@@ -192,7 +192,23 @@ Queda **cerrado para operación diaria** (admin y recepción) con este contrato:
 
 **Fuera de este cierre:** cupo por actividad/turno (no aplica a recepción libre del predio).
 
-Siguiente módulo natural: **Personal** (RF-18, CU-13) o **Entrenamiento** (RF-19, CU-14).
+Siguiente módulo natural: **Entrenamiento** (RF-19, CU-14).
+
+---
+
+## 6d. Cierre del módulo Personal
+
+Queda **cerrado para administración** (solo Admin) con este contrato:
+
+1. Listar usuarios internos (activos / bajas / todos) con búsqueda.
+2. Alta con usuario, nombre, email opcional, rol y contraseña (BCrypt).
+3. Edición completa desde la ficha (usuario, nombre, email, rol y contraseña opcional).
+4. Baja lógica (`active=false`) sin borrar historial; reactivación posible.
+5. Protecciones: no auto-baja; no dejar el sistema sin un Admin activo; usuario único.
+
+**Fuera de este cierre:** ABM del catálogo de roles/permisos, asistencia de profesores y liquidación (RF-25/26 = N).
+
+Siguiente módulo natural: **Entrenamiento** (RF-19, CU-14).
 
 ---
 

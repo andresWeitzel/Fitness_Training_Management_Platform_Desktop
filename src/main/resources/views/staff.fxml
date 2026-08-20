@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<SplitPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.fitnesstraining.controller.StaffController"
+           dividerPositions="0.48"
+           styleClass="clients-split">
+
+    <VBox spacing="12" styleClass="panel-card">
+        <padding>
+            <Insets top="18" right="18" bottom="18" left="18"/>
+        </padding>
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Personal interno" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+            <Label fx:id="resultCountLabel" styleClass="muted"/>
+        </HBox>
+        <HBox spacing="8" alignment="CENTER_LEFT" styleClass="filter-chip-row">
+            <Button fx:id="filterActiveButton" text="Activos" onAction="#onFilterActive" styleClass="filter-chip chip-on"/>
+            <Button fx:id="filterInactiveButton" text="Bajas" onAction="#onFilterInactive" styleClass="filter-chip"/>
+            <Button fx:id="filterAllButton" text="Todos" onAction="#onFilterAll" styleClass="filter-chip"/>
+        </HBox>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <TextField fx:id="searchField" promptText="Filtrar por usuario, nombre, email o rol" HBox.hgrow="ALWAYS"/>
+            <Button fx:id="newButton" text="Nuevo" onAction="#onNew" styleClass="primary-button"/>
+        </HBox>
+        <TableView fx:id="staffTable" VBox.vgrow="ALWAYS" styleClass="clients-table">
+            <columns>
+                <TableColumn fx:id="usernameColumn" text="Usuario" prefWidth="120" minWidth="90"/>
+                <TableColumn fx:id="nameColumn" text="Nombre" prefWidth="170" minWidth="130"/>
+                <TableColumn fx:id="roleColumn" text="Rol" prefWidth="120" minWidth="90"/>
+                <TableColumn fx:id="statusColumn" text="Estado" prefWidth="90" minWidth="70"/>
+            </columns>
+        </TableView>
+    </VBox>
+
+    <VBox spacing="8" styleClass="panel-card">
+        <padding>
+            <Insets top="18" right="18" bottom="18" left="18"/>
+        </padding>
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                <Label text="Ficha" styleClass="section-title"/>
+                <Label fx:id="fichaSubtitleLabel" styleClass="muted"/>
+            </VBox>
+            <Label fx:id="fichaStatusBadge" styleClass="badge-ready"/>
+        </HBox>
+
+        <Label text="Usuario" styleClass="field-label"/>
+        <TextField fx:id="usernameField" promptText="ej. empleado2"/>
+
+        <Label text="Nombre para mostrar" styleClass="field-label"/>
+        <TextField fx:id="displayNameField" promptText="Nombre visible en la app"/>
+
+        <Label text="Email" styleClass="field-label"/>
+        <TextField fx:id="emailField" promptText="Opcional"/>
+
+        <Label text="Rol" styleClass="field-label"/>
+        <ComboBox fx:id="roleCombo" promptText="Seleccione un rol" maxWidth="Infinity" styleClass="app-combo"/>
+
+        <Label text="Contraseña" styleClass="field-label"/>
+        <PasswordField fx:id="passwordField" promptText="Obligatoria al crear; vacía = no cambiar"/>
+        <Label fx:id="passwordHintLabel" styleClass="muted" wrapText="true"
+               text="Como administrador puede editar usuario, nombre, email, rol y contraseña desde esta ficha."/>
+
+        <VBox spacing="8" styleClass="membership-preview">
+            <Label text="Resumen" styleClass="field-label"/>
+            <HBox spacing="14">
+                <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                    <Label text="Último acceso" styleClass="preview-caption"/>
+                    <Label fx:id="lastLoginLabel" styleClass="preview-value"/>
+                </VBox>
+                <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                    <Label text="Alta" styleClass="preview-caption"/>
+                    <Label fx:id="createdAtLabel" styleClass="preview-value"/>
+                </VBox>
+            </HBox>
+        </VBox>
+
+        <Label fx:id="statusLabel" styleClass="muted" wrapText="true"/>
+
+        <HBox spacing="10">
+            <Button fx:id="saveButton" text="Guardar" onAction="#onSave" styleClass="primary-button"/>
+            <Button fx:id="deactivateButton" text="Dar de baja" onAction="#onDeactivate" styleClass="danger-button"/>
+            <Button fx:id="reactivateButton" text="Reactivar" onAction="#onReactivate" styleClass="secondary-button"/>
+        </HBox>
+    </VBox>
+</SplitPane>

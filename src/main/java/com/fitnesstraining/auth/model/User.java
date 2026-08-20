@@ -91,8 +91,16 @@ public class User {
         return active;
     }
 
+    public OffsetDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
     public OffsetDateTime getLastLoginAt() {
         return lastLoginAt;
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
     }
 
     public Set<Role> getRoles() {
@@ -106,5 +114,48 @@ public class User {
 
     public void addRole(Role role) {
         roles.add(role);
+    }
+
+    public void updateProfile(String displayName, String email, OffsetDateTime now) {
+        this.displayName = displayName;
+        this.email = email;
+        this.updatedAt = now;
+    }
+
+    public void changeUsername(String username, OffsetDateTime now) {
+        this.username = username;
+        this.updatedAt = now;
+    }
+
+    public void changePassword(String passwordHash, OffsetDateTime now) {
+        this.passwordHash = passwordHash;
+        this.updatedAt = now;
+    }
+
+    public void replaceRoles(Set<Role> newRoles, OffsetDateTime now) {
+        this.roles.clear();
+        if (newRoles != null) {
+            this.roles.addAll(newRoles);
+        }
+        this.updatedAt = now;
+    }
+
+    public void deactivate(OffsetDateTime now) {
+        this.active = false;
+        this.updatedAt = now;
+    }
+
+    public void reactivate(OffsetDateTime now) {
+        this.active = true;
+        this.deletedAt = null;
+        this.updatedAt = now;
+    }
+
+    public String primaryRoleName() {
+        return roles.stream()
+                .map(Role::getName)
+                .sorted()
+                .findFirst()
+                .orElse(null);
     }
 }
