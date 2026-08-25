@@ -50,9 +50,15 @@ public class ClientDemoSeeder {
     }
 
     public void seedIfEmpty() {
+        int pruned = clientRepository.pruneDuplicateInactiveClients();
+        if (pruned > 0) {
+            log.info("Se eliminaron {} clientes de baja duplicados (basura de seed anterior).", pruned);
+        }
+
         int created = 0;
         for (DemoClient demo : DEMO_CLIENTS) {
-            if (clientRepository.existsDocument(demo.documentNumber(), null)) {
+            // Incluye bajas: si no, cada arranque recreaba los demos dados de baja.
+            if (clientRepository.existsDocumentIncludingInactive(demo.documentNumber())) {
                 continue;
             }
             try {
@@ -79,13 +85,17 @@ public class ClientDemoSeeder {
         }
 
         if (created == 0) {
-            log.info("Clientes demo ya presentes (total {}).", clientRepository.countAll());
+            log.info(
+                    "Clientes demo ya presentes (activos {}, bajas {}).",
+                    clientRepository.countActive(),
+                    clientRepository.countInactive());
             return;
         }
         log.info(
-                "Clientes demo creados: {} (total {}). Activos/bajas y credenciales variadas.",
+                "Clientes demo creados: {}. Activos {}, bajas {}.",
                 created,
-                clientRepository.countAll());
+                clientRepository.countActive(),
+                clientRepository.countInactive());
     }
 
     private record DemoClient(

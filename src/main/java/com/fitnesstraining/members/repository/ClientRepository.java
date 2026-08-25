@@ -97,6 +97,70 @@ public class ClientRepository {
         });
     }
 
+    /** Incluye altas y bajas: evita re-seed de demos ya dados de baja. */
+    public boolean existsDocumentIncludingInactive(String documentNumber) {
+        if (documentNumber == null || documentNumber.isBlank()) {
+            return false;
+        }
+        return persistence.inTransaction(em ->
+                em.createQuery("""
+                                SELECT COUNT(c) FROM Client c
+                                WHERE lower(c.documentNumber) = lower(:document)
+                                """, Long.class)
+                        .setParameter("document", documentNumber.trim())
+                        .getSingleResult() > 0);
+    }
+
+    /**
+     * Deja una sola baja por documento (la más reciente) y borra el resto de duplicados.
+     * Usado para limpiar basura generada por seeders antiguos.
+     */
+    public int pruneDuplicateInactiveClients() {
+        return persistence.inTransaction(em -> {
+            @SuppressWarnings("unchecked")
+            List<Number> duplicateIds = em.createNativeQuery("""
+                            SELECT c.id
+                            FROM clients c
+                            WHERE c.deleted_at IS NOT NULL
+                              AND c.id NOT IN (
+                                  SELECT DISTINCT ON (lower(document_number)) id
+                                  FROM clients
+                                  WHERE deleted_at IS NOT NULL
+                                  ORDER BY lower(document_number), id DESC
+                              )
+                            """)
+                    .getResultList();
+            if (duplicateIds.isEmpty()) {
+                return 0;
+            }
+            List<Long> ids = duplicateIds.stream().map(Number::longValue).toList();
+            em.createNativeQuery("DELETE FROM check_ins WHERE client_id IN (:ids)")
+                    .setParameter("ids", ids)
+                    .executeUpdate();
+            em.createNativeQuery("DELETE FROM payments WHERE client_id IN (:ids)")
+                    .setParameter("ids", ids)
+                    .executeUpdate();
+            em.createNativeQuery("""
+                            DELETE FROM training_routine_items
+                            WHERE routine_id IN (SELECT id FROM training_routines WHERE client_id IN (:ids))
+                            """)
+                    .setParameter("ids", ids)
+                    .executeUpdate();
+            em.createNativeQuery("DELETE FROM training_routines WHERE client_id IN (:ids)")
+                    .setParameter("ids", ids)
+                    .executeUpdate();
+            em.createNativeQuery("DELETE FROM client_memberships WHERE client_id IN (:ids)")
+                    .setParameter("ids", ids)
+                    .executeUpdate();
+            em.createNativeQuery("DELETE FROM access_credentials WHERE client_id IN (:ids)")
+                    .setParameter("ids", ids)
+                    .executeUpdate();
+            return em.createNativeQuery("DELETE FROM clients WHERE id IN (:ids)")
+                    .setParameter("ids", ids)
+                    .executeUpdate();
+        });
+    }
+
     public List<Client> search(String term) {
         return search(term, ClientListScope.ACTIVE);
     }

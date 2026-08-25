@@ -20,7 +20,10 @@ public class AccessCredentialRepository {
         return persistence.inTransaction(em ->
                 em.createQuery("""
                                 SELECT COUNT(a) FROM AccessCredential a
-                                WHERE a.active = TRUE AND a.type = :type
+                                JOIN a.client c
+                                WHERE a.active = TRUE
+                                  AND a.type = :type
+                                  AND c.deletedAt IS NULL
                                 """, Long.class)
                         .setParameter("type", type)
                         .getSingleResult());
