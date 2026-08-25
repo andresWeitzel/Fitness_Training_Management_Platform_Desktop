@@ -1380,3 +1380,40 @@
 .memberships-table .column-header-background {
     -fx-background-color: #F7FAFD;
 }
+
+.detail-window-frame {
+    -fx-background-color: transparent;
+}
+
+.detail-window {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-border-color: #E8EEF5;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(21, 32, 51, 0.22), 22, 0.22, 0, 8);
+}
+
+.detail-window-kicker {
+    -fx-text-fill: #5B6B7F;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-letter-spacing: 0.4px;
+}
+
+.detail-window-title {
+    -fx-text-fill: #152033;
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+}
+
+.detail-window-meta {
+    -fx-text-fill: #5B6B7F;
+    -fx-font-size: 13px;
+}
+
+.detail-window-body {
+    -fx-text-fill: #243247;
+    -fx-font-size: 14px;
+    -fx-line-spacing: 2px;
+}

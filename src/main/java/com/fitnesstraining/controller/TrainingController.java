@@ -38,7 +38,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 
@@ -102,10 +102,6 @@ public class TrainingController {
     @FXML private TableColumn<RoutineItemRow, String> itemLoadColumn;
     @FXML private TableColumn<RoutineItemRow, String> itemDetailColumn;
     @FXML private TableColumn<RoutineItemRow, String> itemRemoveColumn;
-    @FXML private VBox itemDetailBox;
-    @FXML private Label itemDetailTitleLabel;
-    @FXML private Label itemDetailMetaLabel;
-    @FXML private Label itemDetailBodyLabel;
     @FXML private Label routineStatusLabel;
     @FXML private Button saveRoutineButton;
     @FXML private Button archiveRoutineButton;
@@ -226,7 +222,6 @@ public class TrainingController {
         routineStatusCombo.setValue(RoutineStatus.ACTIVE);
         routineStartsOnPicker.setValue(null);
         draftItems.clear();
-        hideItemDetail();
         clearItemDraftFields();
         routineSubtitleLabel.setText("Nueva rutina");
         routineStatusBadge.setText("Nueva");
@@ -594,9 +589,7 @@ public class TrainingController {
                 remove.getStyleClass().add("danger-button");
                 remove.setOnAction(e -> {
                     if (getIndex() >= 0 && getIndex() < draftItems.size()) {
-                        RoutineItemRow row = draftItems.get(getIndex());
-                        draftItems.remove(row);
-                        hideItemDetail();
+                        draftItems.remove(getIndex());
                     }
                 });
             }
@@ -615,35 +608,8 @@ public class TrainingController {
     }
 
     private void showItemDetail(RoutineItemRow row) {
-        itemDetailBox.setManaged(true);
-        itemDetailBox.setVisible(true);
-        itemDetailTitleLabel.setText(row.exerciseName());
-        itemDetailMetaLabel.setText(
-                row.muscleGroupLabel()
-                        + " · " + row.equipmentLabel()
-                        + " · " + row.difficultyLabel()
-                        + (row.secondaryMuscles() == null || row.secondaryMuscles().isBlank()
-                        ? ""
-                        : " · Secundarios: " + row.secondaryMuscles()));
-        String body = "";
-        if (row.description() != null && !row.description().isBlank()) {
-            body += row.description();
-        }
-        if (row.techniqueNotes() != null && !row.techniqueNotes().isBlank()) {
-            if (!body.isBlank()) {
-                body += "\n";
-            }
-            body += "Técnica: " + row.techniqueNotes();
-        }
-        itemDetailBodyLabel.setText(body.isBlank() ? "Sin notas técnicas en el catálogo." : body);
-    }
-
-    private void hideItemDetail() {
-        itemDetailBox.setManaged(false);
-        itemDetailBox.setVisible(false);
-        itemDetailTitleLabel.setText("");
-        itemDetailMetaLabel.setText("");
-        itemDetailBodyLabel.setText("");
+        Window owner = routineItemsTable.getScene() == null ? null : routineItemsTable.getScene().getWindow();
+        RoutineItemDetailController.open(owner, row);
     }
 
     private void reloadRoutines() {
@@ -697,7 +663,6 @@ public class TrainingController {
                             i.restSeconds(),
                             i.loadNote()))
                     .toList());
-            hideItemDetail();
             routineSubtitleLabel.setText(view.clientName() + " · " + view.trainerName());
             routineStatusBadge.setText(view.statusLabel());
             routineStatusBadge.getStyleClass().setAll(

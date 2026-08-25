@@ -34,14 +34,19 @@ public final class WindowChrome {
         if (node == null || node.getScene() == null) {
             return;
         }
-        scheduleFit((Stage) node.getScene().getWindow());
+        scheduleFit((Stage) node.getScene().getWindow(), true);
     }
 
     public static void fitStage(Stage stage) {
-        scheduleFit(stage);
+        scheduleFit(stage, true);
     }
 
-    private static void scheduleFit(Stage stage) {
+    /** Ajusta tamaño al contenido sin recentrar (útil para ventanas hijas posicionadas). */
+    public static void packStage(Stage stage) {
+        scheduleFit(stage, false);
+    }
+
+    private static void scheduleFit(Stage stage, boolean center) {
         if (stage == null || stage.getScene() == null) {
             return;
         }
@@ -60,7 +65,9 @@ public final class WindowChrome {
             Rectangle2D screen = Screen.getPrimary().getVisualBounds();
             stage.setWidth(Math.min(width, screen.getWidth() - 16));
             stage.setHeight(Math.min(height, screen.getHeight() - 16));
-            stage.centerOnScreen();
+            if (center) {
+                stage.centerOnScreen();
+            }
         }));
     }
 
