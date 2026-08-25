@@ -146,10 +146,10 @@ public class CheckInService {
                     entries);
         }
 
-        if (paymentRepository.hasOpenDebt(client.getId())) {
+        if (paymentRepository.hasBlockingDebt(client.getId(), now())) {
             return CheckInEvaluation.denied(
                     CheckInDenialReason.OPEN_DEBT,
-                    "Acceso bloqueado: el cliente tiene pagos pendientes o en mora.",
+                    "Acceso bloqueado: el cliente tiene mora (pago vencido o recargo pendiente). Registre el cobro en Pagos.",
                     client.getId(),
                     client.getDocumentNumber(),
                     client.fullName(),

@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fitnesstraining.controller.TrainingController"
+      styleClass="memberships-root"
+      spacing="12"
+      maxWidth="Infinity"
+      maxHeight="Infinity">
+
+    <TabPane fx:id="trainingTabs" styleClass="memberships-tabs" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
+
+        <Tab text="Rutinas">
+            <SplitPane dividerPositions="0.46" styleClass="clients-split">
+                <VBox spacing="12" styleClass="panel-card">
+                    <padding>
+                        <Insets top="18" right="18" bottom="18" left="18"/>
+                    </padding>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Rutinas" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="routinesCountLabel" styleClass="muted"/>
+                    </HBox>
+                    <HBox spacing="8" alignment="CENTER_LEFT" styleClass="filter-chip-row">
+                        <Button fx:id="filterActiveRoutinesButton" text="Activas" onAction="#onFilterActiveRoutines" styleClass="filter-chip chip-on"/>
+                        <Button fx:id="filterDraftRoutinesButton" text="Borrador" onAction="#onFilterDraftRoutines" styleClass="filter-chip"/>
+                        <Button fx:id="filterScheduledRoutinesButton" text="Programadas" onAction="#onFilterScheduledRoutines" styleClass="filter-chip"/>
+                        <Button fx:id="filterArchivedRoutinesButton" text="Archivadas" onAction="#onFilterArchivedRoutines" styleClass="filter-chip"/>
+                        <Button fx:id="filterAllRoutinesButton" text="Todas" onAction="#onFilterAllRoutines" styleClass="filter-chip"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <TextField fx:id="routineSearchField" promptText="Filtrar por cliente, título, enfoque o entrenador" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="newRoutineButton" text="Nueva" onAction="#onNewRoutine" styleClass="primary-button"/>
+                    </HBox>
+                    <TableView fx:id="routinesTable" VBox.vgrow="ALWAYS" styleClass="clients-table">
+                        <columns>
+                            <TableColumn fx:id="routineClientColumn" text="Cliente" prefWidth="140" minWidth="110"/>
+                            <TableColumn fx:id="routineTitleColumn" text="Título" prefWidth="130" minWidth="100"/>
+                            <TableColumn fx:id="routineFocusColumn" text="Enfoque" prefWidth="100" minWidth="80"/>
+                            <TableColumn fx:id="routineTrainerColumn" text="Entrenador" prefWidth="110" minWidth="90"/>
+                            <TableColumn fx:id="routineItemsColumn" text="Ejerc." prefWidth="55" minWidth="45"/>
+                            <TableColumn fx:id="routineStatusColumn" text="Estado" prefWidth="90" minWidth="70"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+
+                <VBox spacing="8" styleClass="panel-card">
+                    <padding>
+                        <Insets top="18" right="18" bottom="18" left="18"/>
+                    </padding>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                            <Label text="Ficha de rutina" styleClass="section-title"/>
+                            <Label fx:id="routineSubtitleLabel" styleClass="muted"/>
+                        </VBox>
+                        <Label fx:id="routineStatusBadge" styleClass="badge-ready"/>
+                    </HBox>
+
+                    <Label text="Cliente" styleClass="field-label"/>
+                    <ComboBox fx:id="routineClientCombo" promptText="Seleccione un cliente activo" maxWidth="Infinity" styleClass="app-combo"/>
+
+                    <HBox spacing="10">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="Título" styleClass="field-label"/>
+                            <TextField fx:id="routineTitleField" promptText="ej. Hipertrofia — Full body A"/>
+                        </VBox>
+                        <VBox spacing="4" prefWidth="180">
+                            <Label text="Enfoque" styleClass="field-label"/>
+                            <TextField fx:id="routineFocusField" promptText="Fuerza, hipertrofia…"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="10">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="Estado" styleClass="field-label"/>
+                            <ComboBox fx:id="routineStatusCombo" maxWidth="Infinity" styleClass="app-combo"/>
+                        </VBox>
+                        <VBox spacing="4" prefWidth="180">
+                            <Label text="Inicio (si programada)" styleClass="field-label"/>
+                            <DatePicker fx:id="routineStartsOnPicker" maxWidth="Infinity"/>
+                        </VBox>
+                    </HBox>
+
+                    <Label text="Observaciones" styleClass="field-label"/>
+                    <TextArea fx:id="routineNotesField" promptText="Opcional" prefRowCount="2" wrapText="true"/>
+
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Ejercicios de la rutina" styleClass="field-label" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="addItemButton" text="Agregar" onAction="#onAddRoutineItem" styleClass="secondary-button"/>
+                    </HBox>
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <ComboBox fx:id="itemExerciseCombo" promptText="Ejercicio" maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="app-combo"/>
+                        <TextField fx:id="itemSetsField" promptText="Series" prefWidth="70"/>
+                        <TextField fx:id="itemRepsField" promptText="Reps" prefWidth="80"/>
+                        <TextField fx:id="itemRestField" promptText="Desc.s" prefWidth="70"/>
+                        <TextField fx:id="itemLoadField" promptText="Carga" prefWidth="90"/>
+                    </HBox>
+                    <TableView fx:id="routineItemsTable" VBox.vgrow="ALWAYS" styleClass="clients-table">
+                        <columns>
+                            <TableColumn fx:id="itemNameColumn" text="Ejercicio" prefWidth="140" minWidth="110"/>
+                            <TableColumn fx:id="itemSetsColumn" text="Series" prefWidth="55" minWidth="45"/>
+                            <TableColumn fx:id="itemRepsColumn" text="Reps" prefWidth="60" minWidth="45"/>
+                            <TableColumn fx:id="itemRestColumn" text="Desc." prefWidth="55" minWidth="45"/>
+                            <TableColumn fx:id="itemLoadColumn" text="Carga" prefWidth="70" minWidth="55"/>
+                            <TableColumn fx:id="itemDetailColumn" text="" prefWidth="48" minWidth="44" maxWidth="52"/>
+                            <TableColumn fx:id="itemRemoveColumn" text="" prefWidth="48" minWidth="44" maxWidth="52"/>
+                        </columns>
+                    </TableView>
+
+                    <Label fx:id="routineStatusLabel" styleClass="muted" wrapText="true"/>
+                    <HBox spacing="10">
+                        <Button fx:id="saveRoutineButton" text="Guardar" onAction="#onSaveRoutine" styleClass="primary-button"/>
+                        <Button fx:id="archiveRoutineButton" text="Archivar" onAction="#onArchiveRoutine" styleClass="danger-button"/>
+                        <Button fx:id="reactivateRoutineButton" text="Reactivar" onAction="#onReactivateRoutine" styleClass="secondary-button"/>
+                    </HBox>
+                </VBox>
+            </SplitPane>
+        </Tab>
+
+        <Tab text="Ejercicios">
+            <SplitPane dividerPositions="0.48" styleClass="clients-split">
+                <VBox spacing="12" styleClass="panel-card">
+                    <padding>
+                        <Insets top="18" right="18" bottom="18" left="18"/>
+                    </padding>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Catálogo" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="exercisesCountLabel" styleClass="muted"/>
+                    </HBox>
+                    <HBox spacing="8" alignment="CENTER_LEFT" styleClass="filter-chip-row">
+                        <Button fx:id="filterActiveExercisesButton" text="Activos" onAction="#onFilterActiveExercises" styleClass="filter-chip chip-on"/>
+                        <Button fx:id="filterInactiveExercisesButton" text="Inactivos" onAction="#onFilterInactiveExercises" styleClass="filter-chip"/>
+                        <Button fx:id="filterAllExercisesButton" text="Todos" onAction="#onFilterAllExercises" styleClass="filter-chip"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <TextField fx:id="exerciseSearchField" promptText="Filtrar por nombre, grupo o descripción" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="newExerciseButton" text="Nuevo" onAction="#onNewExercise" styleClass="primary-button"/>
+                    </HBox>
+                    <TableView fx:id="exercisesTable" VBox.vgrow="ALWAYS" styleClass="clients-table">
+                        <columns>
+                            <TableColumn fx:id="exerciseNameColumn" text="Nombre" prefWidth="150" minWidth="120"/>
+                            <TableColumn fx:id="exerciseGroupColumn" text="Grupo" prefWidth="90" minWidth="70"/>
+                            <TableColumn fx:id="exerciseEquipmentColumn" text="Equipo" prefWidth="100" minWidth="80"/>
+                            <TableColumn fx:id="exerciseDifficultyColumn" text="Nivel" prefWidth="90" minWidth="70"/>
+                            <TableColumn fx:id="exerciseStatusColumn" text="Estado" prefWidth="80" minWidth="70"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+
+                <VBox spacing="8" styleClass="panel-card">
+                    <padding>
+                        <Insets top="18" right="18" bottom="18" left="18"/>
+                    </padding>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                            <Label text="Ficha de ejercicio" styleClass="section-title"/>
+                            <Label fx:id="exerciseSubtitleLabel" styleClass="muted"/>
+                        </VBox>
+                        <Label fx:id="exerciseStatusBadge" styleClass="badge-ready"/>
+                    </HBox>
+
+                    <Label text="Nombre" styleClass="field-label"/>
+                    <TextField fx:id="exerciseNameField" promptText="ej. Press banca"/>
+
+                    <HBox spacing="10">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="Grupo muscular" styleClass="field-label"/>
+                            <ComboBox fx:id="exerciseGroupCombo" promptText="Seleccione" maxWidth="Infinity" styleClass="app-combo"/>
+                        </VBox>
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="Equipamiento" styleClass="field-label"/>
+                            <ComboBox fx:id="exerciseEquipmentCombo" promptText="Seleccione" maxWidth="Infinity" styleClass="app-combo"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="10">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="Nivel" styleClass="field-label"/>
+                            <ComboBox fx:id="exerciseDifficultyCombo" promptText="Seleccione" maxWidth="Infinity" styleClass="app-combo"/>
+                        </VBox>
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="Músculos secundarios" styleClass="field-label"/>
+                            <TextField fx:id="exerciseSecondaryField" promptText="ej. Tríceps, deltoides"/>
+                        </VBox>
+                    </HBox>
+
+                    <Label text="Descripción" styleClass="field-label"/>
+                    <TextArea fx:id="exerciseDescriptionField" promptText="Qué trabaja / variante" prefRowCount="2" wrapText="true"/>
+
+                    <Label text="Notas técnicas" styleClass="field-label"/>
+                    <TextArea fx:id="exerciseTechniqueField" promptText="Cues de ejecución, errores comunes, respiración…" prefRowCount="3" wrapText="true"/>
+
+                    <Label fx:id="exerciseStatusLabel" styleClass="muted" wrapText="true"/>
+                    <HBox spacing="10">
+                        <Button fx:id="saveExerciseButton" text="Guardar" onAction="#onSaveExercise" styleClass="primary-button"/>
+                        <Button fx:id="deactivateExerciseButton" text="Desactivar" onAction="#onDeactivateExercise" styleClass="danger-button"/>
+                        <Button fx:id="reactivateExerciseButton" text="Reactivar" onAction="#onReactivateExercise" styleClass="secondary-button"/>
+                    </HBox>
+                </VBox>
+            </SplitPane>
+        </Tab>
+    </TabPane>
+</VBox>

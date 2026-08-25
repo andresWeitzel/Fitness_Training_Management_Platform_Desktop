@@ -13,6 +13,7 @@ import com.fitnesstraining.members.model.ClientListScope;
 import com.fitnesstraining.members.model.ClientStatus;
 import com.fitnesstraining.members.model.CredentialType;
 import com.fitnesstraining.members.service.ClientService;
+import com.fitnesstraining.memberships.model.MembershipStatus;
 import com.fitnesstraining.shared.exception.ValidationException;
 import javafx.animation.PauseTransition;
 import javafx.beans.property.SimpleStringProperty;
@@ -38,6 +39,7 @@ import java.time.format.DateTimeFormatter;
 public class ClientsController {
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @FXML private TextField searchField;
     @FXML private Label resultCountLabel;
@@ -58,6 +60,10 @@ public class ClientsController {
     @FXML private TextField emailField;
     @FXML private TextField phoneField;
     @FXML private TextField addressField;
+    @FXML private Label opsPlanLabel;
+    @FXML private Label opsDebtLabel;
+    @FXML private Label opsCheckInLabel;
+    @FXML private Label opsRoutineLabel;
     @FXML private VBox credentialsBox;
     @FXML private Label statusLabel;
 
@@ -170,6 +176,7 @@ public class ClientsController {
         fichaStatusBadge.setText("Nuevo");
         fichaStatusBadge.getStyleClass().setAll("badge-soon");
         credentialsBox.getChildren().setAll(hint("Después de guardar se puede emitir carnet y QR."));
+        clearOpsSummary();
         statusLabel.setText("");
         statusLabel.getStyleClass().setAll("muted");
         applyFormState(true);
@@ -300,6 +307,7 @@ public class ClientsController {
         fichaStatusBadge.setText(selectedInactive ? "Baja" : "Activo");
         fichaStatusBadge.getStyleClass().setAll(selectedInactive ? "badge-soon" : "badge-ready");
 
+        renderOpsSummary(view);
         renderCredentials(view);
         applyFormState(!selectedInactive);
         deactivateButton.setDisable(!canManage || selectedInactive);
@@ -310,6 +318,44 @@ public class ClientsController {
         } else {
             statusLabel.setText("");
         }
+    }
+
+    private void renderOpsSummary(ClientView view) {
+        if (view.membershipPlanName() == null || view.membershipPlanName().isBlank()) {
+            opsPlanLabel.setText("Sin plan activo");
+        } else {
+            String ends = view.membershipEndsOn() == null ? "—" : DATE_FORMAT.format(view.membershipEndsOn());
+            String status = view.membershipStatus() == null ? "" : " · " + labelForMembership(view.membershipStatus());
+            opsPlanLabel.setText(view.membershipPlanName() + " · vence " + ends + status);
+        }
+        opsDebtLabel.setText(view.hasBlockingDebt() ? "Mora / recargo pendiente" : "Al día");
+        opsDebtLabel.getStyleClass().setAll(view.hasBlockingDebt() ? "status-error" : "preview-value");
+        opsCheckInLabel.setText(view.lastCheckInAt() == null
+                ? "Sin registros"
+                : DATE_TIME_FORMAT.format(view.lastCheckInAt()));
+        if (view.activeRoutineTitle() == null || view.activeRoutineTitle().isBlank()) {
+            opsRoutineLabel.setText("Sin rutina activa");
+        } else if (view.activeRoutineFocus() == null || view.activeRoutineFocus().isBlank()) {
+            opsRoutineLabel.setText(view.activeRoutineTitle());
+        } else {
+            opsRoutineLabel.setText(view.activeRoutineTitle() + " · " + view.activeRoutineFocus());
+        }
+    }
+
+    private void clearOpsSummary() {
+        opsPlanLabel.setText("—");
+        opsDebtLabel.setText("—");
+        opsDebtLabel.getStyleClass().setAll("preview-value");
+        opsCheckInLabel.setText("—");
+        opsRoutineLabel.setText("—");
+    }
+
+    private static String labelForMembership(MembershipStatus status) {
+        return switch (status) {
+            case ACTIVE -> "Activa";
+            case EXPIRED -> "Vencida";
+            case CANCELLED -> "Cancelada";
+        };
     }
 
     private void renderCredentials(ClientView view) {

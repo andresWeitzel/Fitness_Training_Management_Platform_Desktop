@@ -1,5 +1,6 @@
 package com.fitnesstraining.controller;
 
+import com.fitnesstraining.app.AppContext;
 import com.fitnesstraining.app.ConfirmDialogs;
 import com.fitnesstraining.app.SessionContext;
 import com.fitnesstraining.auth.dto.AuthenticatedUser;
@@ -90,6 +91,7 @@ public class PaymentsController {
     private final PaymentService paymentService;
     private final SessionContext sessionContext;
     private final AuthorizationService authorizationService;
+    private final AppContext appContext;
 
     private Long selectedPaymentId;
     private PaymentStatus selectedStatus;
@@ -103,10 +105,12 @@ public class PaymentsController {
     public PaymentsController(
             PaymentService paymentService,
             SessionContext sessionContext,
-            AuthorizationService authorizationService) {
+            AuthorizationService authorizationService,
+            AppContext appContext) {
         this.paymentService = paymentService;
         this.sessionContext = sessionContext;
         this.authorizationService = authorizationService;
+        this.appContext = appContext;
     }
 
     @FXML
@@ -159,9 +163,31 @@ public class PaymentsController {
     private void loadInitialData() {
         try {
             refreshPayableClients();
-            refreshPayments();
+            Long pendingClientId = appContext.consumePendingPaymentClientId().orElse(null);
+            if (pendingClientId != null) {
+                focusClientFromCheckIn(pendingClientId);
+            } else {
+                refreshPayments();
+            }
         } catch (RuntimeException ex) {
             showFeedbackError("Error al cargar pagos: " + ex.getMessage());
+        }
+    }
+
+    private void focusClientFromCheckIn(Long clientId) {
+        setScope(PaymentListScope.OVERDUE);
+        PaymentClientOption client = payableClients.stream()
+                .filter(c -> c.id().equals(clientId))
+                .findFirst()
+                .orElse(null);
+        if (client != null) {
+            searchField.setText(client.documentNumber());
+            onNewPayment();
+            clientCombo.setValue(client);
+            showFeedbackOk("Cliente precargado desde Recepción (mora). Registre o marque el cobro.");
+        } else {
+            refreshPayments();
+            showFeedbackError("No se encontró el cliente indicado desde Recepción.");
         }
     }
 

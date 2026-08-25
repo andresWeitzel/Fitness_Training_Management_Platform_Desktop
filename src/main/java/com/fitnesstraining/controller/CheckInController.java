@@ -1,5 +1,6 @@
 package com.fitnesstraining.controller;
 
+import com.fitnesstraining.app.AppContext;
 import com.fitnesstraining.app.SessionContext;
 import com.fitnesstraining.auth.dto.AuthenticatedUser;
 import com.fitnesstraining.auth.model.PermissionCode;
@@ -12,7 +13,6 @@ import com.fitnesstraining.checkin.dto.CheckInView;
 import com.fitnesstraining.checkin.model.AccessMode;
 import com.fitnesstraining.checkin.model.CheckInDenialReason;
 import com.fitnesstraining.checkin.service.CheckInService;
-import com.fitnesstraining.members.dto.CredentialView;
 import com.fitnesstraining.members.model.CredentialType;
 import com.fitnesstraining.shared.exception.ValidationException;
 import javafx.animation.PauseTransition;
@@ -28,13 +28,10 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 import javafx.util.Duration;
 
 import java.time.LocalDate;
@@ -46,7 +43,6 @@ public class CheckInController {
 
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     @FXML private HBox feedbackBanner;
     @FXML private Label feedbackLabel;
@@ -65,6 +61,7 @@ public class CheckInController {
     @FXML private Label credentialLabel;
     @FXML private Label statusLabel;
     @FXML private Button registerButton;
+    @FXML private Button openPaymentsButton;
     @FXML private Button clearButton;
 
     @FXML private Label todayCountLabel;
@@ -74,13 +71,7 @@ public class CheckInController {
     @FXML private TableColumn<CheckInSummary, String> todayDocumentColumn;
     @FXML private TableColumn<CheckInSummary, String> todayModeColumn;
     @FXML private TableColumn<CheckInSummary, String> todayCredentialColumn;
-    @FXML private Label todayDetailBadge;
-    @FXML private Label todayDetailSummaryLabel;
-    @FXML private Label todayDetailClientLabel;
-    @FXML private Label todayDetailContactLabel;
-    @FXML private Label todayDetailModeLabel;
-    @FXML private Label todayDetailUsedLabel;
-    @FXML private VBox todayCredentialsBox;
+    @FXML private TableColumn<CheckInSummary, String> todayDetailColumn;
 
     @FXML private DatePicker historyDatePicker;
     @FXML private Label historyCountLabel;
@@ -90,17 +81,12 @@ public class CheckInController {
     @FXML private TableColumn<CheckInSummary, String> historyDocumentColumn;
     @FXML private TableColumn<CheckInSummary, String> historyModeColumn;
     @FXML private TableColumn<CheckInSummary, String> historyCredentialColumn;
-    @FXML private Label historyDetailBadge;
-    @FXML private Label historyDetailSummaryLabel;
-    @FXML private Label historyDetailClientLabel;
-    @FXML private Label historyDetailContactLabel;
-    @FXML private Label historyDetailModeLabel;
-    @FXML private Label historyDetailUsedLabel;
-    @FXML private VBox historyCredentialsBox;
+    @FXML private TableColumn<CheckInSummary, String> historyDetailColumn;
 
     private final CheckInService checkInService;
     private final SessionContext sessionContext;
     private final AuthorizationService authorizationService;
+    private final AppContext appContext;
 
     private boolean canManage;
     private CheckInEvaluation currentEvaluation;
@@ -109,10 +95,12 @@ public class CheckInController {
     public CheckInController(
             CheckInService checkInService,
             SessionContext sessionContext,
-            AuthorizationService authorizationService) {
+            AuthorizationService authorizationService,
+            AppContext appContext) {
         this.checkInService = checkInService;
         this.sessionContext = sessionContext;
         this.authorizationService = authorizationService;
+        this.appContext = appContext;
     }
 
     @FXML
@@ -127,22 +115,10 @@ public class CheckInController {
                 onEvaluate();
             }
         });
-        todayTable.getSelectionModel().selectedItemProperty().addListener((obs, old, selected) -> {
-            if (selected != null) {
-                loadDetail(selected.id(), true);
-            }
-        });
-        historyTable.getSelectionModel().selectedItemProperty().addListener((obs, old, selected) -> {
-            if (selected != null) {
-                loadDetail(selected.id(), false);
-            }
-        });
         historyDatePicker.setValue(LocalDate.now());
         feedbackHideDelay.setOnFinished(e -> hideFeedback());
 
         clearResult();
-        clearDetail(true);
-        clearDetail(false);
         Platform.runLater(() -> {
             onRefreshLists();
             lookupField.requestFocus();
@@ -165,46 +141,43 @@ public class CheckInController {
             registerButton.setDisable(!currentEvaluation.allowed());
             if (currentEvaluation.allowed()) {
                 statusInfo(currentEvaluation.alreadyCheckedInToday()
-                        ? "Pulse Registrar ingreso para confirmar el reingreso."
-                        : "Pulse Registrar ingreso para confirmar.");
+                        ? "Ya ingresó hoy. Puede registrar un reingreso."
+                        : "Listo para registrar el ingreso.");
             } else {
                 statusError(currentEvaluation.message());
             }
         } catch (ValidationException ex) {
-            currentEvaluation = null;
-            clearResultPanels();
-            resultBadge.setText("Error");
-            resultBadge.getStyleClass().setAll("badge-cancelled");
-            resultMessageLabel.setText(ex.getMessage());
+            clearResult();
             statusError(ex.getMessage());
-            registerButton.setDisable(true);
+            showFeedbackError(ex.getMessage());
         } catch (RuntimeException ex) {
-            currentEvaluation = null;
-            showFeedbackError("No se pudo verificar: " + ex.getMessage());
+            clearResult();
+            statusError(ex.getMessage());
+            showFeedbackError(ex.getMessage());
         }
     }
 
     @FXML
     public void onRegister() {
-        if (!canManage) {
+        if (!canManage || currentEvaluation == null || !currentEvaluation.allowed()) {
             return;
         }
         try {
             CheckInView view = checkInService.register(lookupField.getText());
-            showFeedbackOk(view.message() + " " + view.clientName());
-            onRefreshLists();
+            showFeedbackOk("Ingreso registrado: " + view.clientName());
+            refreshSnapshot();
+            refreshToday();
+            selectTodayById(view.id());
             currentEvaluation = checkInService.evaluate(lookupField.getText());
             showEvaluation(currentEvaluation);
             registerButton.setDisable(!currentEvaluation.allowed());
-            statusInfo(view.message());
-            selectTodayById(view.id());
-            lookupField.selectAll();
-            lookupField.requestFocus();
+            statusInfo("Ingreso registrado.");
         } catch (ValidationException ex) {
             statusError(ex.getMessage());
-            onEvaluate();
+            showFeedbackError(ex.getMessage());
         } catch (RuntimeException ex) {
-            showFeedbackError("No se pudo registrar el ingreso: " + ex.getMessage());
+            statusError(ex.getMessage());
+            showFeedbackError(ex.getMessage());
         }
     }
 
@@ -213,42 +186,46 @@ public class CheckInController {
         lookupField.clear();
         currentEvaluation = null;
         clearResult();
-        refreshSnapshot();
         lookupField.requestFocus();
     }
 
     @FXML
     public void onRefreshLists() {
-        refreshSnapshot();
-        refreshToday();
-        if (historyDatePicker.getValue() != null) {
-            onLoadHistory();
+        try {
+            refreshSnapshot();
+            refreshToday();
+        } catch (RuntimeException ex) {
+            showFeedbackError(ex.getMessage());
         }
     }
 
     @FXML
     public void onLoadHistory() {
-        LocalDate date = historyDatePicker.getValue();
-        if (date == null) {
-            statusError("Seleccione una fecha para el histórico.");
-            return;
-        }
         try {
-            List<CheckInSummary> rows = checkInService.listByDate(date);
+            LocalDate day = historyDatePicker.getValue() == null ? LocalDate.now() : historyDatePicker.getValue();
+            historyDatePicker.setValue(day);
+            List<CheckInSummary> rows = checkInService.listByDate(day);
             historyTable.setItems(FXCollections.observableArrayList(rows));
             historyCountLabel.setText(rows.size() + (rows.size() == 1 ? " ingreso" : " ingresos")
-                    + " · " + DATE_FORMAT.format(date));
-            clearDetail(false);
+                    + " · " + day.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         } catch (RuntimeException ex) {
-            showFeedbackError("No se pudo cargar el histórico: " + ex.getMessage());
+            showFeedbackError(ex.getMessage());
         }
+    }
+
+    @FXML
+    public void onOpenPayments() {
+        if (currentEvaluation == null || currentEvaluation.clientId() == null) {
+            return;
+        }
+        appContext.openPaymentsForClient(currentEvaluation.clientId());
     }
 
     private void setupTables() {
         bindSummaryColumns(todayTable, todayTimeColumn, todayClientColumn, todayDocumentColumn,
-                todayModeColumn, todayCredentialColumn);
+                todayModeColumn, todayCredentialColumn, todayDetailColumn);
         bindSummaryColumns(historyTable, historyTimeColumn, historyClientColumn, historyDocumentColumn,
-                historyModeColumn, historyCredentialColumn);
+                historyModeColumn, historyCredentialColumn, historyDetailColumn);
     }
 
     private void bindSummaryColumns(
@@ -257,7 +234,8 @@ public class CheckInController {
             TableColumn<CheckInSummary, String> clientColumn,
             TableColumn<CheckInSummary, String> documentColumn,
             TableColumn<CheckInSummary, String> modeColumn,
-            TableColumn<CheckInSummary, String> credentialColumn) {
+            TableColumn<CheckInSummary, String> credentialColumn,
+            TableColumn<CheckInSummary, String> detailColumn) {
         timeColumn.setCellValueFactory(data ->
                 new SimpleStringProperty(formatTime(data.getValue().checkedInAt())));
         clientColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().clientName()));
@@ -267,6 +245,35 @@ public class CheckInController {
         modeColumn.setCellFactory(col -> modeBadgeCell());
         credentialColumn.setCellValueFactory(data ->
                 new SimpleStringProperty(labelForCredentialType(data.getValue().credentialType())));
+        detailColumn.setCellFactory(col -> detailActionCell(table));
+        detailColumn.setSortable(false);
+    }
+
+    private TableCell<CheckInSummary, String> detailActionCell(TableView<CheckInSummary> table) {
+        return new TableCell<>() {
+            private final Button detail = new Button("ⓘ");
+
+            {
+                detail.getStyleClass().add("table-icon-button");
+                detail.setTooltip(new Tooltip("Ver detalle del ingreso"));
+                detail.setOnAction(e -> {
+                    if (getIndex() >= 0 && getIndex() < table.getItems().size()) {
+                        openDetail(table.getItems().get(getIndex()).id());
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getIndex() < 0 || getIndex() >= table.getItems().size()) {
+                    setGraphic(null);
+                    return;
+                }
+                setGraphic(detail);
+                setAlignment(Pos.CENTER);
+            }
+        };
     }
 
     private TableCell<CheckInSummary, String> modeBadgeCell() {
@@ -293,6 +300,16 @@ public class CheckInController {
         };
     }
 
+    private void openDetail(Long checkInId) {
+        try {
+            CheckInDetail detail = checkInService.getDetail(checkInId);
+            Window owner = todayTable.getScene() == null ? null : todayTable.getScene().getWindow();
+            CheckInDetailController.open(owner, detail);
+        } catch (RuntimeException ex) {
+            showFeedbackError(ex.getMessage());
+        }
+    }
+
     private void refreshSnapshot() {
         CheckInSnapshot snapshot = checkInService.snapshot();
         entriesValueLabel.setText(String.valueOf(snapshot.entriesToday()));
@@ -310,106 +327,7 @@ public class CheckInController {
         todayTable.getItems().stream()
                 .filter(row -> row.id().equals(id))
                 .findFirst()
-                .ifPresent(row -> {
-                    todayTable.getSelectionModel().select(row);
-                    loadDetail(id, true);
-                });
-    }
-
-    private void loadDetail(Long checkInId, boolean todayPanel) {
-        try {
-            CheckInDetail detail = checkInService.getDetail(checkInId);
-            applyDetail(detail, todayPanel);
-        } catch (RuntimeException ex) {
-            showFeedbackError(ex.getMessage());
-        }
-    }
-
-    private void applyDetail(CheckInDetail detail, boolean todayPanel) {
-        Label badge = todayPanel ? todayDetailBadge : historyDetailBadge;
-        Label summary = todayPanel ? todayDetailSummaryLabel : historyDetailSummaryLabel;
-        Label client = todayPanel ? todayDetailClientLabel : historyDetailClientLabel;
-        Label contact = todayPanel ? todayDetailContactLabel : historyDetailContactLabel;
-        Label mode = todayPanel ? todayDetailModeLabel : historyDetailModeLabel;
-        Label used = todayPanel ? todayDetailUsedLabel : historyDetailUsedLabel;
-        VBox credentialsBox = todayPanel ? todayCredentialsBox : historyCredentialsBox;
-
-        badge.setText(labelForMode(detail.accessMode()));
-        badge.getStyleClass().setAll(
-                detail.accessMode() == AccessMode.MEMBERSHIP ? "badge-paid" : "badge-pending");
-        summary.setText("Ingreso #" + detail.checkInId() + " · "
-                + formatDateTime(detail.checkedInAt())
-                + (detail.notes() == null || detail.notes().isBlank() ? "" : " · " + detail.notes()));
-        client.setText(detail.clientName() + " · " + detail.clientDocument()
-                + (detail.clientNumber() == null ? "" : " · " + detail.clientNumber()));
-        contact.setText(joinContact(detail.clientEmail(), detail.clientPhone()));
-        mode.setText(labelForMode(detail.accessMode())
-                + (detail.membershipPlanName() == null ? "" : " · " + detail.membershipPlanName()));
-        used.setText(formatCredential(detail.usedCredentialType(), detail.usedCredentialCode()));
-        renderCredentials(credentialsBox, detail.credentials());
-    }
-
-    private void renderCredentials(VBox box, List<CredentialView> credentials) {
-        box.getChildren().clear();
-        if (credentials == null || credentials.isEmpty()) {
-            Label empty = new Label("Sin credenciales emitidas.");
-            empty.getStyleClass().add("muted");
-            box.getChildren().add(empty);
-            return;
-        }
-        for (CredentialView credential : credentials) {
-            box.getChildren().add(credentialCard(credential));
-        }
-    }
-
-    private HBox credentialCard(CredentialView credential) {
-        Label type = new Label(credential.typeLabel());
-        type.getStyleClass().add("credential-type");
-        Label code = new Label(credential.code());
-        code.getStyleClass().add("credential-code");
-        code.setOnMouseClicked(event -> copyCredential(credential));
-        Label meta = new Label(credential.expiresAt() == null
-                ? "Sin vencimiento"
-                : "Vence " + DATE_FORMAT.format(credential.expiresAt().toLocalDate()));
-        meta.getStyleClass().add("muted");
-        VBox text = new VBox(2, type, code, meta);
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        Label status = new Label(credential.statusLabel());
-        status.getStyleClass().add("VIGENTE".equals(credential.statusLabel()) ? "badge-ready" : "badge-soon");
-        Button copyButton = new Button("Copiar");
-        copyButton.getStyleClass().add("credential-copy-button");
-        copyButton.setOnAction(event -> copyCredential(credential));
-        HBox row = new HBox(10, text, spacer, status, copyButton);
-        row.setAlignment(Pos.CENTER_LEFT);
-        row.getStyleClass().add("credential-card");
-        return row;
-    }
-
-    private void copyCredential(CredentialView credential) {
-        ClipboardContent content = new ClipboardContent();
-        content.putString(credential.code());
-        Clipboard.getSystemClipboard().setContent(content);
-        showFeedbackOk(credential.typeLabel() + " copiado: " + credential.code());
-    }
-
-    private void clearDetail(boolean todayPanel) {
-        Label badge = todayPanel ? todayDetailBadge : historyDetailBadge;
-        Label summary = todayPanel ? todayDetailSummaryLabel : historyDetailSummaryLabel;
-        Label client = todayPanel ? todayDetailClientLabel : historyDetailClientLabel;
-        Label contact = todayPanel ? todayDetailContactLabel : historyDetailContactLabel;
-        Label mode = todayPanel ? todayDetailModeLabel : historyDetailModeLabel;
-        Label used = todayPanel ? todayDetailUsedLabel : historyDetailUsedLabel;
-        VBox credentialsBox = todayPanel ? todayCredentialsBox : historyCredentialsBox;
-
-        badge.setText("Sin selección");
-        badge.getStyleClass().setAll("badge-pending");
-        summary.setText("Seleccione un ingreso de la lista para ver el detalle del cliente y sus credenciales.");
-        client.setText("—");
-        contact.setText("—");
-        mode.setText("—");
-        used.setText("—");
-        credentialsBox.getChildren().clear();
+                .ifPresent(row -> todayTable.getSelectionModel().select(row));
     }
 
     private void showEvaluation(CheckInEvaluation evaluation) {
@@ -425,10 +343,18 @@ public class CheckInController {
         if (evaluation.allowed()) {
             resultBadge.setText(evaluation.alreadyCheckedInToday() ? "Reingreso" : "Permitido");
             resultBadge.getStyleClass().setAll("badge-paid");
+            setOpenPaymentsVisible(false);
         } else {
             resultBadge.setText(labelForDenial(evaluation.denialReason()));
             resultBadge.getStyleClass().setAll(badgeForDenial(evaluation.denialReason()));
+            setOpenPaymentsVisible(evaluation.denialReason() == CheckInDenialReason.OPEN_DEBT
+                    && evaluation.clientId() != null);
         }
+    }
+
+    private void setOpenPaymentsVisible(boolean visible) {
+        openPaymentsButton.setVisible(visible);
+        openPaymentsButton.setManaged(visible);
     }
 
     private void clearResult() {
@@ -438,6 +364,7 @@ public class CheckInController {
         resultMessageLabel.setText("Escanee o escriba un identificador y pulse Verificar.");
         statusInfo("Recepción lista.");
         registerButton.setDisable(true);
+        setOpenPaymentsVisible(false);
     }
 
     private void clearResultPanels() {
@@ -498,10 +425,6 @@ public class CheckInController {
         return value == null ? "—" : TIME_FORMAT.format(value.toLocalTime());
     }
 
-    private static String formatDateTime(OffsetDateTime value) {
-        return value == null ? "—" : DATE_TIME_FORMAT.format(value);
-    }
-
     private static String labelForMode(AccessMode mode) {
         if (mode == null) {
             return "—";
@@ -528,20 +451,6 @@ public class CheckInController {
             return type == null ? "Documento" : labelForCredentialType(type);
         }
         return labelForCredentialType(type) + " · " + code;
-    }
-
-    private static String joinContact(String email, String phone) {
-        StringBuilder builder = new StringBuilder();
-        if (email != null && !email.isBlank()) {
-            builder.append(email);
-        }
-        if (phone != null && !phone.isBlank()) {
-            if (!builder.isEmpty()) {
-                builder.append(" · ");
-            }
-            builder.append(phone);
-        }
-        return builder.isEmpty() ? "—" : builder.toString();
     }
 
     private static String labelForDenial(CheckInDenialReason reason) {

@@ -83,6 +83,8 @@
 
                     <Label text="Fecha de inicio (opcional)" styleClass="field-label"/>
                     <DatePicker fx:id="startDatePicker" promptText="Hoy si se deja vacío" maxWidth="Infinity" styleClass="app-date-picker"/>
+                    <Label text="Cobro" styleClass="field-label"/>
+                    <ComboBox fx:id="billingModeCombo" promptText="Modo de cobro" maxWidth="Infinity" styleClass="app-combo"/>
                 </VBox>
 
                 <VBox spacing="8" styleClass="membership-preview">

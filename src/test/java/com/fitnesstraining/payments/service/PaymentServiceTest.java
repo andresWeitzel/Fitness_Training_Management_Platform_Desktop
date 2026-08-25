@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -195,7 +196,7 @@ class PaymentServiceTest {
 
     @Test
     void detectsOpenDebt() {
-        when(paymentRepository.hasOpenDebt(1L)).thenReturn(true);
+        when(paymentRepository.hasBlockingDebt(eq(1L), any())).thenReturn(true);
         assertTrue(paymentService.hasOpenDebt(1L));
     }
 

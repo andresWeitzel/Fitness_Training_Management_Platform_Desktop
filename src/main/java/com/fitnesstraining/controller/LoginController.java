@@ -11,7 +11,6 @@ import com.fitnesstraining.auth.service.AuthService;
 import com.fitnesstraining.shared.config.DatabaseBootstrap;
 import com.fitnesstraining.shared.config.DatabaseConfigStore;
 import com.fitnesstraining.shared.config.DatabaseSettings;
-import com.fitnesstraining.shared.exception.AppException;
 import com.fitnesstraining.shared.exception.AuthenticationException;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -22,7 +21,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 
@@ -40,7 +38,7 @@ public class LoginController {
     @FXML private Button verifyConnectionButton;
     @FXML private StackPane rootPane;
 
-    private Tooltip connectionTooltip;
+    private boolean busy;
 
     private final SessionContext sessionContext;
     private final SceneNavigator navigator;
@@ -77,12 +75,10 @@ public class LoginController {
             fitWindow();
         });
         appContext.consumePendingLogin().ifPresent(this::applyFill);
-        var startupError = appContext.consumePendingConnectionError();
-        if (startupError.isPresent()) {
-            showConnectionError(startupError.get());
-        } else if (appContext.connectionSnapshot().status() == DbConnectionSnapshot.Status.UNKNOWN
-                && !appContext.isDatabaseReady()) {
-            showConnectionError("PostgreSQL no está disponible. Usá «Comprobar» para reintentar.");
+        // Descarta el detalle técnico del arranque; el usuario solo ve el indicador.
+        appContext.consumePendingConnectionError();
+        if (!appContext.isDatabaseReady()) {
+            showConnectionError();
         } else {
             restoreConnectionSnapshot();
         }
@@ -95,36 +91,35 @@ public class LoginController {
 
     @FXML
     public void onLogin() {
-        errorLabel.setText("");
-        AuthService authService = appContext.authService().orElse(null);
-        if (authService == null) {
-            errorLabel.setText("La base de datos no está disponible. Comprobá la conexión.");
-            showConnectionError("PostgreSQL no está disponible. Usá «Comprobar» para reintentar.");
+        if (busy) {
             return;
         }
-        loginButton.setDisable(true);
-        try {
-            AuthenticatedUser user = authService.login(usernameField.getText(), currentPassword());
-            sessionContext.start(user);
-            navigator.showShell();
-        } catch (AuthenticationException ex) {
-            errorLabel.setText(ex.getMessage());
-        } catch (Exception ex) {
-            errorLabel.setText("No se pudo iniciar sesión: " + ex.getMessage());
-        } finally {
-            loginButton.setDisable(false);
+        errorLabel.setText("");
+        String username = usernameField.getText();
+        String password = currentPassword();
+
+        if (appContext.isDatabaseReady()) {
+            attemptLogin(username, password);
+            return;
         }
+
+        configStore.load().ifPresentOrElse(
+                settings -> prepareConnectionThen(settings, () -> attemptLogin(username, password)),
+                this::showConnectionError);
     }
 
     @FXML
     public void onVerifyConnection() {
-        configStore.load().ifPresentOrElse(this::runConnectionCheck, () -> showConnectionError(
-                "No hay configuración de PostgreSQL. Completá la instalación inicial."));
+        if (busy) {
+            return;
+        }
+        configStore.load().ifPresentOrElse(
+                settings -> prepareConnectionThen(settings, null),
+                this::showConnectionError);
     }
 
-    private void runConnectionCheck(DatabaseSettings settings) {
-        verifyConnectionButton.setDisable(true);
-        loginButton.setDisable(true);
+    private void prepareConnectionThen(DatabaseSettings settings, Runnable afterReady) {
+        setBusy(true);
         showConnectionPending();
 
         Task<Void> task = new Task<>() {
@@ -140,28 +135,48 @@ public class LoginController {
                     appContext.ensureDatabaseReady(settings);
                 }
                 showConnectionOk(settings);
+                if (afterReady != null) {
+                    afterReady.run();
+                }
             } catch (Exception ex) {
-                String message = ex instanceof AppException appEx
-                        ? appEx.getMessage()
-                        : "Conexión correcta, pero no se pudo preparar la aplicación: " + ex.getMessage();
-                showConnectionError(message);
+                showConnectionError();
             } finally {
-                verifyConnectionButton.setDisable(false);
-                loginButton.setDisable(false);
+                setBusy(false);
                 fitWindow();
             }
         }));
         task.setOnFailed(event -> Platform.runLater(() -> {
-            Throwable ex = task.getException();
-            String message = ex instanceof AppException appEx
-                    ? appEx.getMessage()
-                    : "No se pudo conectar: " + ex.getMessage();
-            showConnectionError(message);
-            verifyConnectionButton.setDisable(false);
-            loginButton.setDisable(false);
+            showConnectionError();
+            setBusy(false);
             fitWindow();
         }));
-        new Thread(task, "login-connection-check").start();
+        new Thread(task, "login-connection").start();
+    }
+
+    private void attemptLogin(String username, String password) {
+        AuthService authService = appContext.authService().orElse(null);
+        if (authService == null) {
+            showConnectionError();
+            return;
+        }
+        setBusy(true);
+        try {
+            AuthenticatedUser user = authService.login(username, password);
+            sessionContext.start(user);
+            navigator.showShell();
+        } catch (AuthenticationException ex) {
+            errorLabel.setText(ex.getMessage());
+            setBusy(false);
+        } catch (Exception ex) {
+            errorLabel.setText("No se pudo iniciar sesión.");
+            setBusy(false);
+        }
+    }
+
+    private void setBusy(boolean value) {
+        busy = value;
+        loginButton.setDisable(value);
+        verifyConnectionButton.setDisable(value);
     }
 
     private String currentPassword() {
@@ -199,8 +214,8 @@ public class LoginController {
     private void restoreConnectionSnapshot() {
         DbConnectionSnapshot snapshot = appContext.connectionSnapshot();
         switch (snapshot.status()) {
-            case CONNECTED -> applyConnectionState("db-status-ok", "Conectada", snapshot.tooltip());
-            case DISCONNECTED -> applyConnectionState("db-status-error", "Sin conexión", snapshot.tooltip());
+            case CONNECTED -> applyConnectionState("db-status-ok", "Conectada");
+            case DISCONNECTED -> applyConnectionState("db-status-error", "Sin conexión");
             default -> showConnectionIdle();
         }
         connectionSpinner.setManaged(false);
@@ -211,7 +226,7 @@ public class LoginController {
     }
 
     private void showConnectionIdle() {
-        applyConnectionState("db-status-unknown", "Sin verificar", null);
+        applyConnectionState("db-status-unknown", "Sin verificar");
         connectionSpinner.setManaged(false);
         connectionSpinner.setVisible(false);
         verifyConnectionButton.setText("Comprobar");
@@ -219,48 +234,34 @@ public class LoginController {
     }
 
     private void showConnectionPending() {
-        applyConnectionState("db-status-pending", "Comprobando…", null);
+        applyConnectionState("db-status-pending", "Comprobando…");
         connectionSpinner.setManaged(true);
         connectionSpinner.setVisible(true);
-        verifyConnectionButton.setText("Comprobando…");
+        verifyConnectionButton.setText("Comprobar");
     }
 
     private void showConnectionOk(DatabaseSettings settings) {
-        String tooltip = tooltipFor(settings);
-        applyConnectionState("db-status-ok", "Conectada", tooltip);
+        applyConnectionState("db-status-ok", "Conectada");
         connectionSpinner.setManaged(false);
         connectionSpinner.setVisible(false);
         verifyConnectionButton.setText("Comprobar");
-        appContext.saveConnectionSnapshot(DbConnectionSnapshot.connected(tooltip));
+        appContext.saveConnectionSnapshot(DbConnectionSnapshot.connected(
+                settings.host() + ":" + settings.port() + " · " + settings.database()));
     }
 
-    private void showConnectionError(String details) {
-        applyConnectionState("db-status-error", "Sin conexión", details);
+    private void showConnectionError() {
+        applyConnectionState("db-status-error", "Sin conexión");
         connectionSpinner.setManaged(false);
         connectionSpinner.setVisible(false);
         verifyConnectionButton.setText("Reintentar");
-        appContext.saveConnectionSnapshot(DbConnectionSnapshot.disconnected(details));
+        appContext.saveConnectionSnapshot(DbConnectionSnapshot.disconnected("Sin conexión"));
     }
 
-    private void applyConnectionState(String styleClass, String statusText, String tooltipText) {
+    private void applyConnectionState(String styleClass, String statusText) {
         connectionBar.getStyleClass().removeAll(
                 "db-status-unknown", "db-status-ok", "db-status-error", "db-status-pending");
         connectionBar.getStyleClass().add(styleClass);
         connectionStatusLabel.setText(statusText);
-        if (connectionTooltip != null) {
-            Tooltip.uninstall(connectionBar, connectionTooltip);
-            connectionTooltip = null;
-        }
-        if (tooltipText != null && !tooltipText.isBlank()) {
-            connectionTooltip = new Tooltip(tooltipText);
-            connectionTooltip.setWrapText(true);
-            connectionTooltip.setMaxWidth(360);
-            Tooltip.install(connectionBar, connectionTooltip);
-        }
-    }
-
-    private static String tooltipFor(DatabaseSettings settings) {
-        return settings.host() + ":" + settings.port() + " · " + settings.database();
     }
 
     @FXML

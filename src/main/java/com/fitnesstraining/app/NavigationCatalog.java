@@ -25,7 +25,7 @@ public final class NavigationCatalog {
                 new NavItem("staff", "Personal", "Gestión", PermissionCode.STAFF_MANAGE,
                         "/views/staff.fxml", true, "ABM de usuarios internos y asignación de roles."),
                 new NavItem("training", "Entrenamiento", "Entrenamiento", PermissionCode.TRAINING_MANAGE,
-                        "/views/placeholder.fxml", false, "Rutinas y ejercicios estructurados. Aún no migrado."),
+                        "/views/training.fxml", true, "Catálogo de ejercicios y rutinas estructuradas por cliente."),
                 new NavItem("assessments", "Evaluaciones", "Seguimiento", PermissionCode.ASSESSMENTS_MANAGE,
                         "/views/placeholder.fxml", false, "Historial de evaluaciones físicas. Aún no migrado."),
                 new NavItem("nutrition", "Nutrición", "Seguimiento", PermissionCode.NUTRITION_MANAGE,

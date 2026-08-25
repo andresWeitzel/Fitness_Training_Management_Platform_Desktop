@@ -3,8 +3,6 @@ package com.fitnesstraining.app;
 import com.fitnesstraining.controller.DbSetupController;
 import com.fitnesstraining.controller.PlaceholderController;
 import com.fitnesstraining.controller.ShellController;
-import com.fitnesstraining.app.DbSetupMode;
-import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -28,7 +26,7 @@ public class SceneNavigator {
 
     public void showDemoAccounts() {
         var loaded = views.load("/views/demo-accounts.fxml");
-        setScene(loaded.root(), 520, 620, false);
+        replaceScene(loaded.root(), 520, 620, false);
         WindowChrome.fitStage(loaded.root());
     }
 
@@ -36,19 +34,19 @@ public class SceneNavigator {
         var loaded = views.load("/views/db-setup.fxml");
         DbSetupController controller = (DbSetupController) loaded.controller();
         controller.prepare(DbSetupMode.INSTALL, errorMessage);
-        setScene(loaded.root(), 520, 560, false);
+        replaceScene(loaded.root(), 520, 560, false);
         WindowChrome.fitStage(loaded.root());
     }
 
     public void showLogin() {
         var loaded = views.load("/views/login.fxml");
-        setScene(loaded.root(), 520, 480, false);
+        replaceScene(loaded.root(), 520, 480, false);
         WindowChrome.fitStage(loaded.root());
     }
 
     public void showShell() {
         var loaded = views.load("/views/shell.fxml");
-        setScene(loaded.root(), 1480, 900, true);
+        replaceScene(loaded.root(), 1480, 900, true);
         ((ShellController) loaded.controller()).showHome();
     }
 
@@ -64,7 +62,16 @@ public class SceneNavigator {
         return loaded.root();
     }
 
-    private void setScene(Parent root, int width, int height, boolean shell) {
+    /**
+     * Cambia de pantalla sin animar un resize visible: oculta el stage,
+     * monta la nueva escena ya en su tamaño final y vuelve a mostrar.
+     */
+    private void replaceScene(Parent root, int width, int height, boolean shell) {
+        boolean wasShowing = stage.isShowing();
+        if (wasShowing) {
+            stage.hide();
+        }
+
         Scene scene = stage.getScene();
         if (scene == null) {
             scene = new Scene(root, width, height);
@@ -77,34 +84,48 @@ public class SceneNavigator {
             scene.setRoot(root);
         }
         WindowChrome.applyTransparentScene(scene);
-        Node dragHandle = lookup(root, ".window-drag");
-        Node sidebarDrag = lookup(root, ".sidebar-drag");
-        if (sidebarDrag != null && sidebarDrag != dragHandle) {
-            WindowChrome.makeDraggable(stage, dragHandle, sidebarDrag);
-        } else {
-            WindowChrome.makeDraggable(stage, dragHandle);
-        }
+        applyWindowBounds(root, width, height, shell);
+        installDrag(root);
 
+        if (shell) {
+            stage.centerOnScreen();
+            WindowChrome.rememberShellBounds(stage);
+        }
+        stage.setOpacity(1);
+        if (wasShowing || !stage.isShowing()) {
+            stage.show();
+        }
+    }
+
+    private void applyWindowBounds(Parent root, int width, int height, boolean shell) {
         stage.setMaximized(false);
         root.getStyleClass().remove("maximized");
+        Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+
         if (shell) {
             stage.setMinWidth(1100);
             stage.setMinHeight(700);
             stage.setMaxWidth(Double.MAX_VALUE);
             stage.setMaxHeight(Double.MAX_VALUE);
-            Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
             stage.setWidth(Math.min(width, bounds.getWidth() - 32));
             stage.setHeight(Math.min(height, bounds.getHeight() - 32));
-            stage.centerOnScreen();
-            WindowChrome.rememberShellBounds(stage);
         } else {
-            Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
             stage.setMinWidth(420);
             stage.setMinHeight(380);
             stage.setMaxWidth(bounds.getWidth() - 24);
             stage.setMaxHeight(bounds.getHeight() - 24);
             stage.setWidth(width);
             stage.setHeight(height);
+        }
+    }
+
+    private void installDrag(Parent root) {
+        Node dragHandle = lookup(root, ".window-drag");
+        Node sidebarDrag = lookup(root, ".sidebar-drag");
+        if (sidebarDrag != null && sidebarDrag != dragHandle) {
+            WindowChrome.makeDraggable(stage, dragHandle, sidebarDrag);
+        } else {
+            WindowChrome.makeDraggable(stage, dragHandle);
         }
     }
 

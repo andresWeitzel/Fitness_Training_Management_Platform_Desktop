@@ -74,6 +74,28 @@
         <Label text="Dirección" styleClass="field-label"/>
         <TextField fx:id="addressField"/>
 
+        <Label text="Resumen operativo" styleClass="section-title"/>
+        <HBox spacing="14">
+            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                <Label text="Plan" styleClass="preview-caption"/>
+                <Label fx:id="opsPlanLabel" styleClass="preview-value" wrapText="true"/>
+            </VBox>
+            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                <Label text="Deuda" styleClass="preview-caption"/>
+                <Label fx:id="opsDebtLabel" styleClass="preview-value"/>
+            </VBox>
+        </HBox>
+        <HBox spacing="14">
+            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                <Label text="Último check-in" styleClass="preview-caption"/>
+                <Label fx:id="opsCheckInLabel" styleClass="preview-value"/>
+            </VBox>
+            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                <Label text="Rutina" styleClass="preview-caption"/>
+                <Label fx:id="opsRoutineLabel" styleClass="preview-value" wrapText="true"/>
+            </VBox>
+        </HBox>
+
         <Label text="Credenciales de acceso" styleClass="section-title"/>
         <VBox fx:id="credentialsBox" spacing="8"/>
 

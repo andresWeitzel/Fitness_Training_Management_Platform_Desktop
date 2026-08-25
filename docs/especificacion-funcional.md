@@ -28,8 +28,8 @@ Estado: **I** implementado · **P** planificado · **N** no se implementa en est
 | Pagos y mora | Cobro, recargo, reactivar acceso | **Cerrado (I)** |
 | Recepción (check-in) | Ingreso, histórico, bloqueo por deuda | **Cerrado (I)** |
 | Personal | ABM de usuarios internos | **Cerrado (I)** |
-| Entrenamiento | Ejercicios y rutinas estructuradas | P — siguiente tramo |
-| Evaluaciones | Historial de evaluaciones físicas | P |
+| Entrenamiento | Ejercicios y rutinas estructuradas | **Cerrado (I)** |
+| Evaluaciones | Historial de evaluaciones físicas | P — siguiente tramo |
 | Nutrición | Turnos, planes, ficha de salud con historial | P |
 | Analytics | Indicadores, vencimientos, mora | P |
 | Liquidación de haberes | Sueldos | **N** en esta etapa |
@@ -78,7 +78,7 @@ Foto de cliente (`photo_path`) está en el esquema; la carga desde la UI **no** 
 | RF-16 | Cobrar ingreso diario | Pagos | I |
 | RF-17 | Registrar check-in (carnet/QR) e histórico de ingresos | Recepción | I |
 | RF-18 | ABM de personal interno y roles | Personal | I |
-| RF-19 | Gestionar ejercicios y rutinas estructuradas | Entrenamiento | P |
+| RF-19 | Gestionar ejercicios y rutinas estructuradas | Entrenamiento | I |
 | RF-20 | Registrar evaluaciones físicas con historial | Evaluaciones | P |
 | RF-21 | Turnos y planes de nutrición | Nutrición | P |
 | RF-22 | Ficha de salud / restricciones (historial, no overwrite 1:1) | Nutrición | P |
@@ -117,7 +117,7 @@ Los ítems **Pronto** del menú ya se ven si el rol tiene permiso; muestran plac
 | CU-11 | Registrar pagos y mora | Admin, Recepción | I |
 | CU-12 | Controlar ingreso (check-in) | Admin, Recepción | I |
 | CU-13 | Administrar personal | Admin | I |
-| CU-14 | Armar rutina de entrenamiento | Admin, Entrenador | P |
+| CU-14 | Armar rutina de entrenamiento | Admin, Entrenador | I |
 | CU-15 | Registrar evaluación física | Admin, Entrenador, Nutricionista | P |
 | CU-16 | Gestionar nutrición | Admin, Nutricionista | P |
 | CU-17 | Consultar analytics | Admin | P |
@@ -172,11 +172,10 @@ Queda **cerrado para operación diaria** (admin y recepción) con este contrato:
 2. Registrar mora/recargo (pendiente o cobrado) y cancelar pendientes.
 3. Cobrar ingreso diario sin membresía.
 4. Listar y filtrar: todos, cobrados, pendientes, en mora, cancelados.
-5. API `hasOpenDebt(clientId)` lista para que Recepción bloquee el ingreso (RF-14).
+5. API `hasBlockingDebt(clientId)` / `hasOpenDebt(clientId)`: bloquea solo mora (PENDING vencido o `LATE_FEE` pendiente), no cualquier pendiente futuro.
+6. Congruencia: asignar/renovar/cambiar plan en Membresías genera cobro `MEMBERSHIP` (Pendiente / Cobrado / Cortesía).
 
-**Fuera de este cierre:** bloqueo automático en check-in (RF-14 + CU-12).
-
-Siguiente módulo natural: **Recepción / check-in** (RF-14, RF-17, CU-12).
+**Fuera de este cierre:** facturación electrónica / pasarela externa.
 
 ---
 
@@ -185,14 +184,15 @@ Siguiente módulo natural: **Recepción / check-in** (RF-14, RF-17, CU-12).
 Queda **cerrado para operación diaria** (admin y recepción) con este contrato:
 
 1. Verificar ingreso por documento, n° de cliente, carnet o QR.
-2. Bloquear si hay pagos pendientes / mora (`hasOpenDebt`).
+2. Bloquear solo si hay mora (`hasBlockingDebt`: PENDING vencido o LATE_FEE).
 3. Permitir acceso con membresía activa o pase diario cobrado hoy.
 4. Ver detalle del ingreso (cliente, contacto, credenciales con copiar, modo de acceso).
 5. Consultar ingresos de hoy e histórico por fecha.
+6. Deep-link: denegación por mora → **Ir a Pagos** precarga el cliente.
 
 **Fuera de este cierre:** cupo por actividad/turno (no aplica a recepción libre del predio).
 
-Siguiente módulo natural: **Entrenamiento** (RF-19, CU-14).
+Siguiente módulo natural: **Nutrición** (tras congruencia Cliente ↔ módulos).
 
 ---
 
@@ -208,7 +208,22 @@ Queda **cerrado para administración** (solo Admin) con este contrato:
 
 **Fuera de este cierre:** ABM del catálogo de roles/permisos, asistencia de profesores y liquidación (RF-25/26 = N).
 
-Siguiente módulo natural: **Entrenamiento** (RF-19, CU-14).
+Siguiente módulo natural: **Evaluaciones** (RF-20, CU-15).
+
+---
+
+## 6e. Cierre del módulo Entrenamiento
+
+Queda **cerrado** para Admin y Entrenador (`TRAINING_MANAGE`) con este contrato:
+
+1. Catálogo de ejercicios (nombre, grupo, equipo, nivel, músculos secundarios, descripción, notas técnicas; alta/edición; desactivar/reactivar).
+2. Rutinas por cliente con ítems estructurados (ejercicio, series, reps, descanso, carga) y detalle técnico por ejercicio.
+3. Listado de rutinas por estado: activas / borrador / programadas / archivadas / todas, con búsqueda.
+4. Enfoque, fecha de inicio (programadas) y registro del entrenador en sesión al crear/editar.
+
+**Fuera de este cierre:** seguimiento de cumplimiento sesión a sesión, plantillas globales reutilizables y evaluación física (RF-20).
+
+Siguiente módulo natural: **Evaluaciones** (RF-20, CU-15).
 
 ---
 
