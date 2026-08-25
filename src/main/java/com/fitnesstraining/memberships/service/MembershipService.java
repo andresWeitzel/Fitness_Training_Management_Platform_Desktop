@@ -12,12 +12,17 @@ import com.fitnesstraining.memberships.dto.MembershipPlanRequest;
 import com.fitnesstraining.memberships.dto.MembershipPlanSummary;
 import com.fitnesstraining.memberships.dto.MembershipPlanView;
 import com.fitnesstraining.memberships.model.ClientMembership;
+import com.fitnesstraining.memberships.model.MembershipBillingMode;
 import com.fitnesstraining.memberships.model.MembershipListScope;
 import com.fitnesstraining.memberships.model.MembershipPlan;
 import com.fitnesstraining.memberships.model.MembershipStatus;
 import com.fitnesstraining.memberships.repository.ClientMembershipRepository;
 import com.fitnesstraining.memberships.repository.MembershipPlanRepository;
 import com.fitnesstraining.memberships.validation.MembershipValidator;
+import com.fitnesstraining.payments.dto.RegisterPaymentRequest;
+import com.fitnesstraining.payments.model.PaymentMethod;
+import com.fitnesstraining.payments.model.PaymentType;
+import com.fitnesstraining.payments.service.PaymentService;
 import com.fitnesstraining.shared.exception.AppException;
 import com.fitnesstraining.shared.exception.ValidationException;
 
@@ -34,6 +39,7 @@ public class MembershipService {
     private final ClientMembershipRepository membershipRepository;
     private final ClientRepository clientRepository;
     private final AccessCredentialRepository credentialRepository;
+    private final PaymentService paymentService;
     private final Clock clock;
 
     public MembershipService(
@@ -41,11 +47,13 @@ public class MembershipService {
             ClientMembershipRepository membershipRepository,
             ClientRepository clientRepository,
             AccessCredentialRepository credentialRepository,
+            PaymentService paymentService,
             Clock clock) {
         this.planRepository = planRepository;
         this.membershipRepository = membershipRepository;
         this.clientRepository = clientRepository;
         this.credentialRepository = credentialRepository;
+        this.paymentService = paymentService;
         this.clock = clock;
     }
 
@@ -163,10 +171,15 @@ public class MembershipService {
 
         ClientMembership membership = ClientMembership.assign(client, plan, startsAt, endsAt, now);
         membershipRepository.save(membership);
+        billMembership(membership, plan, normalized.billingMode(), "Cobro por asignación de membresía.");
         return toMembershipView(membership, now);
     }
 
     public ClientMembershipView changePlan(Long membershipId, Long planId) {
+        return changePlan(membershipId, planId, MembershipBillingMode.PENDING);
+    }
+
+    public ClientMembershipView changePlan(Long membershipId, Long planId, MembershipBillingMode billingMode) {
         OffsetDateTime now = now();
         ClientMembership membership = membershipRepository.findById(membershipId)
                 .orElseThrow(() -> new AppException("Membresía no encontrada."));
@@ -194,10 +207,15 @@ public class MembershipService {
         OffsetDateTime endsAt = now.plusDays(plan.getDurationDays());
         membership.changePlan(plan, now, endsAt, now);
         membershipRepository.save(membership);
+        billMembership(membership, plan, billingMode, "Cobro por cambio de plan.");
         return toMembershipView(membership, now);
     }
 
     public ClientMembershipView renewMembership(Long id) {
+        return renewMembership(id, MembershipBillingMode.PENDING);
+    }
+
+    public ClientMembershipView renewMembership(Long id, MembershipBillingMode billingMode) {
         OffsetDateTime now = now();
         ClientMembership membership = membershipRepository.findById(id)
                 .orElseThrow(() -> new AppException("Membresía no encontrada."));
@@ -218,6 +236,7 @@ public class MembershipService {
         OffsetDateTime newEndsAt = base.plusDays(plan.getDurationDays());
         membership.renew(newEndsAt, now);
         membershipRepository.save(membership);
+        billMembership(membership, plan, billingMode, "Cobro por renovación de membresía.");
         return toMembershipView(membership, now);
     }
 
@@ -234,6 +253,14 @@ public class MembershipService {
     }
 
     public ClientMembershipView reassignMembership(Long previousMembershipId, Long planId, LocalDate startDate) {
+        return reassignMembership(previousMembershipId, planId, startDate, MembershipBillingMode.PENDING);
+    }
+
+    public ClientMembershipView reassignMembership(
+            Long previousMembershipId,
+            Long planId,
+            LocalDate startDate,
+            MembershipBillingMode billingMode) {
         ClientMembership previous = membershipRepository.findById(previousMembershipId)
                 .orElseThrow(() -> new AppException("Membresía no encontrada."));
         OffsetDateTime now = now();
@@ -248,12 +275,39 @@ public class MembershipService {
         return assignMembership(new AssignMembershipRequest(
                 previous.getClient().getId(),
                 planId,
-                startDate));
+                startDate,
+                billingMode));
     }
 
+    /**
+     * Alta automática sin cobro: el cobro se genera en asignación/renovación/cambio
+     * explícitos desde Membresías (modo Pendiente / Cobrado).
+     */
     public void assignDefaultToNewClient(Long clientId) {
         planRepository.findDefaultActive().ifPresent(plan ->
-                assignMembership(new AssignMembershipRequest(clientId, plan.getId(), null)));
+                assignMembership(new AssignMembershipRequest(
+                        clientId, plan.getId(), null, MembershipBillingMode.COMPLIMENTARY)));
+    }
+
+    private void billMembership(
+            ClientMembership membership,
+            MembershipPlan plan,
+            MembershipBillingMode billingMode,
+            String notes) {
+        MembershipBillingMode mode = billingMode == null ? MembershipBillingMode.PENDING : billingMode;
+        if (mode == MembershipBillingMode.COMPLIMENTARY) {
+            return;
+        }
+        boolean markPaid = mode == MembershipBillingMode.PAID;
+        paymentService.register(new RegisterPaymentRequest(
+                membership.getClient().getId(),
+                membership.getId(),
+                PaymentType.MEMBERSHIP,
+                plan.getPrice(),
+                PaymentMethod.CASH,
+                LocalDate.now(clock),
+                markPaid,
+                notes));
     }
 
     public void cancelActiveForClient(Long clientId) {

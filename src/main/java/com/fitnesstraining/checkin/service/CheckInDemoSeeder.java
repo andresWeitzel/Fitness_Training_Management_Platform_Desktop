@@ -48,7 +48,8 @@ public class CheckInDemoSeeder {
 
         int seeded = 0;
         for (Client client : clientRepository.findAllActiveRecords()) {
-            if (client.isDeleted() || paymentRepository.hasOpenDebt(client.getId())) {
+            if (client.isDeleted()
+                    || paymentRepository.hasBlockingDebt(client.getId(), java.time.OffsetDateTime.now())) {
                 continue;
             }
             boolean hasMembership = membershipRepository.findActiveByClientId(client.getId()).isPresent();

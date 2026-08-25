@@ -90,6 +90,8 @@
 
             <HBox spacing="10">
                 <Button fx:id="registerButton" text="Registrar ingreso" onAction="#onRegister" styleClass="primary-button"/>
+                <Button fx:id="openPaymentsButton" text="Ir a Pagos" onAction="#onOpenPayments" styleClass="secondary-button"
+                        visible="false" managed="false"/>
                 <Button fx:id="clearButton" text="Limpiar" onAction="#onClear" styleClass="ghost-button"/>
             </HBox>
         </VBox>

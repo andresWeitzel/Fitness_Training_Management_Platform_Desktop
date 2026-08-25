@@ -172,7 +172,11 @@ public class PaymentService {
     }
 
     public boolean hasOpenDebt(Long clientId) {
-        return paymentRepository.hasOpenDebt(clientId);
+        return paymentRepository.hasBlockingDebt(clientId, now());
+    }
+
+    public boolean hasBlockingDebt(Long clientId) {
+        return paymentRepository.hasBlockingDebt(clientId, now());
     }
 
     private PaymentSummary toSummary(Payment payment, OffsetDateTime now) {

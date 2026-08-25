@@ -12,6 +12,7 @@ import com.fitnesstraining.memberships.dto.ClientMembershipView;
 import com.fitnesstraining.memberships.dto.MembershipPlanRequest;
 import com.fitnesstraining.memberships.dto.MembershipPlanSummary;
 import com.fitnesstraining.memberships.dto.MembershipPlanView;
+import com.fitnesstraining.memberships.model.MembershipBillingMode;
 import com.fitnesstraining.memberships.model.MembershipListScope;
 import com.fitnesstraining.memberships.model.MembershipStatus;
 import com.fitnesstraining.memberships.service.MembershipService;
@@ -91,6 +92,7 @@ public class MembershipsController {
     @FXML private ComboBox<ClientMembershipOption> clientCombo;
     @FXML private ComboBox<MembershipPlanSummary> planCombo;
     @FXML private DatePicker startDatePicker;
+    @FXML private ComboBox<MembershipBillingMode> billingModeCombo;
     @FXML private Label membershipStartsLabel;
     @FXML private Label membershipEndsLabel;
     @FXML private Label membershipDurationLabel;
@@ -248,7 +250,9 @@ public class MembershipsController {
         clientCombo.setDisable(!canManage);
         planCombo.setDisable(!canManage);
         startDatePicker.setDisable(!canManage);
+        billingModeCombo.setDisable(!canManage);
         startDatePicker.setValue(null);
+        resetBillingMode();
         clientCombo.getSelectionModel().clearSelection();
         planCombo.getSelectionModel().clearSelection();
         membershipSubtitleLabel.setText("Asignar membresía a un cliente");
@@ -258,7 +262,7 @@ public class MembershipsController {
         membershipDurationLabel.setText("—");
         membershipPriceLabel.setText("—");
         membershipStatusLabel.setText(canManage
-                ? "Seleccione cliente y plan, luego asigne."
+                ? "Seleccione cliente, plan y cobro, luego asigne."
                 : "Solo lectura.");
         saveMembershipButton.setText("Asignar membresía");
         saveMembershipButton.setDisable(!canManage);
@@ -294,7 +298,8 @@ public class MembershipsController {
             AssignMembershipRequest request = new AssignMembershipRequest(
                     client.clientId(),
                     plan.id(),
-                    startDatePicker.getValue());
+                    startDatePicker.getValue(),
+                    selectedBillingMode());
             ClientMembershipView saved = membershipService.assignMembership(request);
             showFeedbackOk("Membresía asignada correctamente.");
             setMembershipScope(MembershipListScope.ACTIVE);
@@ -314,7 +319,8 @@ public class MembershipsController {
             if (plan == null) {
                 throw new ValidationException("Seleccione el nuevo plan.");
             }
-            ClientMembershipView saved = membershipService.changePlan(selectedMembershipId, plan.id());
+            ClientMembershipView saved = membershipService.changePlan(
+                    selectedMembershipId, plan.id(), selectedBillingMode());
             showFeedbackOk("Plan actualizado: " + saved.planName() + ".");
             refreshMemberships();
             selectMembershipInTable(saved.id());
@@ -335,7 +341,8 @@ public class MembershipsController {
             ClientMembershipView saved = membershipService.reassignMembership(
                     selectedMembershipId,
                     plan.id(),
-                    startDatePicker.getValue());
+                    startDatePicker.getValue(),
+                    selectedBillingMode());
             showFeedbackOk("Membresía reasignada y activa.");
             setMembershipScope(MembershipListScope.ACTIVE);
             refreshMemberships();
@@ -361,7 +368,8 @@ public class MembershipsController {
             return;
         }
         try {
-            ClientMembershipView renewed = membershipService.renewMembership(selectedMembershipId);
+            ClientMembershipView renewed = membershipService.renewMembership(
+                    selectedMembershipId, selectedBillingMode());
             showFeedbackOk("Membresía renovada.");
             refreshMemberships();
             selectMembershipInTable(renewed.id());
@@ -464,6 +472,43 @@ public class MembershipsController {
         planCombo.setConverter(planConverter());
         planCombo.setCellFactory(listView -> planOptionCell());
         planCombo.setButtonCell(planButtonCell());
+
+        billingModeCombo.setItems(FXCollections.observableArrayList(
+                MembershipBillingMode.PENDING,
+                MembershipBillingMode.PAID,
+                MembershipBillingMode.COMPLIMENTARY));
+        billingModeCombo.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(MembershipBillingMode mode) {
+                return labelForBilling(mode);
+            }
+
+            @Override
+            public MembershipBillingMode fromString(String string) {
+                return null;
+            }
+        });
+        resetBillingMode();
+    }
+
+    private MembershipBillingMode selectedBillingMode() {
+        MembershipBillingMode mode = billingModeCombo.getValue();
+        return mode == null ? MembershipBillingMode.PENDING : mode;
+    }
+
+    private void resetBillingMode() {
+        billingModeCombo.setValue(MembershipBillingMode.PENDING);
+    }
+
+    private static String labelForBilling(MembershipBillingMode mode) {
+        if (mode == null) {
+            return "";
+        }
+        return switch (mode) {
+            case PENDING -> "Pendiente (genera cobro)";
+            case PAID -> "Cobrado ahora";
+            case COMPLIMENTARY -> "Cortesía (sin cobro)";
+        };
     }
 
     private StringConverter<ClientMembershipOption> clientConverter() {
@@ -610,6 +655,7 @@ public class MembershipsController {
         selectClient(view.clientId());
         selectPlan(view.planId());
         startDatePicker.setValue(null);
+        resetBillingMode();
 
         membershipSubtitleLabel.setText(view.clientName() + " · " + view.planName());
         membershipStartsLabel.setText(formatDate(view.startsAt().toLocalDate()));
@@ -621,6 +667,7 @@ public class MembershipsController {
         clientCombo.setDisable(true);
         boolean editable = canManage;
         planCombo.setDisable(!editable);
+        billingModeCombo.setDisable(!editable);
 
         if (view.status() == MembershipStatus.ACTIVE) {
             startDatePicker.setDisable(true);
@@ -629,7 +676,7 @@ public class MembershipsController {
             renewMembershipButton.setDisable(!editable);
             cancelMembershipButton.setDisable(!editable);
             membershipStatusLabel.setText(editable
-                    ? "Puede cambiar el plan (p. ej. a Trimestral/Anual), renovar o cancelar."
+                    ? "Puede cambiar el plan, renovar o cancelar. Elija el cobro para la operación."
                     : "Solo lectura.");
             return;
         }
@@ -766,6 +813,7 @@ public class MembershipsController {
         clientCombo.setDisable(!canManage);
         planCombo.setDisable(!canManage);
         startDatePicker.setDisable(!canManage);
+        billingModeCombo.setDisable(!canManage);
         renewMembershipButton.setDisable(!canManage);
         cancelMembershipButton.setDisable(!canManage);
     }

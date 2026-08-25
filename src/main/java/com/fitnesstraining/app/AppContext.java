@@ -16,6 +16,7 @@ import com.fitnesstraining.controller.MembershipsController;
 import com.fitnesstraining.controller.PaymentsController;
 import com.fitnesstraining.controller.CheckInController;
 import com.fitnesstraining.controller.StaffController;
+import com.fitnesstraining.controller.TrainingController;
 import com.fitnesstraining.controller.PlaceholderController;
 import com.fitnesstraining.controller.ShellController;
 import com.fitnesstraining.auth.model.PermissionCode;
@@ -35,6 +36,10 @@ import com.fitnesstraining.checkin.repository.CheckInRepository;
 import com.fitnesstraining.checkin.service.CheckInDemoSeeder;
 import com.fitnesstraining.checkin.service.CheckInService;
 import com.fitnesstraining.staff.service.StaffService;
+import com.fitnesstraining.training.repository.ExerciseRepository;
+import com.fitnesstraining.training.repository.TrainingRoutineRepository;
+import com.fitnesstraining.training.service.TrainingDemoSeeder;
+import com.fitnesstraining.training.service.TrainingService;
 import com.fitnesstraining.auth.repository.RoleRepository;
 import com.fitnesstraining.shared.config.AppProperties;
 import com.fitnesstraining.shared.config.DatabaseBootstrap;
@@ -74,9 +79,11 @@ public class AppContext {
     private PaymentService paymentService;
     private CheckInService checkInService;
     private StaffService staffService;
+    private TrainingService trainingService;
     private DemoCredentialStore demoCredentialStore = new DemoCredentialStore();
     private ShellController shellController;
     private PendingLoginFill pendingLogin;
+    private Long pendingPaymentClientId;
     private String pendingConnectionError;
     private DbConnectionSnapshot connectionSnapshot = DbConnectionSnapshot.unknown();
 
@@ -166,6 +173,17 @@ public class AppContext {
         returnToLogin();
     }
 
+    public void openPaymentsForClient(Long clientId) {
+        pendingPaymentClientId = clientId;
+        openModule("payments");
+    }
+
+    public Optional<Long> consumePendingPaymentClientId() {
+        Long id = pendingPaymentClientId;
+        pendingPaymentClientId = null;
+        return Optional.ofNullable(id);
+    }
+
     public Optional<PendingLoginFill> consumePendingLogin() {
         PendingLoginFill fill = pendingLogin;
         pendingLogin = null;
@@ -251,13 +269,16 @@ public class AppContext {
             return new MembershipsController(membershipService, sessionContext, authorizationService);
         }
         if (type == PaymentsController.class) {
-            return new PaymentsController(paymentService, sessionContext, authorizationService);
+            return new PaymentsController(paymentService, sessionContext, authorizationService, this);
         }
         if (type == CheckInController.class) {
-            return new CheckInController(checkInService, sessionContext, authorizationService);
+            return new CheckInController(checkInService, sessionContext, authorizationService, this);
         }
         if (type == StaffController.class) {
             return new StaffController(staffService, sessionContext, authorizationService);
+        }
+        if (type == TrainingController.class) {
+            return new TrainingController(trainingService, sessionContext, authorizationService);
         }
         if (type == PlaceholderController.class) {
             return new PlaceholderController();
@@ -278,20 +299,23 @@ public class AppContext {
         ClientMembershipRepository clientMembershipRepository = new ClientMembershipRepository(persistenceManager);
         PaymentRepository paymentRepository = new PaymentRepository(persistenceManager);
         CheckInRepository checkInRepository = new CheckInRepository(persistenceManager);
+        ExerciseRepository exerciseRepository = new ExerciseRepository(persistenceManager);
+        TrainingRoutineRepository trainingRoutineRepository = new TrainingRoutineRepository(persistenceManager);
         demoCredentialStore = new DemoCredentialStore();
         authService = new AuthService(userRepository, passwordHasher);
         clientQueryService = new ClientQueryService(clientRepository, credentialRepository);
-        membershipService = new MembershipService(
-                membershipPlanRepository,
-                clientMembershipRepository,
-                clientRepository,
-                credentialRepository,
-                Clock.systemDefaultZone());
         paymentService = new PaymentService(
                 paymentRepository,
                 clientRepository,
                 clientMembershipRepository,
                 credentialRepository,
+                Clock.systemDefaultZone());
+        membershipService = new MembershipService(
+                membershipPlanRepository,
+                clientMembershipRepository,
+                clientRepository,
+                credentialRepository,
+                paymentService,
                 Clock.systemDefaultZone());
         checkInService = new CheckInService(
                 checkInRepository,
@@ -306,10 +330,21 @@ public class AppContext {
                 passwordHasher,
                 demoCredentialStore,
                 Clock.systemDefaultZone());
+        trainingService = new TrainingService(
+                exerciseRepository,
+                trainingRoutineRepository,
+                clientRepository,
+                credentialRepository,
+                userRepository,
+                Clock.systemDefaultZone());
         clientService = new ClientService(
                 clientRepository,
                 credentialRepository,
                 membershipService,
+                paymentService,
+                checkInRepository,
+                clientMembershipRepository,
+                trainingRoutineRepository,
                 Clock.systemDefaultZone());
         new DevDataSeeder(userRepository, passwordHasher).seedIfEmpty();
         demoCredentialStore.reconcile(userRepository, passwordHasher);
@@ -326,6 +361,13 @@ public class AppContext {
                 checkInRepository,
                 checkInService)
                 .seedIfEmpty();
+        new TrainingDemoSeeder(
+                exerciseRepository,
+                clientRepository,
+                userRepository,
+                trainingService,
+                Clock.systemDefaultZone())
+                .seedIfEmpty();
     }
 
     private void shutdownPersistence() {
@@ -336,6 +378,7 @@ public class AppContext {
         userRepository = null;
         authService = null;
         staffService = null;
+        trainingService = null;
         demoCredentialStore = new DemoCredentialStore();
     }
 }

@@ -2,6 +2,7 @@ package com.fitnesstraining.memberships.validation;
 
 import com.fitnesstraining.memberships.dto.AssignMembershipRequest;
 import com.fitnesstraining.memberships.dto.MembershipPlanRequest;
+import com.fitnesstraining.memberships.model.MembershipBillingMode;
 import com.fitnesstraining.shared.exception.ValidationException;
 
 import java.math.BigDecimal;
@@ -53,7 +54,10 @@ public final class MembershipValidator {
         if (request.planId() == null) {
             throw new ValidationException("Seleccione un plan.");
         }
-        return new AssignMembershipRequest(request.clientId(), request.planId(), request.startDate());
+        MembershipBillingMode billing = request.billingMode() == null
+                ? MembershipBillingMode.PENDING
+                : request.billingMode();
+        return new AssignMembershipRequest(request.clientId(), request.planId(), request.startDate(), billing);
     }
 
     private static String blankToNull(String value) {

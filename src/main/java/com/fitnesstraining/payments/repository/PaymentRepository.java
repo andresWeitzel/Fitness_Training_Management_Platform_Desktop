@@ -70,14 +70,28 @@ public class PaymentRepository {
     }
 
     public boolean hasOpenDebt(Long clientId) {
+        return hasBlockingDebt(clientId, OffsetDateTime.now());
+    }
+
+    /**
+     * Deuda que bloquea acceso: PENDING vencido (dueAt &lt;= now) o LATE_FEE pendiente.
+     * Los PENDING con vencimiento futuro no bloquean.
+     */
+    public boolean hasBlockingDebt(Long clientId, OffsetDateTime now) {
         Long count = persistence.inTransaction(em ->
                 em.createQuery("""
                                 SELECT COUNT(p) FROM Payment p
                                 WHERE p.client.id = :clientId
                                   AND p.status = :pending
+                                  AND (
+                                    p.type = :lateFee
+                                    OR (p.dueAt IS NOT NULL AND p.dueAt <= :now)
+                                  )
                                 """, Long.class)
                         .setParameter("clientId", clientId)
                         .setParameter("pending", PaymentStatus.PENDING)
+                        .setParameter("lateFee", com.fitnesstraining.payments.model.PaymentType.LATE_FEE)
+                        .setParameter("now", now)
                         .getSingleResult());
         return count != null && count > 0;
     }

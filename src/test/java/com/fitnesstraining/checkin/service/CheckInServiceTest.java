@@ -70,7 +70,7 @@ class CheckInServiceTest {
         when(credentialRepository.findActiveByCode("30111222")).thenReturn(Optional.empty());
         when(clientRepository.findActiveByDocument("30111222")).thenReturn(Optional.of(client));
         when(credentialRepository.findClientNumber(1L)).thenReturn(Optional.of("CLI-000001"));
-        when(paymentRepository.hasOpenDebt(1L)).thenReturn(true);
+        when(paymentRepository.hasBlockingDebt(eq(1L), any())).thenReturn(true);
         when(checkInRepository.countBetween(any(), any())).thenReturn(0L);
 
         var evaluation = checkInService.evaluate("30111222");
@@ -88,7 +88,7 @@ class CheckInServiceTest {
         when(credentialRepository.findUsableByCode("CLI-000001", NOW)).thenReturn(Optional.of(
                 credential(client, CredentialType.CLIENT_NUMBER, "CLI-000001")));
         when(credentialRepository.findClientNumber(1L)).thenReturn(Optional.of("CLI-000001"));
-        when(paymentRepository.hasOpenDebt(1L)).thenReturn(false);
+        when(paymentRepository.hasBlockingDebt(eq(1L), any())).thenReturn(false);
         when(membershipRepository.findActiveByClientId(1L)).thenReturn(Optional.of(membership));
         when(checkInRepository.countBetween(any(), any())).thenReturn(0L);
         when(checkInRepository.hasCheckInToday(eq(1L), any(), any())).thenReturn(false);
@@ -107,7 +107,7 @@ class CheckInServiceTest {
         when(credentialRepository.findUsableByCode("30111222", NOW)).thenReturn(Optional.empty());
         when(credentialRepository.findActiveByCode("30111222")).thenReturn(Optional.empty());
         when(credentialRepository.findClientNumber(1L)).thenReturn(Optional.empty());
-        when(paymentRepository.hasOpenDebt(1L)).thenReturn(false);
+        when(paymentRepository.hasBlockingDebt(eq(1L), any())).thenReturn(false);
         when(membershipRepository.findActiveByClientId(1L)).thenReturn(Optional.empty());
         when(paymentRepository.hasPaidDailyPassOnDay(eq(1L), any(), any())).thenReturn(true);
         when(checkInRepository.countBetween(any(), any())).thenReturn(0L);
@@ -128,7 +128,7 @@ class CheckInServiceTest {
 
         when(credentialRepository.findUsableByCode("QR-000010", NOW)).thenReturn(Optional.of(credential));
         when(credentialRepository.findClientNumber(1L)).thenReturn(Optional.of("CLI-000001"));
-        when(paymentRepository.hasOpenDebt(1L)).thenReturn(false);
+        when(paymentRepository.hasBlockingDebt(eq(1L), any())).thenReturn(false);
         when(membershipRepository.findActiveByClientId(1L)).thenReturn(Optional.of(membership));
         when(checkInRepository.countBetween(any(), any())).thenReturn(0L);
         when(checkInRepository.hasCheckInToday(eq(1L), any(), any())).thenReturn(false);

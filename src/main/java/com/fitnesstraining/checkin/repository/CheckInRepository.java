@@ -85,6 +85,20 @@ public class CheckInRepository {
         return count != null && count > 0;
     }
 
+    public Optional<CheckIn> findLatestByClientId(Long clientId) {
+        return persistence.inTransaction(em ->
+                em.createQuery("""
+                                SELECT c FROM CheckIn c
+                                WHERE c.client.id = :clientId
+                                ORDER BY c.checkedInAt DESC
+                                """, CheckIn.class)
+                        .setParameter("clientId", clientId)
+                        .setMaxResults(1)
+                        .getResultList()
+                        .stream()
+                        .findFirst());
+    }
+
     public CheckIn save(CheckIn checkIn) {
         return persistence.inTransaction(em -> {
             if (checkIn.getId() == null) {

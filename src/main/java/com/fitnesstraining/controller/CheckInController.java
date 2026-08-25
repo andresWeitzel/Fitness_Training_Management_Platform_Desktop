@@ -1,5 +1,6 @@
 package com.fitnesstraining.controller;
 
+import com.fitnesstraining.app.AppContext;
 import com.fitnesstraining.app.SessionContext;
 import com.fitnesstraining.auth.dto.AuthenticatedUser;
 import com.fitnesstraining.auth.model.PermissionCode;
@@ -65,6 +66,7 @@ public class CheckInController {
     @FXML private Label credentialLabel;
     @FXML private Label statusLabel;
     @FXML private Button registerButton;
+    @FXML private Button openPaymentsButton;
     @FXML private Button clearButton;
 
     @FXML private Label todayCountLabel;
@@ -101,6 +103,7 @@ public class CheckInController {
     private final CheckInService checkInService;
     private final SessionContext sessionContext;
     private final AuthorizationService authorizationService;
+    private final AppContext appContext;
 
     private boolean canManage;
     private CheckInEvaluation currentEvaluation;
@@ -109,10 +112,12 @@ public class CheckInController {
     public CheckInController(
             CheckInService checkInService,
             SessionContext sessionContext,
-            AuthorizationService authorizationService) {
+            AuthorizationService authorizationService,
+            AppContext appContext) {
         this.checkInService = checkInService;
         this.sessionContext = sessionContext;
         this.authorizationService = authorizationService;
+        this.appContext = appContext;
     }
 
     @FXML
@@ -425,10 +430,26 @@ public class CheckInController {
         if (evaluation.allowed()) {
             resultBadge.setText(evaluation.alreadyCheckedInToday() ? "Reingreso" : "Permitido");
             resultBadge.getStyleClass().setAll("badge-paid");
+            setOpenPaymentsVisible(false);
         } else {
             resultBadge.setText(labelForDenial(evaluation.denialReason()));
             resultBadge.getStyleClass().setAll(badgeForDenial(evaluation.denialReason()));
+            setOpenPaymentsVisible(evaluation.denialReason() == CheckInDenialReason.OPEN_DEBT
+                    && evaluation.clientId() != null);
         }
+    }
+
+    @FXML
+    public void onOpenPayments() {
+        if (currentEvaluation == null || currentEvaluation.clientId() == null) {
+            return;
+        }
+        appContext.openPaymentsForClient(currentEvaluation.clientId());
+    }
+
+    private void setOpenPaymentsVisible(boolean visible) {
+        openPaymentsButton.setVisible(visible);
+        openPaymentsButton.setManaged(visible);
     }
 
     private void clearResult() {
@@ -438,6 +459,7 @@ public class CheckInController {
         resultMessageLabel.setText("Escanee o escriba un identificador y pulse Verificar.");
         statusInfo("Recepción lista.");
         registerButton.setDisable(true);
+        setOpenPaymentsVisible(false);
     }
 
     private void clearResultPanels() {

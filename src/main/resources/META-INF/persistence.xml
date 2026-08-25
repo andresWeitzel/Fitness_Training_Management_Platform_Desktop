@@ -14,6 +14,9 @@
         <class>com.fitnesstraining.memberships.model.ClientMembership</class>
         <class>com.fitnesstraining.payments.model.Payment</class>
         <class>com.fitnesstraining.checkin.model.CheckIn</class>
+        <class>com.fitnesstraining.training.model.Exercise</class>
+        <class>com.fitnesstraining.training.model.TrainingRoutine</class>
+        <class>com.fitnesstraining.training.model.TrainingRoutineItem</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>

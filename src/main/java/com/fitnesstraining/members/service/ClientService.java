@@ -1,5 +1,6 @@
 package com.fitnesstraining.members.service;
 
+import com.fitnesstraining.checkin.repository.CheckInRepository;
 import com.fitnesstraining.members.dto.ClientRequest;
 import com.fitnesstraining.members.dto.ClientSummary;
 import com.fitnesstraining.members.dto.ClientView;
@@ -11,8 +12,13 @@ import com.fitnesstraining.members.model.CredentialType;
 import com.fitnesstraining.members.repository.AccessCredentialRepository;
 import com.fitnesstraining.members.repository.ClientRepository;
 import com.fitnesstraining.members.validation.ClientValidator;
+import com.fitnesstraining.memberships.model.ClientMembership;
+import com.fitnesstraining.memberships.repository.ClientMembershipRepository;
 import com.fitnesstraining.memberships.service.MembershipService;
+import com.fitnesstraining.payments.service.PaymentService;
 import com.fitnesstraining.shared.exception.ValidationException;
+import com.fitnesstraining.training.model.TrainingRoutine;
+import com.fitnesstraining.training.repository.TrainingRoutineRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +36,17 @@ public class ClientService {
     private final ClientRepository clientRepository;
     private final AccessCredentialRepository credentialRepository;
     private final MembershipService membershipService;
+    private final PaymentService paymentService;
+    private final CheckInRepository checkInRepository;
+    private final ClientMembershipRepository membershipRepository;
+    private final TrainingRoutineRepository trainingRoutineRepository;
     private final Clock clock;
 
     public ClientService(
             ClientRepository clientRepository,
             AccessCredentialRepository credentialRepository,
             Clock clock) {
-        this(clientRepository, credentialRepository, null, clock);
+        this(clientRepository, credentialRepository, null, null, null, null, null, clock);
     }
 
     public ClientService(
@@ -44,9 +54,25 @@ public class ClientService {
             AccessCredentialRepository credentialRepository,
             MembershipService membershipService,
             Clock clock) {
+        this(clientRepository, credentialRepository, membershipService, null, null, null, null, clock);
+    }
+
+    public ClientService(
+            ClientRepository clientRepository,
+            AccessCredentialRepository credentialRepository,
+            MembershipService membershipService,
+            PaymentService paymentService,
+            CheckInRepository checkInRepository,
+            ClientMembershipRepository membershipRepository,
+            TrainingRoutineRepository trainingRoutineRepository,
+            Clock clock) {
         this.clientRepository = clientRepository;
         this.credentialRepository = credentialRepository;
         this.membershipService = membershipService;
+        this.paymentService = paymentService;
+        this.checkInRepository = checkInRepository;
+        this.membershipRepository = membershipRepository;
+        this.trainingRoutineRepository = trainingRoutineRepository;
         this.clock = clock;
     }
 
@@ -124,11 +150,15 @@ public class ClientService {
 
     public void deactivate(Long id) {
         Client client = requireActiveClient(id);
-        client.deactivate(OffsetDateTime.now(clock));
+        OffsetDateTime now = OffsetDateTime.now(clock);
+        client.deactivate(now);
         clientRepository.save(client);
         credentialRepository.deactivateAllForClient(id);
         if (membershipService != null) {
             membershipService.cancelActiveForClient(id);
+        }
+        if (trainingRoutineRepository != null) {
+            trainingRoutineRepository.archiveActiveAndScheduledForClient(id, now);
         }
     }
 
@@ -203,7 +233,47 @@ public class ClientService {
         List<CredentialView> credentials = credentialRepository.findByClientId(client.getId()).stream()
                 .map(credential -> CredentialView.from(credential, now))
                 .toList();
-        return ClientView.from(client, credentials);
+
+        String planName = null;
+        java.time.LocalDate endsOn = null;
+        com.fitnesstraining.memberships.model.MembershipStatus membershipStatus = null;
+        if (membershipRepository != null) {
+            ClientMembership membership = membershipRepository.findActiveByClientId(client.getId()).orElse(null);
+            if (membership != null) {
+                planName = membership.getPlan().getName();
+                endsOn = membership.getEndsAt().toLocalDate();
+                membershipStatus = membership.effectiveStatus(now);
+            }
+        }
+
+        boolean blockingDebt = paymentService != null && paymentService.hasBlockingDebt(client.getId());
+
+        OffsetDateTime lastCheckIn = checkInRepository == null
+                ? null
+                : checkInRepository.findLatestByClientId(client.getId())
+                .map(c -> c.getCheckedInAt())
+                .orElse(null);
+
+        String routineTitle = null;
+        String routineFocus = null;
+        if (trainingRoutineRepository != null) {
+            TrainingRoutine routine = trainingRoutineRepository.findCurrentByClientId(client.getId()).orElse(null);
+            if (routine != null) {
+                routineTitle = routine.getTitle();
+                routineFocus = routine.getFocus();
+            }
+        }
+
+        return ClientView.from(
+                client,
+                credentials,
+                planName,
+                endsOn,
+                membershipStatus,
+                blockingDebt,
+                lastCheckIn,
+                routineTitle,
+                routineFocus);
     }
 
     private void assignDefaultMembership(Long clientId) {
