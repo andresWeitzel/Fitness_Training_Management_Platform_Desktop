@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.fitnesstraining.controller.ClientDetailController"
+           styleClass="detail-window-frame"
+           fx:id="rootPane"
+           alignment="CENTER">
+
+    <padding>
+        <Insets top="16" right="16" bottom="20" left="16"/>
+    </padding>
+
+    <VBox spacing="12" styleClass="detail-window" prefWidth="500" minWidth="500" maxWidth="500">
+        <padding>
+            <Insets top="16" right="20" bottom="18" left="20"/>
+        </padding>
+
+        <HBox styleClass="window-drag" alignment="CENTER_LEFT" spacing="10">
+            <Label text="Detalle del cliente" styleClass="detail-window-kicker" HBox.hgrow="ALWAYS"/>
+            <Label fx:id="statusBadge" styleClass="badge-ready"/>
+            <Button text="×" onAction="#onClose" styleClass="window-close" focusTraversable="false"/>
+        </HBox>
+
+        <Label fx:id="titleLabel" styleClass="detail-window-title" wrapText="true"/>
+        <Label fx:id="summaryLabel" styleClass="detail-window-meta" wrapText="true"/>
+
+        <Separator/>
+
+        <Label text="Resumen operativo" styleClass="section-title"/>
+        <HBox spacing="12">
+            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                <Label text="Plan" styleClass="preview-caption"/>
+                <Label fx:id="opsPlanLabel" styleClass="preview-value" wrapText="true"/>
+            </VBox>
+            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                <Label text="Deuda" styleClass="preview-caption"/>
+                <Label fx:id="opsDebtLabel" styleClass="preview-value" wrapText="true"/>
+            </VBox>
+        </HBox>
+        <HBox spacing="12">
+            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                <Label text="Último check-in" styleClass="preview-caption"/>
+                <Label fx:id="opsCheckInLabel" styleClass="preview-value" wrapText="true"/>
+            </VBox>
+            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                <Label text="Rutina" styleClass="preview-caption"/>
+                <Label fx:id="opsRoutineLabel" styleClass="preview-value" wrapText="true"/>
+            </VBox>
+        </HBox>
+
+        <Separator/>
+
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Credenciales de acceso" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+        </HBox>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="detail-credentials-scroll" maxHeight="200">
+            <VBox fx:id="credentialsBox" spacing="8"/>
+        </ScrollPane>
+
+        <HBox fx:id="credentialActionsBox" spacing="8" alignment="CENTER_LEFT">
+            <Button fx:id="issueCardButton" text="Emitir carnet" onAction="#onIssueCard" styleClass="secondary-button"/>
+            <Button fx:id="renewCardButton" text="Renovar carnet" onAction="#onRenewCard" styleClass="secondary-button"/>
+            <Button fx:id="issueQrButton" text="Generar QR" onAction="#onIssueQr" styleClass="secondary-button"/>
+        </HBox>
+
+        <Label fx:id="statusLabel" styleClass="muted" wrapText="true"/>
+
+        <HBox alignment="CENTER_RIGHT">
+            <Button text="Cerrar" onAction="#onClose" styleClass="primary-button" prefWidth="120"/>
+        </HBox>
+    </VBox>
+</StackPane>
