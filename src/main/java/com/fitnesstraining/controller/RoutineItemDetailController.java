@@ -1,22 +1,16 @@
 package com.fitnesstraining.controller;
 
-import com.fitnesstraining.app.WindowChrome;
+import com.fitnesstraining.app.DetailWindows;
 import com.fitnesstraining.controller.TrainingController.RoutineItemRow;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.stage.Window;
 
 import java.io.IOException;
-import java.util.Objects;
 
 public class RoutineItemDetailController {
 
@@ -41,51 +35,10 @@ public class RoutineItemDetailController {
             Parent root = loader.load();
             RoutineItemDetailController controller = loader.getController();
             controller.bind(row);
-
-            Stage stage = new Stage();
-            stage.initStyle(StageStyle.TRANSPARENT);
-            if (owner != null) {
-                stage.initOwner(owner);
-            }
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.setResizable(false);
-            stage.setTitle("Detalle del ejercicio");
-
-            Scene scene = new Scene(root);
-            scene.setFill(Color.TRANSPARENT);
-            scene.getStylesheets().add(Objects.requireNonNull(
-                    RoutineItemDetailController.class.getResource("/css/app.css")).toExternalForm());
-            stage.setScene(scene);
-            WindowChrome.makeDraggable(stage, root.lookup(".window-drag"));
-
-            controller.stage = stage;
-            stage.show();
-
-            // Layout estable: medir contenido opaco y fijar tamaño (sin packStage genérico).
-            Platform.runLater(() -> {
-                root.applyCss();
-                root.layout();
-                double width = Math.ceil(root.prefWidth(-1));
-                double height = Math.ceil(root.prefHeight(CARD_WIDTH));
-                stage.setWidth(width);
-                stage.setHeight(height);
-                if (owner != null) {
-                    placeOverOwner(stage, owner);
-                } else {
-                    stage.centerOnScreen();
-                }
-                stage.requestFocus();
-            });
+            controller.stage = DetailWindows.open(owner, root, "Detalle del ejercicio", CARD_WIDTH);
         } catch (IOException ex) {
             throw new IllegalStateException("No se pudo abrir el detalle del ejercicio.", ex);
         }
-    }
-
-    private static void placeOverOwner(Stage stage, Window owner) {
-        double x = owner.getX() + (owner.getWidth() - stage.getWidth()) / 2;
-        double y = owner.getY() + Math.max(56, (owner.getHeight() - stage.getHeight()) / 3);
-        stage.setX(Math.max(owner.getX() + 12, x));
-        stage.setY(Math.max(owner.getY() + 12, y));
     }
 
     private void bind(RoutineItemRow row) {

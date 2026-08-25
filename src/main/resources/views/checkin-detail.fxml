@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.fitnesstraining.controller.CheckInDetailController"
+           styleClass="detail-window-frame"
+           fx:id="rootPane"
+           alignment="CENTER">
+
+    <padding>
+        <Insets top="16" right="16" bottom="20" left="16"/>
+    </padding>
+
+    <VBox spacing="12" styleClass="detail-window" prefWidth="460" minWidth="460" maxWidth="460">
+        <padding>
+            <Insets top="16" right="20" bottom="18" left="20"/>
+        </padding>
+
+        <HBox styleClass="window-drag" alignment="CENTER_LEFT" spacing="10">
+            <Label text="Detalle del ingreso" styleClass="detail-window-kicker" HBox.hgrow="ALWAYS"/>
+            <Label fx:id="modeBadge" styleClass="badge-pending"/>
+            <Button text="×" onAction="#onClose" styleClass="window-close" focusTraversable="false"/>
+        </HBox>
+
+        <Label fx:id="titleLabel" styleClass="detail-window-title" wrapText="true"/>
+        <Label fx:id="summaryLabel" styleClass="detail-window-meta" wrapText="true"/>
+
+        <Separator/>
+
+        <HBox spacing="12">
+            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                <Label text="Cliente" styleClass="preview-caption"/>
+                <Label fx:id="clientLabel" styleClass="preview-value" wrapText="true"/>
+            </VBox>
+            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                <Label text="Contacto" styleClass="preview-caption"/>
+                <Label fx:id="contactLabel" styleClass="preview-value" wrapText="true"/>
+            </VBox>
+        </HBox>
+
+        <HBox spacing="12">
+            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                <Label text="Modo de acceso" styleClass="preview-caption"/>
+                <Label fx:id="modeLabel" styleClass="preview-value" wrapText="true"/>
+            </VBox>
+            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                <Label text="Usó al ingresar" styleClass="preview-caption"/>
+                <Label fx:id="usedLabel" styleClass="preview-value" wrapText="true"/>
+            </VBox>
+        </HBox>
+
+        <Label text="Credenciales del cliente" styleClass="field-label"/>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="detail-credentials-scroll" maxHeight="220">
+            <VBox fx:id="credentialsBox" spacing="8"/>
+        </ScrollPane>
+
+        <Label fx:id="statusLabel" styleClass="muted" wrapText="true"/>
+
+        <HBox alignment="CENTER_RIGHT">
+            <Button text="Cerrar" onAction="#onClose" styleClass="primary-button" prefWidth="120"/>
+        </HBox>
+    </VBox>
+</StackPane>

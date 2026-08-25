@@ -116,8 +116,8 @@
                             <TableColumn fx:id="itemRepsColumn" text="Reps" prefWidth="60" minWidth="45"/>
                             <TableColumn fx:id="itemRestColumn" text="Desc." prefWidth="55" minWidth="45"/>
                             <TableColumn fx:id="itemLoadColumn" text="Carga" prefWidth="70" minWidth="55"/>
-                            <TableColumn fx:id="itemDetailColumn" text="Detalle" prefWidth="70" minWidth="60"/>
-                            <TableColumn fx:id="itemRemoveColumn" text="Quitar" prefWidth="70" minWidth="60"/>
+                            <TableColumn fx:id="itemDetailColumn" text="" prefWidth="48" minWidth="44" maxWidth="52"/>
+                            <TableColumn fx:id="itemRemoveColumn" text="" prefWidth="48" minWidth="44" maxWidth="52"/>
                         </columns>
                     </TableView>
 

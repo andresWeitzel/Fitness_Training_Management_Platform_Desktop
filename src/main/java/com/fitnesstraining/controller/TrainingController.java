@@ -38,6 +38,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.stage.Window;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
@@ -262,7 +263,7 @@ public class TrainingController {
                 rest,
                 blankToNull(itemLoadField.getText())));
         clearItemDraftFields();
-        routineInfo("Ejercicio agregado. Use Detalle para ver técnica y músculos.");
+        routineInfo("Ejercicio agregado. Use ⓘ para ver técnica y músculos.");
     }
 
     @FXML
@@ -564,10 +565,11 @@ public class TrainingController {
                 d.getValue().loadNote() == null ? "—" : d.getValue().loadNote()));
 
         itemDetailColumn.setCellFactory(col -> new TableCell<>() {
-            private final Button detail = new Button("Ver");
+            private final Button detail = new Button("ⓘ");
 
             {
-                detail.getStyleClass().add("secondary-button");
+                detail.getStyleClass().add("table-icon-button");
+                detail.setTooltip(new Tooltip("Ver detalle"));
                 detail.setOnAction(e -> {
                     if (getIndex() >= 0 && getIndex() < draftItems.size()) {
                         showItemDetail(draftItems.get(getIndex()));
@@ -578,15 +580,22 @@ public class TrainingController {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty || getIndex() < 0 || getIndex() >= draftItems.size() ? null : detail);
+                if (empty || getIndex() < 0 || getIndex() >= draftItems.size()) {
+                    setGraphic(null);
+                    return;
+                }
+                setGraphic(detail);
+                setAlignment(Pos.CENTER);
             }
         });
+        itemDetailColumn.setSortable(false);
 
         itemRemoveColumn.setCellFactory(col -> new TableCell<>() {
-            private final Button remove = new Button("Quitar");
+            private final Button remove = new Button("×");
 
             {
-                remove.getStyleClass().add("danger-button");
+                remove.getStyleClass().addAll("table-icon-button", "danger");
+                remove.setTooltip(new Tooltip("Quitar ejercicio"));
                 remove.setOnAction(e -> {
                     if (getIndex() >= 0 && getIndex() < draftItems.size()) {
                         draftItems.remove(getIndex());
@@ -603,8 +612,10 @@ public class TrainingController {
                 }
                 remove.setDisable(!canManage || selectedRoutineArchived);
                 setGraphic(remove);
+                setAlignment(Pos.CENTER);
             }
         });
+        itemRemoveColumn.setSortable(false);
     }
 
     private void showItemDetail(RoutineItemRow row) {
@@ -669,7 +680,7 @@ public class TrainingController {
                     view.status() == RoutineStatus.ARCHIVED ? "badge-cancelled" : "badge-paid");
             routineInfo(selectedRoutineArchived
                     ? "Rutina archivada. Puede reactivarla."
-                    : "Use Ver en cada ejercicio para ver técnica y músculos.");
+                    : "Use ⓘ para ver el detalle de cada ejercicio.");
             applyRoutineFormMode();
         } catch (RuntimeException ex) {
             routineError(ex.getMessage());

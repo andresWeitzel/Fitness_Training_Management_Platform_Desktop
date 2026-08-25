@@ -1417,3 +1417,50 @@
     -fx-font-size: 14px;
     -fx-line-spacing: 2px;
 }
+
+.detail-credentials-scroll {
+    -fx-background-color: #FFFFFF;
+    -fx-background: #FFFFFF;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+.detail-credentials-scroll > .viewport {
+    -fx-background-color: #FFFFFF;
+}
+
+.detail-credentials-scroll .content {
+    -fx-background-color: #FFFFFF;
+}
+
+.table-icon-button {
+    -fx-background-color: #EEF3F8;
+    -fx-text-fill: #1F6FEB;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: transparent;
+    -fx-padding: 4 10 4 10;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+    -fx-min-width: 36;
+    -fx-min-height: 30;
+}
+
+.table-icon-button:hover {
+    -fx-background-color: #DCE8F8;
+    -fx-text-fill: #0B4FBF;
+}
+
+.table-icon-button.danger {
+    -fx-background-color: #FDECEC;
+    -fx-text-fill: #B42318;
+}
+
+.table-icon-button.danger:hover {
+    -fx-background-color: #FAD4D4;
+}
+
+.table-icon-button:disabled {
+    -fx-opacity: 0.45;
+}
