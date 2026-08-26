@@ -2,11 +2,11 @@ package com.fitnesstraining.controller;
 
 import com.fitnesstraining.app.ConfirmDialogs;
 import com.fitnesstraining.app.SessionContext;
+import com.fitnesstraining.app.TableStatusCells;
 import com.fitnesstraining.auth.dto.AuthenticatedUser;
 import com.fitnesstraining.auth.model.PermissionCode;
 import com.fitnesstraining.auth.service.AuthorizationService;
 import com.fitnesstraining.shared.exception.ValidationException;
-import com.fitnesstraining.training.dto.ExerciseOption;
 import com.fitnesstraining.training.dto.ExerciseRequest;
 import com.fitnesstraining.training.dto.ExerciseSummary;
 import com.fitnesstraining.training.dto.RoutineItemRequest;
@@ -26,19 +26,16 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.stage.Window;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
@@ -89,20 +86,8 @@ public class TrainingController {
     @FXML private ComboBox<RoutineStatus> routineStatusCombo;
     @FXML private DatePicker routineStartsOnPicker;
     @FXML private TextArea routineNotesField;
-    @FXML private Button addItemButton;
-    @FXML private ComboBox<ExerciseOption> itemExerciseCombo;
-    @FXML private TextField itemSetsField;
-    @FXML private TextField itemRepsField;
-    @FXML private TextField itemRestField;
-    @FXML private TextField itemLoadField;
-    @FXML private TableView<RoutineItemRow> routineItemsTable;
-    @FXML private TableColumn<RoutineItemRow, String> itemNameColumn;
-    @FXML private TableColumn<RoutineItemRow, String> itemSetsColumn;
-    @FXML private TableColumn<RoutineItemRow, String> itemRepsColumn;
-    @FXML private TableColumn<RoutineItemRow, String> itemRestColumn;
-    @FXML private TableColumn<RoutineItemRow, String> itemLoadColumn;
-    @FXML private TableColumn<RoutineItemRow, String> itemDetailColumn;
-    @FXML private TableColumn<RoutineItemRow, String> itemRemoveColumn;
+    @FXML private Label routineItemsSummaryLabel;
+    @FXML private Button manageItemsButton;
     @FXML private Label routineStatusLabel;
     @FXML private Button saveRoutineButton;
     @FXML private Button archiveRoutineButton;
@@ -165,7 +150,6 @@ public class TrainingController {
         setupRoutineTable();
         setupExerciseTable();
         setupCombos();
-        setupItemsTable();
 
         routineSearchDelay.setOnFinished(e -> reloadRoutines());
         routineSearchField.textProperty().addListener((obs, o, v) -> {
@@ -197,7 +181,6 @@ public class TrainingController {
         Platform.runLater(() -> {
             reloadRoutines();
             reloadExercises();
-            refreshExerciseOptions();
             refreshClientOptions();
         });
     }
@@ -223,47 +206,32 @@ public class TrainingController {
         routineStatusCombo.setValue(RoutineStatus.ACTIVE);
         routineStartsOnPicker.setValue(null);
         draftItems.clear();
-        clearItemDraftFields();
         routineSubtitleLabel.setText("Nueva rutina");
         routineStatusBadge.setText("Nueva");
         routineStatusBadge.getStyleClass().setAll("badge-ready");
-        routineInfo(canManage ? "Complete cliente, título y ejercicios. Puede guardar como borrador." : "Solo lectura.");
+        updateRoutineItemsSummary();
+        routineInfo(canManage
+                ? "Complete cliente, título y ejercicios. Use Gestionar ejercicios para armar la rutina."
+                : "Solo lectura.");
         applyRoutineFormMode();
     }
 
     @FXML
-    public void onAddRoutineItem() {
-        if (!canManage) {
-            return;
+    public void onManageRoutineItems() {
+        boolean creating = selectedRoutineId == null;
+        boolean editable = canManage && (creating || !selectedRoutineArchived);
+        String title = routineTitleField.getText();
+        if (title == null || title.isBlank()) {
+            title = creating ? "Nueva rutina" : routineSubtitleLabel.getText();
         }
-        ExerciseOption exercise = itemExerciseCombo.getValue();
-        if (exercise == null) {
-            routineError("Seleccione un ejercicio para agregar.");
-            return;
-        }
-        Integer sets = parsePositiveInt(itemSetsField.getText(), "series");
-        Integer rest = parseNonNegativeInt(itemRestField.getText(), "descanso");
-        if (sets == null && itemSetsField.getText() != null && !itemSetsField.getText().isBlank()) {
-            return;
-        }
-        if (rest == null && itemRestField.getText() != null && !itemRestField.getText().isBlank()) {
-            return;
-        }
-        draftItems.add(new RoutineItemRow(
-                exercise.id(),
-                exercise.name(),
-                TrainingService.labelForMuscle(exercise.muscleGroup()),
-                TrainingService.labelForEquipment(exercise.equipment()),
-                TrainingService.labelForDifficulty(exercise.difficulty()),
-                exercise.secondaryMuscles(),
-                exercise.description(),
-                exercise.techniqueNotes(),
-                sets,
-                blankToNull(itemRepsField.getText()),
-                rest,
-                blankToNull(itemLoadField.getText())));
-        clearItemDraftFields();
-        routineInfo("Ejercicio agregado. Use ⓘ para ver técnica y músculos.");
+        Window owner = manageItemsButton.getScene() == null ? null : manageItemsButton.getScene().getWindow();
+        RoutineItemsController.open(
+                owner,
+                title,
+                draftItems,
+                trainingService,
+                editable,
+                this::updateRoutineItemsSummary);
     }
 
     @FXML
@@ -385,7 +353,6 @@ public class TrainingController {
             exerciseOk(selectedExerciseId == null ? "Ejercicio creado." : "Ejercicio actualizado.");
             selectedExerciseId = saved.id();
             reloadExercises();
-            refreshExerciseOptions();
             selectExerciseById(saved.id());
             loadExercise(saved.id());
         } catch (ValidationException ex) {
@@ -411,7 +378,6 @@ public class TrainingController {
             ExerciseSummary saved = trainingService.deactivateExercise(selectedExerciseId);
             exerciseOk("Ejercicio desactivado.");
             setExerciseFilter(Boolean.FALSE);
-            refreshExerciseOptions();
             selectExerciseById(saved.id());
             loadExercise(saved.id());
         } catch (ValidationException ex) {
@@ -430,7 +396,6 @@ public class TrainingController {
             ExerciseSummary saved = trainingService.reactivateExercise(selectedExerciseId);
             exerciseOk("Ejercicio reactivado.");
             setExerciseFilter(Boolean.TRUE);
-            refreshExerciseOptions();
             selectExerciseById(saved.id());
             loadExercise(saved.id());
         } catch (ValidationException ex) {
@@ -449,8 +414,11 @@ public class TrainingController {
         routineItemsColumn.setCellValueFactory(d ->
                 new SimpleStringProperty(String.valueOf(d.getValue().itemCount())));
         routineStatusColumn.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().statusLabel()));
-        routineStatusColumn.setCellFactory(col -> statusBadgeCell(row ->
-                row.status() == RoutineStatus.ACTIVE || row.status() == RoutineStatus.SCHEDULED));
+        routineStatusColumn.setCellFactory(col -> TableStatusCells.of((row, item) ->
+                row.status() == RoutineStatus.ACTIVE || row.status() == RoutineStatus.SCHEDULED
+                        ? "badge-paid"
+                        : "badge-cancelled"));
+        routinesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
     }
 
     private void setupExerciseTable() {
@@ -460,32 +428,9 @@ public class TrainingController {
         exerciseDifficultyColumn.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().difficultyLabel()));
         exerciseStatusColumn.setCellValueFactory(d ->
                 new SimpleStringProperty(d.getValue().active() ? "Activo" : "Inactivo"));
-        exerciseStatusColumn.setCellFactory(col -> statusBadgeCell(ExerciseSummary::active));
-    }
-
-    private <T> TableCell<T, String> statusBadgeCell(java.util.function.Predicate<T> activePred) {
-        return new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null || getTableView() == null
-                        || getIndex() < 0
-                        || getIndex() >= getTableView().getItems().size()) {
-                    setText(null);
-                    setGraphic(null);
-                    return;
-                }
-                @SuppressWarnings("unchecked")
-                T row = (T) getTableView().getItems().get(getIndex());
-                Label badge = new Label(item);
-                badge.getStyleClass().setAll(
-                        "table-status-badge",
-                        activePred.test(row) ? "badge-paid" : "badge-cancelled");
-                setGraphic(badge);
-                setText(null);
-                setAlignment(Pos.CENTER_LEFT);
-            }
-        };
+        exerciseStatusColumn.setCellFactory(col -> TableStatusCells.of((row, item) ->
+                row.active() ? "badge-paid" : "badge-cancelled"));
+        exercisesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
     }
 
     private void setupCombos() {
@@ -518,24 +463,6 @@ public class TrainingController {
             }
         });
 
-        itemExerciseCombo.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(ExerciseOption option) {
-                return option == null ? "" : option.label();
-            }
-
-            @Override
-            public ExerciseOption fromString(String string) {
-                return null;
-            }
-        });
-        itemExerciseCombo.setCellFactory(list -> new ListCell<>() {
-            @Override
-            protected void updateItem(ExerciseOption item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.label());
-            }
-        });
     }
 
     private <T> StringConverter<T> labelConverter(java.util.function.Function<T, String> labels) {
@@ -550,77 +477,6 @@ public class TrainingController {
                 return null;
             }
         };
-    }
-
-    private void setupItemsTable() {
-        routineItemsTable.setItems(draftItems);
-        itemNameColumn.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().exerciseName()));
-        itemSetsColumn.setCellValueFactory(d -> new SimpleStringProperty(
-                d.getValue().sets() == null ? "—" : String.valueOf(d.getValue().sets())));
-        itemRepsColumn.setCellValueFactory(d -> new SimpleStringProperty(
-                d.getValue().reps() == null ? "—" : d.getValue().reps()));
-        itemRestColumn.setCellValueFactory(d -> new SimpleStringProperty(
-                d.getValue().restSeconds() == null ? "—" : d.getValue().restSeconds() + "s"));
-        itemLoadColumn.setCellValueFactory(d -> new SimpleStringProperty(
-                d.getValue().loadNote() == null ? "—" : d.getValue().loadNote()));
-
-        itemDetailColumn.setCellFactory(col -> new TableCell<>() {
-            private final Button detail = new Button("ⓘ");
-
-            {
-                detail.getStyleClass().add("table-icon-button");
-                detail.setTooltip(new Tooltip("Ver detalle"));
-                detail.setOnAction(e -> {
-                    if (getIndex() >= 0 && getIndex() < draftItems.size()) {
-                        showItemDetail(draftItems.get(getIndex()));
-                    }
-                });
-            }
-
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || getIndex() < 0 || getIndex() >= draftItems.size()) {
-                    setGraphic(null);
-                    return;
-                }
-                setGraphic(detail);
-                setAlignment(Pos.CENTER);
-            }
-        });
-        itemDetailColumn.setSortable(false);
-
-        itemRemoveColumn.setCellFactory(col -> new TableCell<>() {
-            private final Button remove = new Button("×");
-
-            {
-                remove.getStyleClass().addAll("table-icon-button", "danger");
-                remove.setTooltip(new Tooltip("Quitar ejercicio"));
-                remove.setOnAction(e -> {
-                    if (getIndex() >= 0 && getIndex() < draftItems.size()) {
-                        draftItems.remove(getIndex());
-                    }
-                });
-            }
-
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || getIndex() < 0 || getIndex() >= draftItems.size()) {
-                    setGraphic(null);
-                    return;
-                }
-                remove.setDisable(!canManage || selectedRoutineArchived);
-                setGraphic(remove);
-                setAlignment(Pos.CENTER);
-            }
-        });
-        itemRemoveColumn.setSortable(false);
-    }
-
-    private void showItemDetail(RoutineItemRow row) {
-        Window owner = routineItemsTable.getScene() == null ? null : routineItemsTable.getScene().getWindow();
-        RoutineItemDetailController.open(owner, row);
     }
 
     private void reloadRoutines() {
@@ -639,8 +495,11 @@ public class TrainingController {
         routineClientCombo.setItems(FXCollections.observableArrayList(trainingService.listActiveClients()));
     }
 
-    private void refreshExerciseOptions() {
-        itemExerciseCombo.setItems(FXCollections.observableArrayList(trainingService.listActiveExerciseOptions()));
+    private void updateRoutineItemsSummary() {
+        int count = draftItems.size();
+        routineItemsSummaryLabel.setText(count == 0
+                ? "Sin ejercicios cargados."
+                : count + (count == 1 ? " ejercicio cargado." : " ejercicios cargados."));
     }
 
     private void loadRoutine(Long id) {
@@ -678,9 +537,10 @@ public class TrainingController {
             routineStatusBadge.setText(view.statusLabel());
             routineStatusBadge.getStyleClass().setAll(
                     view.status() == RoutineStatus.ARCHIVED ? "badge-cancelled" : "badge-paid");
+            updateRoutineItemsSummary();
             routineInfo(selectedRoutineArchived
                     ? "Rutina archivada. Puede reactivarla."
-                    : "Use ⓘ para ver el detalle de cada ejercicio.");
+                    : "Use Gestionar ejercicios para ver o editar la prescripción.");
             applyRoutineFormMode();
         } catch (RuntimeException ex) {
             routineError(ex.getMessage());
@@ -738,18 +598,12 @@ public class TrainingController {
         routineNotesField.setEditable(editable);
         routineStatusCombo.setDisable(!editable);
         routineStartsOnPicker.setDisable(!editable || routineStatusCombo.getValue() != RoutineStatus.SCHEDULED);
-        addItemButton.setDisable(!editable);
-        itemExerciseCombo.setDisable(!editable);
-        itemSetsField.setDisable(!editable);
-        itemRepsField.setDisable(!editable);
-        itemRestField.setDisable(!editable);
-        itemLoadField.setDisable(!editable);
+        manageItemsButton.setDisable(false);
         saveRoutineButton.setDisable(!editable);
         archiveRoutineButton.setDisable(!canManage || creating || selectedRoutineArchived);
         reactivateRoutineButton.setDisable(!canManage || creating || !selectedRoutineArchived);
         reactivateRoutineButton.setVisible(!creating && selectedRoutineArchived);
         reactivateRoutineButton.setManaged(!creating && selectedRoutineArchived);
-        routineItemsTable.refresh();
     }
 
     private void applyExerciseFormMode() {
@@ -774,7 +628,6 @@ public class TrainingController {
         saveRoutineButton.setDisable(!canManage);
         archiveRoutineButton.setDisable(!canManage);
         reactivateRoutineButton.setDisable(!canManage);
-        addItemButton.setDisable(!canManage);
         newExerciseButton.setDisable(!canManage);
         saveExerciseButton.setDisable(!canManage);
         deactivateExerciseButton.setDisable(!canManage);
@@ -797,50 +650,6 @@ public class TrainingController {
                 .filter(e -> e.id().equals(id))
                 .findFirst()
                 .ifPresent(e -> exercisesTable.getSelectionModel().select(e));
-    }
-
-    private Integer parsePositiveInt(String raw, String label) {
-        String value = blankToNull(raw);
-        if (value == null) {
-            return null;
-        }
-        try {
-            int parsed = Integer.parseInt(value);
-            if (parsed <= 0) {
-                routineError("Las " + label + " deben ser mayores a 0.");
-                return null;
-            }
-            return parsed;
-        } catch (NumberFormatException ex) {
-            routineError("Valor inválido en " + label + ".");
-            return null;
-        }
-    }
-
-    private Integer parseNonNegativeInt(String raw, String label) {
-        String value = blankToNull(raw);
-        if (value == null) {
-            return null;
-        }
-        try {
-            int parsed = Integer.parseInt(value);
-            if (parsed < 0) {
-                routineError("El " + label + " no puede ser negativo.");
-                return null;
-            }
-            return parsed;
-        } catch (NumberFormatException ex) {
-            routineError("Valor inválido en " + label + ".");
-            return null;
-        }
-    }
-
-    private void clearItemDraftFields() {
-        itemExerciseCombo.setValue(null);
-        itemSetsField.clear();
-        itemRepsField.clear();
-        itemRestField.clear();
-        itemLoadField.clear();
     }
 
     private static void applyChip(Button button, boolean on) {

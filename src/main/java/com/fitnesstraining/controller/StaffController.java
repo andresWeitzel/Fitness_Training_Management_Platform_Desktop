@@ -1,6 +1,7 @@
 package com.fitnesstraining.controller;
 
 import com.fitnesstraining.app.ConfirmDialogs;
+import com.fitnesstraining.app.TableStatusCells;
 import com.fitnesstraining.app.SessionContext;
 import com.fitnesstraining.auth.dto.AuthenticatedUser;
 import com.fitnesstraining.auth.model.PermissionCode;
@@ -226,27 +227,8 @@ public class StaffController {
         roleColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().roleLabel()));
         statusColumn.setCellValueFactory(data ->
                 new SimpleStringProperty(data.getValue().active() ? "Activo" : "Baja"));
-        statusColumn.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null || getTableView() == null
-                        || getIndex() < 0
-                        || getIndex() >= getTableView().getItems().size()) {
-                    setText(null);
-                    setGraphic(null);
-                    return;
-                }
-                StaffSummary row = getTableView().getItems().get(getIndex());
-                Label badge = new Label(item);
-                badge.getStyleClass().setAll(
-                        "table-status-badge",
-                        row.active() ? "badge-paid" : "badge-cancelled");
-                setGraphic(badge);
-                setText(null);
-                setAlignment(Pos.CENTER_LEFT);
-            }
-        });
+        statusColumn.setCellFactory(col -> TableStatusCells.of((row, item) ->
+                row.active() ? "badge-paid" : "badge-cancelled"));
     }
 
     private void setupRoleCombo() {

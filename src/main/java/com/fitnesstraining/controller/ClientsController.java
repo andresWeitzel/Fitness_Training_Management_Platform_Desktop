@@ -10,10 +10,10 @@ import com.fitnesstraining.members.dto.ClientSummary;
 import com.fitnesstraining.members.dto.ClientView;
 import com.fitnesstraining.members.dto.CredentialView;
 import com.fitnesstraining.members.model.ClientListScope;
+import com.fitnesstraining.app.TableStatusCells;
 import com.fitnesstraining.members.model.ClientStatus;
 import com.fitnesstraining.members.model.CredentialType;
 import com.fitnesstraining.members.service.ClientService;
-import com.fitnesstraining.memberships.model.MembershipStatus;
 import com.fitnesstraining.shared.exception.ValidationException;
 import javafx.animation.PauseTransition;
 import javafx.beans.property.SimpleStringProperty;
@@ -26,20 +26,11 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.Tooltip;
+import javafx.stage.Window;
 import javafx.util.Duration;
 
-import java.time.format.DateTimeFormatter;
-
 public class ClientsController {
-
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @FXML private TextField searchField;
     @FXML private Label resultCountLabel;
@@ -51,6 +42,7 @@ public class ClientsController {
     @FXML private TableColumn<ClientSummary, String> nameColumn;
     @FXML private TableColumn<ClientSummary, String> numberColumn;
     @FXML private TableColumn<ClientSummary, String> statusColumn;
+    @FXML private TableColumn<ClientSummary, String> detailColumn;
 
     @FXML private Label fichaSubtitleLabel;
     @FXML private Label fichaStatusBadge;
@@ -60,19 +52,11 @@ public class ClientsController {
     @FXML private TextField emailField;
     @FXML private TextField phoneField;
     @FXML private TextField addressField;
-    @FXML private Label opsPlanLabel;
-    @FXML private Label opsDebtLabel;
-    @FXML private Label opsCheckInLabel;
-    @FXML private Label opsRoutineLabel;
-    @FXML private VBox credentialsBox;
     @FXML private Label statusLabel;
 
     @FXML private Button newButton;
     @FXML private Button saveButton;
     @FXML private Button deactivateButton;
-    @FXML private Button issueCardButton;
-    @FXML private Button renewCardButton;
-    @FXML private Button issueQrButton;
 
     private final ClientService clientService;
     private final SessionContext sessionContext;
@@ -105,24 +89,12 @@ public class ClientsController {
                 data.getValue().clientNumber() == null || data.getValue().clientNumber().isBlank()
                         ? "—"
                         : data.getValue().clientNumber()));
-        statusColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().status().name()));
-        statusColumn.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                    setText(null);
-                    return;
-                }
-                boolean active = ClientStatus.ACTIVE.name().equals(item);
-                Label badge = new Label(active ? "Activo" : "Baja");
-                badge.getStyleClass().add(active ? "badge-ready" : "badge-soon");
-                setGraphic(badge);
-                setText(null);
-                setAlignment(Pos.CENTER_LEFT);
-            }
-        });
+        statusColumn.setCellValueFactory(data -> new SimpleStringProperty(
+                ClientStatus.ACTIVE.name().equals(data.getValue().status().name()) ? "Activo" : "Baja"));
+        statusColumn.setCellFactory(col -> TableStatusCells.of((row, item) ->
+                row.status() == ClientStatus.ACTIVE ? "badge-paid" : "badge-cancelled"));
+        detailColumn.setCellFactory(col -> detailActionCell());
+        detailColumn.setSortable(false);
         clientsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         clientsTable.setPlaceholder(new Label("No hay clientes para este filtro."));
 
@@ -139,6 +111,48 @@ public class ClientsController {
         });
         reloadTable();
         onNew();
+    }
+
+    private TableCell<ClientSummary, String> detailActionCell() {
+        return new TableCell<>() {
+            private final Button detail = new Button("ⓘ");
+
+            {
+                detail.getStyleClass().add("table-icon-button");
+                detail.setTooltip(new Tooltip("Ver detalle operativo y credenciales"));
+                detail.setOnAction(e -> {
+                    if (getIndex() >= 0 && getIndex() < clientsTable.getItems().size()) {
+                        openDetail(clientsTable.getItems().get(getIndex()).id());
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getIndex() < 0 || getIndex() >= clientsTable.getItems().size()) {
+                    setGraphic(null);
+                    return;
+                }
+                setGraphic(detail);
+                setAlignment(Pos.CENTER);
+            }
+        };
+    }
+
+    private void openDetail(Long clientId) {
+        try {
+            ClientView view = clientService.get(clientId);
+            Window owner = clientsTable.getScene() == null ? null : clientsTable.getScene().getWindow();
+            ClientDetailController.open(owner, view, clientService, canManage, updated -> {
+                reloadTable();
+                if (selectedId != null && selectedId.equals(updated.id())) {
+                    show(updated);
+                }
+            });
+        } catch (RuntimeException ex) {
+            statusError(ex.getMessage());
+        }
     }
 
     @FXML
@@ -175,15 +189,10 @@ public class ClientsController {
         fichaSubtitleLabel.setText("Alta nueva. Al guardar se genera el n° de cliente.");
         fichaStatusBadge.setText("Nuevo");
         fichaStatusBadge.getStyleClass().setAll("badge-soon");
-        credentialsBox.getChildren().setAll(hint("Después de guardar se puede emitir carnet y QR."));
-        clearOpsSummary();
         statusLabel.setText("");
         statusLabel.getStyleClass().setAll("muted");
         applyFormState(true);
         deactivateButton.setDisable(true);
-        issueCardButton.setDisable(true);
-        renewCardButton.setDisable(true);
-        issueQrButton.setDisable(true);
     }
 
     @FXML
@@ -231,21 +240,6 @@ public class ClientsController {
         }
     }
 
-    @FXML
-    public void onIssueCard() {
-        runCredential(() -> clientService.issueCard(selectedId), "Carnet emitido.");
-    }
-
-    @FXML
-    public void onRenewCard() {
-        runCredential(() -> clientService.renewCard(selectedId), "Carnet renovado por 12 meses.");
-    }
-
-    @FXML
-    public void onIssueQr() {
-        runCredential(() -> clientService.issueQr(selectedId), "Código QR generado.");
-    }
-
     private void setScope(ClientListScope scope) {
         listScope = scope;
         applyChipState(filterActiveButton, scope == ClientListScope.ACTIVE);
@@ -259,24 +253,6 @@ public class ClientsController {
         button.getStyleClass().remove("selected");
         if (on) {
             button.getStyleClass().add("chip-on");
-        }
-    }
-
-    private void runCredential(java.util.function.Supplier<ClientView> action, String success) {
-        if (selectedId == null) {
-            statusError("Seleccione o guarde un cliente primero.");
-            return;
-        }
-        try {
-            ClientView view = action.get();
-            statusOk(success);
-            show(view);
-            reloadTable();
-            selectById(view.id());
-        } catch (ValidationException ex) {
-            statusError(ex.getMessage());
-        } catch (Exception ex) {
-            statusError(ex.getMessage());
         }
     }
 
@@ -307,117 +283,16 @@ public class ClientsController {
         fichaStatusBadge.setText(selectedInactive ? "Baja" : "Activo");
         fichaStatusBadge.getStyleClass().setAll(selectedInactive ? "badge-soon" : "badge-ready");
 
-        renderOpsSummary(view);
-        renderCredentials(view);
         applyFormState(!selectedInactive);
         deactivateButton.setDisable(!canManage || selectedInactive);
-        updateCredentialButtons(view);
         if (selectedInactive) {
             statusLabel.getStyleClass().setAll("muted");
-            statusLabel.setText("Cliente dado de baja. Solo consulta; el DNI queda libre para un alta nueva.");
-        } else {
-            statusLabel.setText("");
+            statusLabel.setText("Cliente dado de baja. Solo consulta; el DNI queda libre para un alta nueva. Usá ⓘ para ver resumen y credenciales.");
+        } else if (statusLabel.getText() == null || statusLabel.getText().isBlank()
+                || statusLabel.getStyleClass().contains("muted")) {
+            statusLabel.getStyleClass().setAll("muted");
+            statusLabel.setText("Usá ⓘ en el listado para ver resumen operativo y credenciales.");
         }
-    }
-
-    private void renderOpsSummary(ClientView view) {
-        if (view.membershipPlanName() == null || view.membershipPlanName().isBlank()) {
-            opsPlanLabel.setText("Sin plan activo");
-        } else {
-            String ends = view.membershipEndsOn() == null ? "—" : DATE_FORMAT.format(view.membershipEndsOn());
-            String status = view.membershipStatus() == null ? "" : " · " + labelForMembership(view.membershipStatus());
-            opsPlanLabel.setText(view.membershipPlanName() + " · vence " + ends + status);
-        }
-        opsDebtLabel.setText(view.hasBlockingDebt() ? "Mora / recargo pendiente" : "Al día");
-        opsDebtLabel.getStyleClass().setAll(view.hasBlockingDebt() ? "status-error" : "preview-value");
-        opsCheckInLabel.setText(view.lastCheckInAt() == null
-                ? "Sin registros"
-                : DATE_TIME_FORMAT.format(view.lastCheckInAt()));
-        if (view.activeRoutineTitle() == null || view.activeRoutineTitle().isBlank()) {
-            opsRoutineLabel.setText("Sin rutina activa");
-        } else if (view.activeRoutineFocus() == null || view.activeRoutineFocus().isBlank()) {
-            opsRoutineLabel.setText(view.activeRoutineTitle());
-        } else {
-            opsRoutineLabel.setText(view.activeRoutineTitle() + " · " + view.activeRoutineFocus());
-        }
-    }
-
-    private void clearOpsSummary() {
-        opsPlanLabel.setText("—");
-        opsDebtLabel.setText("—");
-        opsDebtLabel.getStyleClass().setAll("preview-value");
-        opsCheckInLabel.setText("—");
-        opsRoutineLabel.setText("—");
-    }
-
-    private static String labelForMembership(MembershipStatus status) {
-        return switch (status) {
-            case ACTIVE -> "Activa";
-            case EXPIRED -> "Vencida";
-            case CANCELLED -> "Cancelada";
-        };
-    }
-
-    private void renderCredentials(ClientView view) {
-        credentialsBox.getChildren().clear();
-        if (view.credentials().isEmpty()) {
-            credentialsBox.getChildren().add(hint("Sin credenciales."));
-            return;
-        }
-        view.credentials().forEach(credential -> credentialsBox.getChildren().add(credentialCard(credential)));
-    }
-
-    private HBox credentialCard(CredentialView credential) {
-        Label type = new Label(credential.typeLabel());
-        type.getStyleClass().add("credential-type");
-        Label code = new Label(credential.code());
-        code.getStyleClass().add("credential-code");
-        code.setOnMouseClicked(event -> copyCredential(credential));
-        Label meta = new Label(credentialMeta(credential));
-        meta.getStyleClass().add("muted");
-        VBox text = new VBox(2, type, code, meta);
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        Label status = new Label(credential.statusLabel());
-        status.getStyleClass().add("VIGENTE".equals(credential.statusLabel()) ? "badge-ready" : "badge-soon");
-        Button copyButton = new Button("Copiar");
-        copyButton.getStyleClass().add("credential-copy-button");
-        copyButton.setOnAction(event -> copyCredential(credential));
-        HBox row = new HBox(10, text, spacer, status, copyButton);
-        row.setAlignment(Pos.CENTER_LEFT);
-        row.getStyleClass().add("credential-card");
-        return row;
-    }
-
-    private void copyCredential(CredentialView credential) {
-        if (credential == null || credential.code() == null || credential.code().isBlank()) {
-            statusError("No hay código para copiar.");
-            return;
-        }
-        ClipboardContent content = new ClipboardContent();
-        content.putString(credential.code());
-        Clipboard.getSystemClipboard().setContent(content);
-        statusOk(credential.typeLabel() + " copiado: " + credential.code());
-    }
-
-    private String credentialMeta(CredentialView credential) {
-        if (credential.expiresAt() == null) {
-            return "Sin vencimiento";
-        }
-        return "Vence " + DATE_FORMAT.format(credential.expiresAt().toLocalDate());
-    }
-
-    private void updateCredentialButtons(ClientView view) {
-        boolean enabled = canManage && !selectedInactive;
-        boolean hasUsableCard = view.credentials().stream()
-                .anyMatch(item -> item.type() == CredentialType.CARD && "VIGENTE".equals(item.statusLabel()));
-        boolean hasAnyCard = view.credentials().stream()
-                .anyMatch(item -> item.type() == CredentialType.CARD);
-        boolean hasUsableQr = view.credentials().stream()
-                .anyMatch(item -> item.type() == CredentialType.QR && "VIGENTE".equals(item.statusLabel()));
-        issueCardButton.setDisable(!enabled || hasUsableCard);
-        renewCardButton.setDisable(!enabled || !hasAnyCard);
-        issueQrButton.setDisable(!enabled || hasUsableQr);
     }
 
     private void applyFormState(boolean editable) {
@@ -477,13 +352,6 @@ public class ClientsController {
     private void statusError(String message) {
         statusLabel.getStyleClass().setAll("status-error");
         statusLabel.setText(message);
-    }
-
-    private static Label hint(String text) {
-        Label label = new Label(text);
-        label.getStyleClass().add("muted");
-        label.setWrapText(true);
-        return label;
     }
 
     private static String nullToEmpty(String value) {

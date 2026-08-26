@@ -15,10 +15,10 @@
             styleClass="shell-root">
 
     <left>
-        <VBox styleClass="sidebar" spacing="0" prefWidth="272" minWidth="256" maxWidth="288">
-            <HBox spacing="12" alignment="CENTER_LEFT" styleClass="sidebar-brand sidebar-drag window-drag">
+        <VBox styleClass="sidebar" spacing="0" prefWidth="216" minWidth="204" maxWidth="228">
+            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="sidebar-brand sidebar-drag window-drag">
                 <padding>
-                    <Insets top="22" right="18" bottom="18" left="18"/>
+                    <Insets top="18" right="12" bottom="18" left="12"/>
                 </padding>
                 <Label text="FT" styleClass="brand-mark-sm"/>
                 <VBox spacing="2">
@@ -30,18 +30,18 @@
             <ScrollPane fx:id="navScroll" styleClass="sidebar-scroll" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS">
                 <VBox fx:id="navContainer" spacing="4" styleClass="sidebar-nav">
                     <padding>
-                        <Insets top="8" right="14" bottom="12" left="14"/>
+                        <Insets top="6" right="10" bottom="10" left="10"/>
                     </padding>
                 </VBox>
             </ScrollPane>
 
             <VBox spacing="0" styleClass="sidebar-footer">
                 <padding>
-                    <Insets top="12" right="14" bottom="16" left="14"/>
+                    <Insets top="10" right="10" bottom="12" left="10"/>
                 </padding>
-                <VBox spacing="10" styleClass="sidebar-session">
+                <VBox spacing="8" styleClass="sidebar-session">
                     <padding>
-                        <Insets top="12" right="12" bottom="12" left="12"/>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
                     </padding>
                     <HBox spacing="10" alignment="CENTER_LEFT">
                         <Label fx:id="sidebarInitialLabel" styleClass="sidebar-avatar"/>
@@ -60,7 +60,7 @@
         <VBox spacing="0">
             <HBox styleClass="topbar window-drag" alignment="CENTER_LEFT" spacing="20">
                 <padding>
-                    <Insets top="14" right="20" bottom="14" left="28"/>
+                    <Insets top="12" right="18" bottom="12" left="10"/>
                 </padding>
                 <Label fx:id="pageTitle" text="Panel" styleClass="page-title" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
                 <HBox spacing="6" alignment="CENTER">
@@ -73,7 +73,7 @@
                         hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS">
                 <StackPane fx:id="contentHost" styleClass="content-host" alignment="TOP_LEFT">
                     <padding>
-                        <Insets top="22" right="28" bottom="28" left="28"/>
+                        <Insets top="14" right="18" bottom="18" left="8"/>
                     </padding>
                 </StackPane>
             </ScrollPane>

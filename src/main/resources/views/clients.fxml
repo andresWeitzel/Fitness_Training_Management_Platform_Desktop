@@ -8,15 +8,16 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
 <SplitPane xmlns="http://javafx.com/javafx/21"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.fitnesstraining.controller.ClientsController"
-           dividerPositions="0.48"
+           dividerPositions="0.58"
            styleClass="clients-split">
 
-    <VBox spacing="12" styleClass="panel-card">
+    <VBox spacing="12" styleClass="panel-card list-panel">
         <padding>
             <Insets top="18" right="18" bottom="18" left="18"/>
         </padding>
@@ -39,13 +40,14 @@
                 <TableColumn fx:id="nameColumn" text="Cliente" prefWidth="180" minWidth="140"/>
                 <TableColumn fx:id="numberColumn" text="N° cliente" prefWidth="110" minWidth="90"/>
                 <TableColumn fx:id="statusColumn" text="Estado" prefWidth="90" minWidth="80"/>
+                <TableColumn fx:id="detailColumn" text="" prefWidth="52" minWidth="48" maxWidth="56"/>
             </columns>
         </TableView>
     </VBox>
 
-    <VBox spacing="8" styleClass="panel-card">
+    <VBox spacing="10" styleClass="panel-card detail-panel">
         <padding>
-            <Insets top="18" right="18" bottom="18" left="18"/>
+            <Insets top="16" right="16" bottom="16" left="16"/>
         </padding>
         <HBox alignment="CENTER_LEFT" spacing="10">
             <VBox spacing="2" HBox.hgrow="ALWAYS">
@@ -74,36 +76,7 @@
         <Label text="Dirección" styleClass="field-label"/>
         <TextField fx:id="addressField"/>
 
-        <Label text="Resumen operativo" styleClass="section-title"/>
-        <HBox spacing="14">
-            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
-                <Label text="Plan" styleClass="preview-caption"/>
-                <Label fx:id="opsPlanLabel" styleClass="preview-value" wrapText="true"/>
-            </VBox>
-            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
-                <Label text="Deuda" styleClass="preview-caption"/>
-                <Label fx:id="opsDebtLabel" styleClass="preview-value"/>
-            </VBox>
-        </HBox>
-        <HBox spacing="14">
-            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
-                <Label text="Último check-in" styleClass="preview-caption"/>
-                <Label fx:id="opsCheckInLabel" styleClass="preview-value"/>
-            </VBox>
-            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
-                <Label text="Rutina" styleClass="preview-caption"/>
-                <Label fx:id="opsRoutineLabel" styleClass="preview-value" wrapText="true"/>
-            </VBox>
-        </HBox>
-
-        <Label text="Credenciales de acceso" styleClass="section-title"/>
-        <VBox fx:id="credentialsBox" spacing="8"/>
-
-        <HBox spacing="10">
-            <Button fx:id="issueCardButton" text="Emitir carnet" onAction="#onIssueCard" styleClass="secondary-button"/>
-            <Button fx:id="renewCardButton" text="Renovar carnet" onAction="#onRenewCard" styleClass="secondary-button"/>
-            <Button fx:id="issueQrButton" text="Generar QR" onAction="#onIssueQr" styleClass="secondary-button"/>
-        </HBox>
+        <Region VBox.vgrow="ALWAYS" minHeight="8"/>
 
         <Label fx:id="statusLabel" styleClass="muted" wrapText="true"/>
 

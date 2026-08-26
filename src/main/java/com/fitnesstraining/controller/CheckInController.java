@@ -1,6 +1,7 @@
 package com.fitnesstraining.controller;
 
 import com.fitnesstraining.app.AppContext;
+import com.fitnesstraining.app.TableStatusCells;
 import com.fitnesstraining.app.SessionContext;
 import com.fitnesstraining.auth.dto.AuthenticatedUser;
 import com.fitnesstraining.auth.model.PermissionCode;
@@ -242,7 +243,8 @@ public class CheckInController {
         documentColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().clientDocument()));
         modeColumn.setCellValueFactory(data ->
                 new SimpleStringProperty(labelForMode(data.getValue().accessMode())));
-        modeColumn.setCellFactory(col -> modeBadgeCell());
+        modeColumn.setCellFactory(col -> TableStatusCells.of((row, item) ->
+                row.accessMode() == AccessMode.MEMBERSHIP ? "badge-paid" : "badge-pending"));
         credentialColumn.setCellValueFactory(data ->
                 new SimpleStringProperty(labelForCredentialType(data.getValue().credentialType())));
         detailColumn.setCellFactory(col -> detailActionCell(table));
@@ -272,30 +274,6 @@ public class CheckInController {
                 }
                 setGraphic(detail);
                 setAlignment(Pos.CENTER);
-            }
-        };
-    }
-
-    private TableCell<CheckInSummary, String> modeBadgeCell() {
-        return new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null || getTableView() == null
-                        || getIndex() < 0
-                        || getIndex() >= getTableView().getItems().size()) {
-                    setText(null);
-                    setGraphic(null);
-                    return;
-                }
-                CheckInSummary row = getTableView().getItems().get(getIndex());
-                Label badge = new Label(item);
-                badge.getStyleClass().setAll(
-                        "table-status-badge",
-                        row.accessMode() == AccessMode.MEMBERSHIP ? "badge-paid" : "badge-pending");
-                setGraphic(badge);
-                setText(null);
-                setAlignment(Pos.CENTER_LEFT);
             }
         };
     }

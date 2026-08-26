@@ -153,7 +153,7 @@ public class ShellController {
         title.getStyleClass().add("nav-label");
         HBox.setHgrow(title, Priority.ALWAYS);
 
-        HBox content = new HBox(10, icon, title);
+        HBox content = new HBox(8, icon, title);
         content.setAlignment(Pos.CENTER_LEFT);
         if (!item.implemented()) {
             Label soon = new Label("Pronto");

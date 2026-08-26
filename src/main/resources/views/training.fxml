@@ -26,10 +26,10 @@
     <TabPane fx:id="trainingTabs" styleClass="memberships-tabs" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
 
         <Tab text="Rutinas">
-            <SplitPane dividerPositions="0.46" styleClass="clients-split">
-                <VBox spacing="12" styleClass="panel-card">
+            <SplitPane dividerPositions="0.60" styleClass="clients-split">
+                <VBox spacing="12" styleClass="panel-card list-panel">
                     <padding>
-                        <Insets top="18" right="18" bottom="18" left="18"/>
+                        <Insets top="16" right="16" bottom="16" left="16"/>
                     </padding>
                     <HBox alignment="CENTER_LEFT" spacing="10">
                         <Label text="Rutinas" styleClass="section-title" HBox.hgrow="ALWAYS"/>
@@ -48,19 +48,19 @@
                     </HBox>
                     <TableView fx:id="routinesTable" VBox.vgrow="ALWAYS" styleClass="clients-table">
                         <columns>
-                            <TableColumn fx:id="routineClientColumn" text="Cliente" prefWidth="140" minWidth="110"/>
-                            <TableColumn fx:id="routineTitleColumn" text="Título" prefWidth="130" minWidth="100"/>
-                            <TableColumn fx:id="routineFocusColumn" text="Enfoque" prefWidth="100" minWidth="80"/>
-                            <TableColumn fx:id="routineTrainerColumn" text="Entrenador" prefWidth="110" minWidth="90"/>
-                            <TableColumn fx:id="routineItemsColumn" text="Ejerc." prefWidth="55" minWidth="45"/>
-                            <TableColumn fx:id="routineStatusColumn" text="Estado" prefWidth="90" minWidth="70"/>
+                            <TableColumn fx:id="routineClientColumn" text="Cliente" prefWidth="130" minWidth="100"/>
+                            <TableColumn fx:id="routineTitleColumn" text="Título" prefWidth="120" minWidth="90"/>
+                            <TableColumn fx:id="routineFocusColumn" text="Enfoque" prefWidth="90" minWidth="70"/>
+                            <TableColumn fx:id="routineTrainerColumn" text="Entrenador" prefWidth="100" minWidth="80"/>
+                            <TableColumn fx:id="routineItemsColumn" text="Ejerc." prefWidth="52" minWidth="44"/>
+                            <TableColumn fx:id="routineStatusColumn" text="Estado" prefWidth="92" minWidth="84"/>
                         </columns>
                     </TableView>
                 </VBox>
 
-                <VBox spacing="8" styleClass="panel-card">
+                <VBox spacing="8" styleClass="panel-card detail-panel">
                     <padding>
-                        <Insets top="18" right="18" bottom="18" left="18"/>
+                        <Insets top="16" right="16" bottom="16" left="16"/>
                     </padding>
                     <HBox alignment="CENTER_LEFT" spacing="10">
                         <VBox spacing="2" HBox.hgrow="ALWAYS">
@@ -99,27 +99,12 @@
                     <TextArea fx:id="routineNotesField" promptText="Opcional" prefRowCount="2" wrapText="true"/>
 
                     <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label text="Ejercicios de la rutina" styleClass="field-label" HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="addItemButton" text="Agregar" onAction="#onAddRoutineItem" styleClass="secondary-button"/>
+                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                            <Label text="Ejercicios de la rutina" styleClass="field-label"/>
+                            <Label fx:id="routineItemsSummaryLabel" styleClass="muted" text="Sin ejercicios cargados."/>
+                        </VBox>
+                        <Button fx:id="manageItemsButton" text="Gestionar ejercicios" onAction="#onManageRoutineItems" styleClass="secondary-button"/>
                     </HBox>
-                    <HBox spacing="8" alignment="CENTER_LEFT">
-                        <ComboBox fx:id="itemExerciseCombo" promptText="Ejercicio" maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="app-combo"/>
-                        <TextField fx:id="itemSetsField" promptText="Series" prefWidth="70"/>
-                        <TextField fx:id="itemRepsField" promptText="Reps" prefWidth="80"/>
-                        <TextField fx:id="itemRestField" promptText="Desc.s" prefWidth="70"/>
-                        <TextField fx:id="itemLoadField" promptText="Carga" prefWidth="90"/>
-                    </HBox>
-                    <TableView fx:id="routineItemsTable" VBox.vgrow="ALWAYS" styleClass="clients-table">
-                        <columns>
-                            <TableColumn fx:id="itemNameColumn" text="Ejercicio" prefWidth="140" minWidth="110"/>
-                            <TableColumn fx:id="itemSetsColumn" text="Series" prefWidth="55" minWidth="45"/>
-                            <TableColumn fx:id="itemRepsColumn" text="Reps" prefWidth="60" minWidth="45"/>
-                            <TableColumn fx:id="itemRestColumn" text="Desc." prefWidth="55" minWidth="45"/>
-                            <TableColumn fx:id="itemLoadColumn" text="Carga" prefWidth="70" minWidth="55"/>
-                            <TableColumn fx:id="itemDetailColumn" text="" prefWidth="48" minWidth="44" maxWidth="52"/>
-                            <TableColumn fx:id="itemRemoveColumn" text="" prefWidth="48" minWidth="44" maxWidth="52"/>
-                        </columns>
-                    </TableView>
 
                     <Label fx:id="routineStatusLabel" styleClass="muted" wrapText="true"/>
                     <HBox spacing="10">
@@ -132,10 +117,10 @@
         </Tab>
 
         <Tab text="Ejercicios">
-            <SplitPane dividerPositions="0.48" styleClass="clients-split">
-                <VBox spacing="12" styleClass="panel-card">
+            <SplitPane dividerPositions="0.62" styleClass="clients-split">
+                <VBox spacing="12" styleClass="panel-card list-panel">
                     <padding>
-                        <Insets top="18" right="18" bottom="18" left="18"/>
+                        <Insets top="16" right="16" bottom="16" left="16"/>
                     </padding>
                     <HBox alignment="CENTER_LEFT" spacing="10">
                         <Label text="Catálogo" styleClass="section-title" HBox.hgrow="ALWAYS"/>
@@ -152,18 +137,18 @@
                     </HBox>
                     <TableView fx:id="exercisesTable" VBox.vgrow="ALWAYS" styleClass="clients-table">
                         <columns>
-                            <TableColumn fx:id="exerciseNameColumn" text="Nombre" prefWidth="150" minWidth="120"/>
-                            <TableColumn fx:id="exerciseGroupColumn" text="Grupo" prefWidth="90" minWidth="70"/>
-                            <TableColumn fx:id="exerciseEquipmentColumn" text="Equipo" prefWidth="100" minWidth="80"/>
-                            <TableColumn fx:id="exerciseDifficultyColumn" text="Nivel" prefWidth="90" minWidth="70"/>
-                            <TableColumn fx:id="exerciseStatusColumn" text="Estado" prefWidth="80" minWidth="70"/>
+                            <TableColumn fx:id="exerciseNameColumn" text="Nombre" prefWidth="140" minWidth="110"/>
+                            <TableColumn fx:id="exerciseGroupColumn" text="Grupo" prefWidth="88" minWidth="68"/>
+                            <TableColumn fx:id="exerciseEquipmentColumn" text="Equipo" prefWidth="92" minWidth="72"/>
+                            <TableColumn fx:id="exerciseDifficultyColumn" text="Nivel" prefWidth="84" minWidth="68"/>
+                            <TableColumn fx:id="exerciseStatusColumn" text="Estado" prefWidth="84" minWidth="76"/>
                         </columns>
                     </TableView>
                 </VBox>
 
-                <VBox spacing="8" styleClass="panel-card">
+                <VBox spacing="8" styleClass="panel-card detail-panel">
                     <padding>
-                        <Insets top="18" right="18" bottom="18" left="18"/>
+                        <Insets top="16" right="16" bottom="16" left="16"/>
                     </padding>
                     <HBox alignment="CENTER_LEFT" spacing="10">
                         <VBox spacing="2" HBox.hgrow="ALWAYS">
