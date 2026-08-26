@@ -540,19 +540,19 @@
     -fx-font-size: 10px;
     -fx-font-weight: 800;
     -fx-letter-spacing: 1.1px;
-    -fx-padding: 14 8 6 8;
+    -fx-padding: 12 6 4 6;
 }
 
 .nav-group-box {
     -fx-spacing: 4;
-    -fx-padding: 0 0 4 0;
+    -fx-padding: 0 0 2 0;
 }
 
 .nav-button {
     -fx-background-color: transparent;
     -fx-text-fill: #3D4B5C;
     -fx-background-radius: 12;
-    -fx-padding: 8 10 8 10;
+    -fx-padding: 7 8 7 8;
     -fx-cursor: hand;
     -fx-content-display: graphic-only;
     -fx-alignment: CENTER_LEFT;
@@ -606,7 +606,7 @@
 
 .nav-label {
     -fx-text-fill: #3D4B5C;
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
     -fx-font-weight: 600;
 }
 
@@ -830,10 +830,11 @@
 }
 
 .table-status-badge {
-    -fx-font-size: 11px;
+    -fx-font-size: 10px;
     -fx-font-weight: 700;
-    -fx-background-radius: 10;
-    -fx-padding: 4 8 4 8;
+    -fx-background-radius: 8;
+    -fx-padding: 2 7 2 7;
+    -fx-alignment: center;
 }
 
 .section-title {
@@ -887,7 +888,19 @@
 
 .split-pane:horizontal > .split-pane-divider {
     -fx-background-color: transparent;
-    -fx-padding: 0 10 0 10;
+    -fx-padding: 0 6 0 6;
+}
+
+/* Listado amplio + ficha más compacta en módulos split */
+.clients-split > .list-panel {
+    -fx-min-width: 400;
+}
+
+.clients-split > .detail-panel,
+.clients-split > .assignment-panel {
+    -fx-min-width: 300;
+    -fx-pref-width: 360;
+    -fx-max-width: 400;
 }
 
 .table-view {
@@ -1382,7 +1395,7 @@
 }
 
 .detail-window-frame {
-    -fx-background-color: transparent;
+    -fx-background-color: rgba(21, 32, 51, 0.42);
 }
 
 .detail-window {
@@ -1392,6 +1405,22 @@
     -fx-border-color: #E8EEF5;
     -fx-border-width: 1;
     -fx-effect: dropshadow(gaussian, rgba(21, 32, 51, 0.22), 22, 0.22, 0, 8);
+    -fx-max-height: 88%;
+}
+
+.routine-items-window {
+    -fx-pref-width: 640;
+    -fx-min-width: 640;
+    -fx-max-width: 640;
+}
+
+.routine-items-add {
+    -fx-background-color: #F7FAFD;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-color: #E8EEF5;
+    -fx-border-width: 1;
+    -fx-padding: 12 14 12 14;
 }
 
 .detail-window-kicker {
@@ -1463,4 +1492,22 @@
 
 .table-icon-button:disabled {
     -fx-opacity: 0.45;
+}
+
+.routine-items-table .table-icon-button {
+    -fx-min-width: 30;
+    -fx-pref-width: 30;
+    -fx-max-width: 30;
+    -fx-min-height: 28;
+    -fx-pref-height: 28;
+    -fx-padding: 0;
+    -fx-font-size: 14px;
+}
+
+.routine-items-table .table-cell {
+    -fx-padding: 8 10 8 10;
+}
+
+.routine-items-table .column-header .label {
+    -fx-wrap-text: false;
 }

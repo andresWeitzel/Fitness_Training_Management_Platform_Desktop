@@ -3,6 +3,7 @@ package com.fitnesstraining.app;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -33,25 +34,42 @@ public final class DetailWindows {
                 DetailWindows.class.getResource("/css/app.css")).toExternalForm());
         stage.setScene(scene);
         WindowChrome.makeDraggable(stage, root.lookup(".window-drag"));
-        stage.show();
 
-        Platform.runLater(() -> {
-            root.applyCss();
-            root.layout();
-            double width = Math.ceil(root.prefWidth(-1));
-            double height = Math.ceil(root.prefHeight(preferredCardWidth));
-            stage.setWidth(width);
-            stage.setHeight(height);
-            if (owner != null) {
-                double x = owner.getX() + (owner.getWidth() - stage.getWidth()) / 2;
-                double y = owner.getY() + Math.max(56, (owner.getHeight() - stage.getHeight()) / 3);
-                stage.setX(Math.max(owner.getX() + 12, x));
-                stage.setY(Math.max(owner.getY() + 12, y));
-            } else {
+        if (owner != null) {
+            alignOverlayStage(stage, owner, root);
+            stage.show();
+            Platform.runLater(() -> {
+                root.applyCss();
+                root.layout();
+                stage.requestFocus();
+            });
+        } else {
+            stage.show();
+            Platform.runLater(() -> {
+                root.applyCss();
+                root.layout();
+                double width = Math.max(Math.ceil(root.prefWidth(-1)), preferredCardWidth);
+                stage.setWidth(width);
+                stage.setHeight(Math.ceil(root.prefHeight(width)));
                 stage.centerOnScreen();
-            }
-            stage.requestFocus();
-        });
+                stage.requestFocus();
+            });
+        }
         return stage;
+    }
+
+    private static void alignOverlayStage(Stage stage, Window owner, Parent root) {
+        stage.setWidth(owner.getWidth());
+        stage.setHeight(owner.getHeight());
+        stage.setX(owner.getX());
+        stage.setY(owner.getY());
+        if (root instanceof Region region) {
+            region.prefWidthProperty().bind(stage.widthProperty());
+            region.prefHeightProperty().bind(stage.heightProperty());
+            region.minWidthProperty().bind(stage.widthProperty());
+            region.minHeightProperty().bind(stage.heightProperty());
+            region.maxWidthProperty().bind(stage.widthProperty());
+            region.maxHeightProperty().bind(stage.heightProperty());
+        }
     }
 }

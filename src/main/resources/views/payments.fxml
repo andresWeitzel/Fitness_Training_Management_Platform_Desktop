@@ -27,8 +27,8 @@
         <Button fx:id="feedbackDismissButton" text="×" onAction="#onDismissFeedback" styleClass="feedback-dismiss"/>
     </HBox>
 
-    <SplitPane dividerPositions="0.52" styleClass="clients-split" VBox.vgrow="ALWAYS">
-        <VBox spacing="12" styleClass="panel-card">
+    <SplitPane dividerPositions="0.60" styleClass="clients-split" VBox.vgrow="ALWAYS">
+        <VBox spacing="12" styleClass="panel-card list-panel">
             <padding>
                 <Insets top="18" right="18" bottom="18" left="18"/>
             </padding>
@@ -54,13 +54,14 @@
                     <TableColumn fx:id="amountColumn" text="Monto" prefWidth="100" minWidth="80"/>
                     <TableColumn fx:id="dateColumn" text="Fecha" prefWidth="100" minWidth="80"/>
                     <TableColumn fx:id="statusColumn" text="Estado" prefWidth="100" minWidth="80"/>
+                    <TableColumn fx:id="detailColumn" text="" prefWidth="52" minWidth="48" maxWidth="56"/>
                 </columns>
             </TableView>
         </VBox>
 
-        <VBox spacing="10" styleClass="panel-card assignment-panel">
+        <VBox spacing="10" styleClass="panel-card assignment-panel detail-panel">
             <padding>
-                <Insets top="18" right="18" bottom="18" left="18"/>
+                <Insets top="16" right="16" bottom="16" left="16"/>
             </padding>
             <HBox alignment="CENTER_LEFT" spacing="10">
                 <VBox spacing="2" HBox.hgrow="ALWAYS">
@@ -70,7 +71,7 @@
                 <Label fx:id="statusBadge" styleClass="badge-ready"/>
             </HBox>
 
-            <VBox spacing="10" styleClass="assignment-fields">
+            <VBox spacing="10" styleClass="assignment-fields" VBox.vgrow="ALWAYS">
                 <Label text="Cliente" styleClass="field-label"/>
                 <ComboBox fx:id="clientCombo" promptText="Seleccione un cliente activo" maxWidth="Infinity" styleClass="app-combo"/>
 
@@ -97,31 +98,7 @@
                 <CheckBox fx:id="markAsPaidCheck" text="Registrar como cobrado ahora" selected="true"/>
 
                 <Label text="Notas" styleClass="field-label"/>
-                <TextArea fx:id="notesField" promptText="Opcional" prefRowCount="3" wrapText="true"/>
-            </VBox>
-
-            <VBox spacing="8" styleClass="membership-preview">
-                <Label text="Resumen" styleClass="field-label"/>
-                <HBox spacing="14">
-                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
-                        <Label text="Tipo" styleClass="preview-caption"/>
-                        <Label fx:id="previewTypeLabel" styleClass="preview-value"/>
-                    </VBox>
-                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
-                        <Label text="Monto" styleClass="preview-caption"/>
-                        <Label fx:id="previewAmountLabel" styleClass="preview-value"/>
-                    </VBox>
-                </HBox>
-                <HBox spacing="14">
-                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
-                        <Label text="Cobrado / vence" styleClass="preview-caption"/>
-                        <Label fx:id="previewDateLabel" styleClass="preview-value"/>
-                    </VBox>
-                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
-                        <Label text="Medio" styleClass="preview-caption"/>
-                        <Label fx:id="previewMethodLabel" styleClass="preview-value"/>
-                    </VBox>
-                </HBox>
+                <TextArea fx:id="notesField" promptText="Opcional" prefRowCount="3" wrapText="true" VBox.vgrow="ALWAYS"/>
             </VBox>
 
             <Label fx:id="statusLabel" styleClass="muted" wrapText="true"/>

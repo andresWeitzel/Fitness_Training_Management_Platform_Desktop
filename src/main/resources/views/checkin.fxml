@@ -45,7 +45,7 @@
         </VBox>
     </HBox>
 
-    <SplitPane dividerPositions="0.42" styleClass="clients-split" VBox.vgrow="ALWAYS">
+    <SplitPane dividerPositions="0.38" styleClass="clients-split" VBox.vgrow="ALWAYS">
         <VBox spacing="12" styleClass="panel-card">
             <padding>
                 <Insets top="18" right="18" bottom="18" left="18"/>

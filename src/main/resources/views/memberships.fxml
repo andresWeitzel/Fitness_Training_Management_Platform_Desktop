@@ -32,8 +32,8 @@
 <TabPane fx:id="membershipsTabs" styleClass="memberships-tabs" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
 
     <Tab text="Membresías de clientes">
-        <SplitPane dividerPositions="0.52" styleClass="clients-split">
-            <VBox spacing="12" styleClass="panel-card">
+        <SplitPane dividerPositions="0.60" styleClass="clients-split">
+            <VBox spacing="12" styleClass="panel-card list-panel">
                 <padding>
                     <Insets top="18" right="18" bottom="18" left="18"/>
                 </padding>
@@ -62,9 +62,9 @@
                 </TableView>
             </VBox>
 
-            <VBox spacing="10" styleClass="panel-card assignment-panel">
+            <VBox spacing="10" styleClass="panel-card assignment-panel detail-panel">
                 <padding>
-                    <Insets top="18" right="18" bottom="18" left="18"/>
+                    <Insets top="16" right="16" bottom="16" left="16"/>
                 </padding>
                 <HBox alignment="CENTER_LEFT" spacing="10">
                     <VBox spacing="2" HBox.hgrow="ALWAYS">
@@ -123,8 +123,8 @@
     </Tab>
 
     <Tab text="Planes">
-        <SplitPane dividerPositions="0.48" styleClass="clients-split">
-            <VBox spacing="12" styleClass="panel-card">
+        <SplitPane dividerPositions="0.58" styleClass="clients-split">
+            <VBox spacing="12" styleClass="panel-card list-panel">
                 <padding>
                     <Insets top="18" right="18" bottom="18" left="18"/>
                 </padding>
@@ -146,9 +146,9 @@
                 </TableView>
             </VBox>
 
-            <VBox spacing="8" styleClass="panel-card">
+            <VBox spacing="8" styleClass="panel-card detail-panel">
                 <padding>
-                    <Insets top="18" right="18" bottom="18" left="18"/>
+                    <Insets top="16" right="16" bottom="16" left="16"/>
                 </padding>
                 <HBox alignment="CENTER_LEFT" spacing="10">
                     <VBox spacing="2" HBox.hgrow="ALWAYS">

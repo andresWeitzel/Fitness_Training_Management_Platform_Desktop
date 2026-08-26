@@ -1,6 +1,7 @@
 package com.fitnesstraining.controller;
 
 import com.fitnesstraining.app.ConfirmDialogs;
+import com.fitnesstraining.app.TableStatusCells;
 import com.fitnesstraining.app.SessionContext;
 import com.fitnesstraining.auth.dto.AuthenticatedUser;
 import com.fitnesstraining.auth.model.PermissionCode;
@@ -416,24 +417,10 @@ public class MembershipsController {
                 new SimpleStringProperty(data.getValue().durationDays() + " días"));
         planPriceColumn.setCellValueFactory(data ->
                 new SimpleStringProperty(formatMoney(data.getValue().price())));
-        planActiveColumn.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                    setText(null);
-                    return;
-                }
-                Label badge = new Label(labelForStatus(item, true));
-                badge.getStyleClass().add(badgeClassForStatus(item, true));
-                setGraphic(badge);
-                setText(null);
-                setAlignment(Pos.CENTER_LEFT);
-            }
-        });
         planActiveColumn.setCellValueFactory(data ->
-                new SimpleStringProperty(data.getValue().active() ? "ACTIVE" : "INACTIVE"));
+                new SimpleStringProperty(data.getValue().active() ? "Activo" : "Inactivo"));
+        planActiveColumn.setCellFactory(column -> TableStatusCells.of((row, item) ->
+                row.active() ? "badge-ready" : "badge-soon"));
         plansTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
     }
 
@@ -443,24 +430,10 @@ public class MembershipsController {
         membershipPlanColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().planName()));
         membershipEndsColumn.setCellValueFactory(data ->
                 new SimpleStringProperty(formatDate(data.getValue().endsAt().toLocalDate())));
-        membershipStatusColumn.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                    setText(null);
-                    return;
-                }
-                Label badge = new Label(labelForStatus(item, false));
-                badge.getStyleClass().add(badgeClassForStatus(item, false));
-                setGraphic(badge);
-                setText(null);
-                setAlignment(Pos.CENTER_LEFT);
-            }
-        });
         membershipStatusColumn.setCellValueFactory(data ->
-                new SimpleStringProperty(data.getValue().status().name()));
+                new SimpleStringProperty(labelForStatus(data.getValue().status().name(), false)));
+        membershipStatusColumn.setCellFactory(column -> TableStatusCells.of((row, item) ->
+                badgeClassForStatus(row.status().name(), false)));
         membershipsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
     }
 

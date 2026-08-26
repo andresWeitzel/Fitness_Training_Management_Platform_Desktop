@@ -1,5 +1,6 @@
 package com.fitnesstraining.controller;
 
+import com.fitnesstraining.app.TableStatusCells;
 import com.fitnesstraining.app.AppContext;
 import com.fitnesstraining.app.ConfirmDialogs;
 import com.fitnesstraining.app.SessionContext;
@@ -34,13 +35,14 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
+import javafx.stage.Window;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -68,6 +70,7 @@ public class PaymentsController {
     @FXML private TableColumn<PaymentSummary, String> amountColumn;
     @FXML private TableColumn<PaymentSummary, String> dateColumn;
     @FXML private TableColumn<PaymentSummary, String> statusColumn;
+    @FXML private TableColumn<PaymentSummary, String> detailColumn;
 
     @FXML private Label subtitleLabel;
     @FXML private Label statusBadge;
@@ -79,10 +82,6 @@ public class PaymentsController {
     @FXML private DatePicker dueDatePicker;
     @FXML private CheckBox markAsPaidCheck;
     @FXML private TextArea notesField;
-    @FXML private Label previewTypeLabel;
-    @FXML private Label previewAmountLabel;
-    @FXML private Label previewDateLabel;
-    @FXML private Label previewMethodLabel;
     @FXML private Label statusLabel;
     @FXML private Button saveButton;
     @FXML private Button markPaidButton;
@@ -138,21 +137,12 @@ public class PaymentsController {
         clientCombo.valueProperty().addListener((obs, old, client) -> {
             refreshMembershipOptions();
             maybeSuggestAmount();
-            updatePreview();
         });
         typeCombo.valueProperty().addListener((obs, old, type) -> {
             refreshMembershipOptions();
             maybeSuggestAmount();
-            updatePreview();
         });
-        membershipCombo.valueProperty().addListener((obs, old, membership) -> {
-            maybeSuggestAmount();
-            updatePreview();
-        });
-        methodCombo.valueProperty().addListener((obs, old, method) -> updatePreview());
-        amountField.textProperty().addListener((obs, old, value) -> updatePreview());
-        dueDatePicker.valueProperty().addListener((obs, old, value) -> updatePreview());
-        markAsPaidCheck.selectedProperty().addListener((obs, old, value) -> updatePreview());
+        membershipCombo.valueProperty().addListener((obs, old, membership) -> maybeSuggestAmount());
 
         feedbackHideDelay.setOnFinished(e -> hideFeedback());
 
@@ -228,7 +218,6 @@ public class PaymentsController {
         selectedStatus = null;
         clearForm();
         applyFormMode();
-        updatePreview();
     }
 
     @FXML
@@ -316,27 +305,47 @@ public class PaymentsController {
         amountColumn.setCellValueFactory(data -> new SimpleStringProperty(formatMoney(data.getValue().amount())));
         dateColumn.setCellValueFactory(data -> new SimpleStringProperty(formatPrimaryDate(data.getValue())));
         statusColumn.setCellValueFactory(data -> new SimpleStringProperty(labelForStatus(data.getValue())));
-        statusColumn.setCellFactory(col -> new TableCell<>() {
+        statusColumn.setCellFactory(col -> TableStatusCells.of((row, item) ->
+                badgeClassForStatus(row.status(), row.overdue())));
+        detailColumn.setCellFactory(col -> detailActionCell());
+        detailColumn.setSortable(false);
+    }
+
+    private TableCell<PaymentSummary, String> detailActionCell() {
+        return new TableCell<>() {
+            private final Button detail = new Button("ⓘ");
+
+            {
+                detail.getStyleClass().add("table-icon-button");
+                detail.setTooltip(new Tooltip("Ver resumen del cobro"));
+                detail.setOnAction(e -> {
+                    if (getIndex() >= 0 && getIndex() < paymentsTable.getItems().size()) {
+                        openDetail(paymentsTable.getItems().get(getIndex()).id());
+                    }
+                });
+            }
+
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null || getTableView() == null
-                        || getIndex() < 0
-                        || getIndex() >= getTableView().getItems().size()) {
-                    setText(null);
+                if (empty || getIndex() < 0 || getIndex() >= paymentsTable.getItems().size()) {
                     setGraphic(null);
                     return;
                 }
-                PaymentSummary row = getTableView().getItems().get(getIndex());
-                Label badge = new Label(item);
-                badge.getStyleClass().setAll(
-                        "table-status-badge",
-                        badgeClassForStatus(row.status(), row.overdue()));
-                setGraphic(badge);
-                setText(null);
-                setAlignment(Pos.CENTER_LEFT);
+                setGraphic(detail);
+                setAlignment(Pos.CENTER);
             }
-        });
+        };
+    }
+
+    private void openDetail(Long paymentId) {
+        try {
+            PaymentView view = paymentService.get(paymentId);
+            Window owner = paymentsTable.getScene() == null ? null : paymentsTable.getScene().getWindow();
+            PaymentDetailController.open(owner, view);
+        } catch (RuntimeException ex) {
+            showFeedbackError(ex.getMessage());
+        }
     }
 
     private void setupCombos() {
@@ -454,7 +463,6 @@ public class PaymentsController {
             selectedStatus = view.status();
             fillForm(view);
             applyFormMode();
-            updatePreview();
         } catch (RuntimeException ex) {
             showFeedbackError(ex.getMessage());
         }
@@ -510,11 +518,7 @@ public class PaymentsController {
         subtitleLabel.setText("Nuevo cobro");
         statusBadge.setText("Nuevo");
         statusBadge.getStyleClass().setAll("badge-ready");
-        statusInfo("Complete cliente, tipo y monto. Puede dejarlo pendiente o cobrado.");
-        previewTypeLabel.setText("—");
-        previewAmountLabel.setText("—");
-        previewDateLabel.setText("—");
-        previewMethodLabel.setText("—");
+        statusInfo("Complete cliente, tipo y monto. Usá ⓘ en el listado para ver el resumen de un cobro.");
     }
 
     private void applyFormMode() {
@@ -595,26 +599,6 @@ public class PaymentsController {
         }
     }
 
-    private void updatePreview() {
-        PaymentType type = typeCombo.getValue();
-        previewTypeLabel.setText(type == null ? "—" : labelForType(type));
-        try {
-            String raw = amountField.getText() == null ? "" : amountField.getText().trim().replace(',', '.');
-            previewAmountLabel.setText(raw.isEmpty() ? "—" : formatMoney(new BigDecimal(raw)));
-        } catch (NumberFormatException ex) {
-            previewAmountLabel.setText("—");
-        }
-        if (markAsPaidCheck.isSelected() || selectedStatus == PaymentStatus.PAID) {
-            previewDateLabel.setText("Hoy / cobrado");
-        } else if (dueDatePicker.getValue() != null) {
-            previewDateLabel.setText("Vence " + formatDate(dueDatePicker.getValue()));
-        } else {
-            previewDateLabel.setText("Pendiente");
-        }
-        PaymentMethod method = methodCombo.getValue();
-        previewMethodLabel.setText(method == null ? "—" : labelForMethod(method));
-    }
-
     private void setScope(PaymentListScope next) {
         scope = next;
         applyChipState(filterAllButton, next == PaymentListScope.ALL);
@@ -672,10 +656,6 @@ public class PaymentsController {
             return formatDateTime(summary.dueAt());
         }
         return "—";
-    }
-
-    private static String formatDate(LocalDate date) {
-        return date == null ? "—" : DATE_FORMAT.format(date);
     }
 
     private static String formatDateTime(OffsetDateTime value) {

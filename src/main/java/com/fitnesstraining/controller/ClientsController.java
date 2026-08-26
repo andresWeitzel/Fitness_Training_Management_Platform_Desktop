@@ -10,6 +10,7 @@ import com.fitnesstraining.members.dto.ClientSummary;
 import com.fitnesstraining.members.dto.ClientView;
 import com.fitnesstraining.members.dto.CredentialView;
 import com.fitnesstraining.members.model.ClientListScope;
+import com.fitnesstraining.app.TableStatusCells;
 import com.fitnesstraining.members.model.ClientStatus;
 import com.fitnesstraining.members.model.CredentialType;
 import com.fitnesstraining.members.service.ClientService;
@@ -88,24 +89,10 @@ public class ClientsController {
                 data.getValue().clientNumber() == null || data.getValue().clientNumber().isBlank()
                         ? "—"
                         : data.getValue().clientNumber()));
-        statusColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().status().name()));
-        statusColumn.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                    setText(null);
-                    return;
-                }
-                boolean active = ClientStatus.ACTIVE.name().equals(item);
-                Label badge = new Label(active ? "Activo" : "Baja");
-                badge.getStyleClass().add(active ? "badge-ready" : "badge-soon");
-                setGraphic(badge);
-                setText(null);
-                setAlignment(Pos.CENTER_LEFT);
-            }
-        });
+        statusColumn.setCellValueFactory(data -> new SimpleStringProperty(
+                ClientStatus.ACTIVE.name().equals(data.getValue().status().name()) ? "Activo" : "Baja"));
+        statusColumn.setCellFactory(col -> TableStatusCells.of((row, item) ->
+                row.status() == ClientStatus.ACTIVE ? "badge-paid" : "badge-cancelled"));
         detailColumn.setCellFactory(col -> detailActionCell());
         detailColumn.setSortable(false);
         clientsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
