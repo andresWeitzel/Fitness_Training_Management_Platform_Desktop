@@ -71,7 +71,10 @@ public final class DetailWindows {
         return stage;
     }
 
-    /** En stages transparentes el CSS a veces no pinta fondos: se fuerzan por API. */
+    /**
+     * En stages transparentes el CSS a veces no pinta fondos: se fuerzan por API.
+     * No tocar maxHeight de la card: eso aplasta ScrollPanes internos (credenciales, etc.).
+     */
     private static void hardenOpaqueSurfaces(Parent root) {
         if (root instanceof Region frame && root.getStyleClass().contains("detail-window-frame")) {
             frame.setBackground(new Background(new BackgroundFill(SCRIM, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -79,10 +82,6 @@ public final class DetailWindows {
         Node card = root.lookup(".detail-window");
         if (card instanceof Region region) {
             region.setBackground(new Background(new BackgroundFill(CARD, CARD_RADIUS, Insets.EMPTY)));
-            // Evita que max-height 88% + stretch deje la card “hueca”
-            if (region.getMaxHeight() == Double.MAX_VALUE || region.getMaxHeight() > 900) {
-                region.setMaxHeight(Region.USE_PREF_SIZE);
-            }
         }
     }
 

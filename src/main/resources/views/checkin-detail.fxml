@@ -60,8 +60,14 @@
         </HBox>
 
         <Label text="Credenciales del cliente" styleClass="field-label"/>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="detail-credentials-scroll" maxHeight="220">
-            <VBox fx:id="credentialsBox" spacing="8"/>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    styleClass="detail-credentials-scroll"
+                    minHeight="96" prefHeight="148" maxHeight="220">
+            <VBox fx:id="credentialsBox" spacing="8">
+                <padding>
+                    <Insets top="4" right="4" bottom="4" left="4"/>
+                </padding>
+            </VBox>
         </ScrollPane>
 
         <Label fx:id="statusLabel" styleClass="muted" wrapText="true"/>
