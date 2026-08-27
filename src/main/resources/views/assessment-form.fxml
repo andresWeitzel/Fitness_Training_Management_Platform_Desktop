@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.fitnesstraining.controller.AssessmentFormController"
+           styleClass="detail-window-frame"
+           alignment="CENTER">
+
+    <VBox spacing="10" styleClass="detail-window" prefWidth="520" minWidth="520" maxWidth="520">
+        <padding>
+            <Insets top="16" right="20" bottom="18" left="20"/>
+        </padding>
+
+        <HBox styleClass="window-drag" alignment="CENTER_LEFT" spacing="10">
+            <Label text="Nueva evaluación" styleClass="detail-window-kicker" HBox.hgrow="ALWAYS"/>
+            <Button text="×" onAction="#onClose" styleClass="window-close" focusTraversable="false"/>
+        </HBox>
+
+        <Label text="Registrar evaluación física" styleClass="detail-window-title"/>
+        <Label fx:id="subtitleLabel" text="Peso, medidas e IMC del cliente." styleClass="detail-window-meta" wrapText="true"/>
+
+        <Separator/>
+
+        <Label text="Cliente" styleClass="field-label"/>
+        <ComboBox fx:id="clientCombo" promptText="Seleccione un cliente activo" maxWidth="Infinity" styleClass="app-combo"/>
+
+        <HBox spacing="10">
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Fecha" styleClass="field-label"/>
+                <DatePicker fx:id="assessedDatePicker" maxWidth="Infinity" styleClass="app-date-picker"/>
+            </VBox>
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Peso (kg)" styleClass="field-label"/>
+                <TextField fx:id="weightField" promptText="Ej. 72.5"/>
+            </VBox>
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Altura (cm)" styleClass="field-label"/>
+                <TextField fx:id="heightField" promptText="Ej. 168"/>
+            </VBox>
+        </HBox>
+
+        <HBox spacing="10">
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Grasa (%)" styleClass="field-label"/>
+                <TextField fx:id="bodyFatField" promptText="Opcional"/>
+            </VBox>
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Cintura (cm)" styleClass="field-label"/>
+                <TextField fx:id="waistField" promptText="Opcional"/>
+            </VBox>
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Cadera (cm)" styleClass="field-label"/>
+                <TextField fx:id="hipField" promptText="Opcional"/>
+            </VBox>
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Tórax (cm)" styleClass="field-label"/>
+                <TextField fx:id="chestField" promptText="Opcional"/>
+            </VBox>
+        </HBox>
+
+        <Label fx:id="bmiPreviewLabel" styleClass="muted" wrapText="true"/>
+
+        <Label text="Notas" styleClass="field-label"/>
+        <TextArea fx:id="notesField" promptText="Observaciones, contexto, objetivos…" prefRowCount="3" wrapText="true"/>
+
+        <Label fx:id="statusLabel" styleClass="muted" wrapText="true"/>
+
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Cancelar" onAction="#onClose"/>
+            <Button fx:id="saveButton" text="Registrar evaluación" onAction="#onSave" styleClass="primary-button"/>
+        </HBox>
+    </VBox>
+</StackPane>

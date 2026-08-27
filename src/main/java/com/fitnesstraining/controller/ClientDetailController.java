@@ -42,6 +42,8 @@ public class ClientDetailController {
     @FXML private Label opsDebtLabel;
     @FXML private Label opsCheckInLabel;
     @FXML private Label opsRoutineLabel;
+    @FXML private Label opsAssessmentLabel;
+    @FXML private Label opsNutritionLabel;
     @FXML private VBox credentialsBox;
     @FXML private HBox credentialActionsBox;
     @FXML private Button issueCardButton;
@@ -128,6 +130,12 @@ public class ClientDetailController {
         } else {
             opsRoutineLabel.setText(view.activeRoutineTitle() + " · " + view.activeRoutineFocus());
         }
+        opsAssessmentLabel.setText(view.lastAssessmentSummary() == null || view.lastAssessmentSummary().isBlank()
+                ? "Sin evaluaciones"
+                : view.lastAssessmentSummary());
+        opsNutritionLabel.setText(view.activeNutritionPlanTitle() == null || view.activeNutritionPlanTitle().isBlank()
+                ? "Sin plan activo"
+                : view.activeNutritionPlanTitle());
     }
 
     private void renderCredentials(java.util.List<CredentialView> credentials) {

@@ -17,6 +17,10 @@
         <class>com.fitnesstraining.training.model.Exercise</class>
         <class>com.fitnesstraining.training.model.TrainingRoutine</class>
         <class>com.fitnesstraining.training.model.TrainingRoutineItem</class>
+        <class>com.fitnesstraining.assessments.model.PhysicalAssessment</class>
+        <class>com.fitnesstraining.nutrition.model.NutritionAppointment</class>
+        <class>com.fitnesstraining.nutrition.model.NutritionPlan</class>
+        <class>com.fitnesstraining.nutrition.model.HealthRecordEntry</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>

@@ -17,6 +17,8 @@ import com.fitnesstraining.controller.PaymentsController;
 import com.fitnesstraining.controller.CheckInController;
 import com.fitnesstraining.controller.StaffController;
 import com.fitnesstraining.controller.TrainingController;
+import com.fitnesstraining.controller.AssessmentsController;
+import com.fitnesstraining.controller.NutritionController;
 import com.fitnesstraining.controller.PlaceholderController;
 import com.fitnesstraining.controller.ShellController;
 import com.fitnesstraining.auth.model.PermissionCode;
@@ -40,6 +42,14 @@ import com.fitnesstraining.training.repository.ExerciseRepository;
 import com.fitnesstraining.training.repository.TrainingRoutineRepository;
 import com.fitnesstraining.training.service.TrainingDemoSeeder;
 import com.fitnesstraining.training.service.TrainingService;
+import com.fitnesstraining.assessments.repository.AssessmentRepository;
+import com.fitnesstraining.assessments.service.AssessmentDemoSeeder;
+import com.fitnesstraining.assessments.service.AssessmentService;
+import com.fitnesstraining.nutrition.repository.HealthRecordRepository;
+import com.fitnesstraining.nutrition.repository.NutritionAppointmentRepository;
+import com.fitnesstraining.nutrition.repository.NutritionPlanRepository;
+import com.fitnesstraining.nutrition.service.NutritionDemoSeeder;
+import com.fitnesstraining.nutrition.service.NutritionService;
 import com.fitnesstraining.auth.repository.RoleRepository;
 import com.fitnesstraining.shared.config.AppProperties;
 import com.fitnesstraining.shared.config.DatabaseBootstrap;
@@ -80,6 +90,8 @@ public class AppContext {
     private CheckInService checkInService;
     private StaffService staffService;
     private TrainingService trainingService;
+    private AssessmentService assessmentService;
+    private NutritionService nutritionService;
     private DemoCredentialStore demoCredentialStore = new DemoCredentialStore();
     private ShellController shellController;
     private PendingLoginFill pendingLogin;
@@ -280,6 +292,12 @@ public class AppContext {
         if (type == TrainingController.class) {
             return new TrainingController(trainingService, sessionContext, authorizationService);
         }
+        if (type == AssessmentsController.class) {
+            return new AssessmentsController(assessmentService, sessionContext, authorizationService);
+        }
+        if (type == NutritionController.class) {
+            return new NutritionController(nutritionService, sessionContext, authorizationService);
+        }
         if (type == PlaceholderController.class) {
             return new PlaceholderController();
         }
@@ -301,6 +319,10 @@ public class AppContext {
         CheckInRepository checkInRepository = new CheckInRepository(persistenceManager);
         ExerciseRepository exerciseRepository = new ExerciseRepository(persistenceManager);
         TrainingRoutineRepository trainingRoutineRepository = new TrainingRoutineRepository(persistenceManager);
+        AssessmentRepository assessmentRepository = new AssessmentRepository(persistenceManager);
+        NutritionAppointmentRepository nutritionAppointmentRepository = new NutritionAppointmentRepository(persistenceManager);
+        NutritionPlanRepository nutritionPlanRepository = new NutritionPlanRepository(persistenceManager);
+        HealthRecordRepository healthRecordRepository = new HealthRecordRepository(persistenceManager);
         demoCredentialStore = new DemoCredentialStore();
         authService = new AuthService(userRepository, passwordHasher);
         clientQueryService = new ClientQueryService(clientRepository, credentialRepository);
@@ -337,6 +359,20 @@ public class AppContext {
                 credentialRepository,
                 userRepository,
                 Clock.systemDefaultZone());
+        assessmentService = new AssessmentService(
+                assessmentRepository,
+                clientRepository,
+                credentialRepository,
+                userRepository,
+                Clock.systemDefaultZone());
+        nutritionService = new NutritionService(
+                nutritionAppointmentRepository,
+                nutritionPlanRepository,
+                healthRecordRepository,
+                clientRepository,
+                credentialRepository,
+                userRepository,
+                Clock.systemDefaultZone());
         clientService = new ClientService(
                 clientRepository,
                 credentialRepository,
@@ -345,6 +381,8 @@ public class AppContext {
                 checkInRepository,
                 clientMembershipRepository,
                 trainingRoutineRepository,
+                nutritionService,
+                assessmentService,
                 Clock.systemDefaultZone());
         new DevDataSeeder(userRepository, passwordHasher).seedIfEmpty();
         demoCredentialStore.reconcile(userRepository, passwordHasher);
@@ -368,6 +406,18 @@ public class AppContext {
                 trainingService,
                 Clock.systemDefaultZone())
                 .seedIfEmpty();
+        new AssessmentDemoSeeder(
+                clientRepository,
+                assessmentService,
+                userRepository,
+                Clock.systemDefaultZone())
+                .seedIfEmpty();
+        new NutritionDemoSeeder(
+                clientRepository,
+                nutritionService,
+                userRepository,
+                Clock.systemDefaultZone())
+                .seedIfEmpty();
     }
 
     private void shutdownPersistence() {
@@ -379,6 +429,8 @@ public class AppContext {
         authService = null;
         staffService = null;
         trainingService = null;
+        assessmentService = null;
+        nutritionService = null;
         demoCredentialStore = new DemoCredentialStore();
     }
 }

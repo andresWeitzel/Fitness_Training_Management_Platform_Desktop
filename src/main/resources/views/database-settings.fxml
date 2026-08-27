@@ -7,57 +7,60 @@
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/21"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.fitnesstraining.controller.DbSetupController"
-      spacing="18"
-      fx:id="rootPane">
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.fitnesstraining.controller.DbSetupController"
+           fx:id="rootPane"
+           alignment="TOP_LEFT">
 
-    <VBox spacing="6">
-        <Label text="Conexión PostgreSQL" styleClass="section-title"/>
-        <Label text="Solo administradores pueden modificar la conexión. Los cambios se guardan en el equipo local y reconectan la aplicación."
-               styleClass="muted"
-               wrapText="true"/>
+    <VBox spacing="18">
+        <VBox spacing="6">
+            <Label text="Conexión PostgreSQL" styleClass="section-title"/>
+            <Label text="Solo administradores pueden modificar la conexión. Los cambios se guardan en el equipo local y reconectan la aplicación."
+                   styleClass="muted"
+                   wrapText="true"/>
+        </VBox>
+
+        <VBox spacing="14" styleClass="panel-card" maxWidth="560">
+            <padding>
+                <Insets top="22" right="24" bottom="22" left="24"/>
+            </padding>
+
+            <HBox spacing="12">
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="Servidor" styleClass="field-label"/>
+                    <TextField fx:id="hostField" promptText="localhost"/>
+                </VBox>
+                <VBox spacing="6" prefWidth="120">
+                    <Label text="Puerto" styleClass="field-label"/>
+                    <TextField fx:id="portField" promptText="5432"/>
+                </VBox>
+            </HBox>
+
+            <Label text="Base de datos" styleClass="field-label"/>
+            <TextField fx:id="databaseField" promptText="fitness_training"/>
+
+            <Label text="Usuario" styleClass="field-label"/>
+            <TextField fx:id="userField" promptText="postgres"/>
+
+            <Label text="Contraseña" styleClass="field-label"/>
+            <PasswordField fx:id="passwordField" promptText="postgres"/>
+
+            <HBox fx:id="statusBox" spacing="10" alignment="CENTER_LEFT" styleClass="connection-status-box" managed="false" visible="false">
+                <ProgressIndicator fx:id="statusSpinner" prefWidth="18" prefHeight="18" managed="false" visible="false"/>
+                <Label fx:id="statusLabel" wrapText="true" HBox.hgrow="ALWAYS"/>
+            </HBox>
+
+            <HBox spacing="10">
+                <Button fx:id="testButton" text="Probar conexión" onAction="#onTestConnection" styleClass="secondary-button"/>
+                <Button fx:id="continueButton" text="Guardar y reconectar" onAction="#onContinue" styleClass="primary-button"/>
+            </HBox>
+
+            <Label fx:id="configPathLabel" styleClass="muted setup-status" wrapText="true"/>
+            <Button fx:id="backButton" managed="false" visible="false"/>
+        </VBox>
     </VBox>
-
-    <VBox spacing="14" styleClass="panel-card" maxWidth="560">
-        <padding>
-            <Insets top="22" right="24" bottom="22" left="24"/>
-        </padding>
-
-        <HBox spacing="12">
-            <VBox spacing="6" HBox.hgrow="ALWAYS">
-                <Label text="Servidor" styleClass="field-label"/>
-                <TextField fx:id="hostField" promptText="localhost"/>
-            </VBox>
-            <VBox spacing="6" prefWidth="120">
-                <Label text="Puerto" styleClass="field-label"/>
-                <TextField fx:id="portField" promptText="5432"/>
-            </VBox>
-        </HBox>
-
-        <Label text="Base de datos" styleClass="field-label"/>
-        <TextField fx:id="databaseField" promptText="fitness_training"/>
-
-        <Label text="Usuario" styleClass="field-label"/>
-        <TextField fx:id="userField" promptText="postgres"/>
-
-        <Label text="Contraseña" styleClass="field-label"/>
-        <PasswordField fx:id="passwordField" promptText="postgres"/>
-
-        <HBox fx:id="statusBox" spacing="10" alignment="CENTER_LEFT" styleClass="connection-status-box" managed="false" visible="false">
-            <ProgressIndicator fx:id="statusSpinner" prefWidth="18" prefHeight="18" managed="false" visible="false"/>
-            <Label fx:id="statusLabel" wrapText="true" HBox.hgrow="ALWAYS"/>
-        </HBox>
-
-        <HBox spacing="10">
-            <Button fx:id="testButton" text="Probar conexión" onAction="#onTestConnection" styleClass="secondary-button"/>
-            <Button fx:id="continueButton" text="Guardar y reconectar" onAction="#onContinue" styleClass="primary-button"/>
-        </HBox>
-
-        <Label fx:id="configPathLabel" styleClass="muted setup-status" wrapText="true"/>
-        <Button fx:id="backButton" managed="false" visible="false"/>
-    </VBox>
-</VBox>
+</StackPane>

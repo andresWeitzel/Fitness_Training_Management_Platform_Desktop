@@ -29,8 +29,8 @@ Estado: **I** implementado · **P** planificado · **N** no se implementa en est
 | Recepción (check-in) | Ingreso, histórico, bloqueo por deuda | **Cerrado (I)** |
 | Personal | ABM de usuarios internos | **Cerrado (I)** |
 | Entrenamiento | Ejercicios y rutinas estructuradas | **Cerrado (I)** |
-| Evaluaciones | Historial de evaluaciones físicas | P — siguiente tramo |
-| Nutrición | Turnos, planes, ficha de salud con historial | P |
+| Evaluaciones | Historial de evaluaciones físicas | **Cerrado (I)** |
+| Nutrición | Turnos, planes, ficha de salud con historial | **Cerrado (I)** |
 | Analytics | Indicadores, vencimientos, mora | P |
 | Liquidación de haberes | Sueldos | **N** en esta etapa |
 
@@ -79,9 +79,9 @@ Foto de cliente (`photo_path`) está en el esquema; la carga desde la UI **no** 
 | RF-17 | Registrar check-in (carnet/QR) e histórico de ingresos | Recepción | I |
 | RF-18 | ABM de personal interno y roles | Personal | I |
 | RF-19 | Gestionar ejercicios y rutinas estructuradas | Entrenamiento | I |
-| RF-20 | Registrar evaluaciones físicas con historial | Evaluaciones | P |
-| RF-21 | Turnos y planes de nutrición | Nutrición | P |
-| RF-22 | Ficha de salud / restricciones (historial, no overwrite 1:1) | Nutrición | P |
+| RF-20 | Registrar evaluaciones físicas con historial | Evaluaciones | I |
+| RF-21 | Turnos y planes de nutrición | Nutrición | I |
+| RF-22 | Ficha de salud / restricciones (historial, no overwrite 1:1) | Nutrición | I |
 | RF-23 | Listados de vencimientos y mora | Analytics | P |
 | RF-24 | Reportes de operación (ingresos, ocupación) | Analytics | P |
 | RF-25 | Asistencia diaria de profesores | Personal | N |
@@ -118,8 +118,8 @@ Los ítems **Pronto** del menú ya se ven si el rol tiene permiso; muestran plac
 | CU-12 | Controlar ingreso (check-in) | Admin, Recepción | I |
 | CU-13 | Administrar personal | Admin | I |
 | CU-14 | Armar rutina de entrenamiento | Admin, Entrenador | I |
-| CU-15 | Registrar evaluación física | Admin, Entrenador, Nutricionista | P |
-| CU-16 | Gestionar nutrición | Admin, Nutricionista | P |
+| CU-15 | Registrar evaluación física | Admin, Entrenador, Nutricionista | I |
+| CU-16 | Gestionar nutrición | Admin, Nutricionista | I |
 | CU-17 | Consultar analytics | Admin | P |
 
 ---
@@ -192,7 +192,7 @@ Queda **cerrado para operación diaria** (admin y recepción) con este contrato:
 
 **Fuera de este cierre:** cupo por actividad/turno (no aplica a recepción libre del predio).
 
-Siguiente módulo natural: **Nutrición** (tras congruencia Cliente ↔ módulos).
+Siguiente módulo natural: **Analytics** (RF-23/24, CU-17).
 
 ---
 
@@ -208,8 +208,6 @@ Queda **cerrado para administración** (solo Admin) con este contrato:
 
 **Fuera de este cierre:** ABM del catálogo de roles/permisos, asistencia de profesores y liquidación (RF-25/26 = N).
 
-Siguiente módulo natural: **Evaluaciones** (RF-20, CU-15).
-
 ---
 
 ## 6e. Cierre del módulo Entrenamiento
@@ -221,9 +219,38 @@ Queda **cerrado** para Admin y Entrenador (`TRAINING_MANAGE`) con este contrato:
 3. Listado de rutinas por estado: activas / borrador / programadas / archivadas / todas, con búsqueda.
 4. Enfoque, fecha de inicio (programadas) y registro del entrenador en sesión al crear/editar.
 
-**Fuera de este cierre:** seguimiento de cumplimiento sesión a sesión, plantillas globales reutilizables y evaluación física (RF-20).
+**Fuera de este cierre:** seguimiento de cumplimiento sesión a sesión y plantillas globales reutilizables.
 
-Siguiente módulo natural: **Evaluaciones** (RF-20, CU-15).
+Siguiente módulo natural: **Analytics** (RF-23/24, CU-17).
+
+---
+
+## 6f. Cierre del módulo Evaluaciones
+
+Queda **cerrado** para Admin, Entrenador y Nutricionista (`ASSESSMENTS_MANAGE`) con este contrato:
+
+1. Registrar evaluación física (peso, talla, % grasa, perímetros, notas) con fecha e historial.
+2. Listar/filtrar historial (todos / 30 días / 90 días) por cliente y búsqueda.
+3. Consultar detalle en ventana aparte; alta desde botón + modal (sin pestaña duplicada).
+4. Resumen de la última evaluación visible en la ficha del cliente.
+
+**Fuera de este cierre:** gráficos de evolución y comparación automática entre mediciones.
+
+---
+
+## 6g. Cierre del módulo Nutrición
+
+Queda **cerrado** para Admin y Nutricionista (`NUTRITION_MANAGE`) con este contrato:
+
+1. Agendar, reprogramar, completar, cancelar y marcar ausente turnos programados.
+2. Planes nutricionales (borrador / activo / archivado) con objetivos y guía alimentaria.
+3. Ficha de salud append-only (alergias, restricciones, condiciones, medicación); no sobrescribe entradas previas.
+4. Al dar de baja un cliente: cancelar turnos programados y archivar planes abiertos.
+5. Resumen del plan nutricional activo en la ficha del cliente.
+
+**Fuera de este cierre:** agenda compartida con cupos, plantillas de menú y sync con wearables.
+
+Siguiente módulo natural: **Analytics** (RF-23/24, CU-17).
 
 ---
 
