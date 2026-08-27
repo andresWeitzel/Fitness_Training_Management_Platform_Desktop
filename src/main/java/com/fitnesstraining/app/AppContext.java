@@ -272,7 +272,7 @@ public class AppContext {
             return new ShellController(sessionContext, authorizationService, navigator, this);
         }
         if (type == DashboardController.class) {
-            return new DashboardController(sessionContext, clientQueryService, this);
+            return new DashboardController(sessionContext, clientQueryService, checkInService, this);
         }
         if (type == ClientsController.class) {
             return new ClientsController(clientService, sessionContext, authorizationService);

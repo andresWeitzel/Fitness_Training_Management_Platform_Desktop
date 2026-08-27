@@ -70,11 +70,15 @@
 
         <Separator/>
 
-        <HBox alignment="CENTER_LEFT" spacing="10">
-            <Label text="Credenciales de acceso" styleClass="section-title" HBox.hgrow="ALWAYS"/>
-        </HBox>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="detail-credentials-scroll" maxHeight="200">
-            <VBox fx:id="credentialsBox" spacing="8"/>
+        <Label text="Credenciales de acceso" styleClass="section-title"/>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    styleClass="detail-credentials-scroll"
+                    minHeight="96" prefHeight="148" maxHeight="220">
+            <VBox fx:id="credentialsBox" spacing="8">
+                <padding>
+                    <Insets top="4" right="4" bottom="4" left="4"/>
+                </padding>
+            </VBox>
         </ScrollPane>
 
         <HBox fx:id="credentialActionsBox" spacing="8" alignment="CENTER_LEFT">

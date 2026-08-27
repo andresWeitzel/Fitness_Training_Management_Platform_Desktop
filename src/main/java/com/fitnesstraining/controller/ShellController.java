@@ -16,6 +16,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -189,7 +190,11 @@ public class ShellController {
             if (loaded.controller() instanceof DbSetupController dbSetup) {
                 dbSetup.prepare(DbSetupMode.ADMIN, null);
             }
-            contentHost.getChildren().setAll(loaded.root());
+            var root = loaded.root();
+            if (root instanceof Region region) {
+                region.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+            }
+            contentHost.getChildren().setAll(root);
         } catch (RuntimeException ex) {
             log.error("No se pudo abrir el módulo {}", item.id(), ex);
             String detail = ex.getMessage();

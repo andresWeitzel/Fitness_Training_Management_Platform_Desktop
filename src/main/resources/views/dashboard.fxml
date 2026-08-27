@@ -6,26 +6,30 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.fitnesstraining.controller.DashboardController"
-      spacing="16"
-      styleClass="dashboard-root">
+      spacing="12"
+      styleClass="dashboard-root"
+      maxWidth="Infinity"
+      maxHeight="Infinity">
 
     <HBox styleClass="hero-banner" spacing="16" alignment="CENTER_LEFT">
         <padding>
-            <Insets top="18" right="22" bottom="18" left="22"/>
+            <Insets top="14" right="18" bottom="14" left="18"/>
         </padding>
-        <VBox spacing="4" HBox.hgrow="ALWAYS">
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
             <Label fx:id="greetingLabel" styleClass="hero-title"/>
             <Label fx:id="roleSummaryLabel" styleClass="hero-subtitle" wrapText="true"/>
         </VBox>
         <Button fx:id="openClientsButton" text="Ir a clientes" onAction="#onOpenClients" styleClass="primary-button"/>
     </HBox>
 
-    <GridPane hgap="12" vgap="12">
+    <GridPane hgap="10" vgap="10">
         <columnConstraints>
             <ColumnConstraints percentWidth="25" hgrow="ALWAYS"/>
             <ColumnConstraints percentWidth="25" hgrow="ALWAYS"/>
@@ -33,75 +37,105 @@
             <ColumnConstraints percentWidth="25" hgrow="ALWAYS"/>
         </columnConstraints>
 
-        <VBox styleClass="kpi-card" spacing="4" GridPane.columnIndex="0">
-            <padding>
-                <Insets top="16" right="16" bottom="16" left="16"/>
-            </padding>
+        <VBox styleClass="kpi-card" spacing="2" GridPane.columnIndex="0">
+            <padding><Insets top="12" right="14" bottom="12" left="14"/></padding>
             <Label text="Clientes activos" styleClass="kpi-label"/>
             <Label fx:id="activeClientsValue" styleClass="kpi-value"/>
             <Label text="Fichas habilitadas" styleClass="kpi-caption"/>
         </VBox>
-        <VBox styleClass="kpi-card" spacing="4" GridPane.columnIndex="1">
-            <padding>
-                <Insets top="16" right="16" bottom="16" left="16"/>
-            </padding>
+        <VBox styleClass="kpi-card" spacing="2" GridPane.columnIndex="1">
+            <padding><Insets top="12" right="14" bottom="12" left="14"/></padding>
             <Label text="Carnets" styleClass="kpi-label"/>
             <Label fx:id="cardsValue" styleClass="kpi-value"/>
             <Label text="Credenciales CARD activas" styleClass="kpi-caption"/>
         </VBox>
-        <VBox styleClass="kpi-card" spacing="4" GridPane.columnIndex="2">
-            <padding>
-                <Insets top="16" right="16" bottom="16" left="16"/>
-            </padding>
+        <VBox styleClass="kpi-card" spacing="2" GridPane.columnIndex="2">
+            <padding><Insets top="12" right="14" bottom="12" left="14"/></padding>
             <Label text="Códigos QR" styleClass="kpi-label"/>
             <Label fx:id="qrValue" styleClass="kpi-value"/>
             <Label text="Acceso digital activo" styleClass="kpi-caption"/>
         </VBox>
-        <VBox styleClass="kpi-card kpi-card-accent" spacing="4" GridPane.columnIndex="3">
-            <padding>
-                <Insets top="16" right="16" bottom="16" left="16"/>
-            </padding>
+        <VBox styleClass="kpi-card" spacing="2" GridPane.columnIndex="3">
+            <padding><Insets top="12" right="14" bottom="12" left="14"/></padding>
             <Label text="Bajas" styleClass="kpi-label"/>
             <Label fx:id="inactiveValue" styleClass="kpi-value"/>
             <Label text="Clientes dados de baja" styleClass="kpi-caption"/>
         </VBox>
     </GridPane>
 
-    <GridPane hgap="14" vgap="14" VBox.vgrow="ALWAYS">
-        <columnConstraints>
-            <ColumnConstraints percentWidth="54" hgrow="ALWAYS"/>
-            <ColumnConstraints percentWidth="46" hgrow="ALWAYS"/>
-        </columnConstraints>
-
-        <VBox styleClass="panel-card" spacing="10" GridPane.columnIndex="0">
-            <padding>
-                <Insets top="18" right="18" bottom="18" left="18"/>
-            </padding>
+    <HBox spacing="12" VBox.vgrow="ALWAYS" alignment="TOP_CENTER">
+        <VBox fx:id="recentActivityCard" spacing="8" styleClass="dash-panel-card"
+              HBox.hgrow="ALWAYS" maxWidth="Infinity" maxHeight="Infinity"
+              onMouseClicked="#onOpenRecentActivity">
+            <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
             <HBox alignment="CENTER_LEFT" spacing="8">
-                <Label text="Actividad reciente" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                <Label text="Actividad reciente" styleClass="dash-impact-title" HBox.hgrow="ALWAYS"/>
+                <Label text="Abrir →" styleClass="dash-open-hint"/>
             </HBox>
-            <Label text="Últimos clientes dados de alta." styleClass="muted"/>
-            <VBox fx:id="recentList" spacing="6"/>
+            <Label text="Últimas altas de clientes" styleClass="muted"/>
+            <Label fx:id="recentCountLabel" styleClass="dash-impact-value"/>
+            <Label fx:id="recentPreviewLabel" styleClass="dash-impact-meta" wrapText="true"/>
+            <VBox fx:id="recentTeaserBox" spacing="6" VBox.vgrow="ALWAYS"/>
         </VBox>
 
-        <VBox spacing="14" GridPane.columnIndex="1">
-            <VBox styleClass="panel-card" spacing="10">
-                <padding>
-                    <Insets top="18" right="18" bottom="18" left="18"/>
-                </padding>
-                <Label text="Accesos rápidos" styleClass="section-title"/>
-                <Button fx:id="newClientButton" text="Registrar cliente" onAction="#onOpenClients" maxWidth="Infinity" styleClass="secondary-button"/>
-                <Button text="Membresías" onAction="#onOpenMemberships" maxWidth="Infinity" styleClass="ghost-button"/>
-                <Button text="Pagos" onAction="#onOpenPayments" maxWidth="Infinity" styleClass="ghost-button"/>
-                <Button text="Recepción / check-in" onAction="#onOpenCheckin" maxWidth="Infinity" styleClass="ghost-button"/>
-            </VBox>
-            <VBox styleClass="panel-card" spacing="8">
-                <padding>
-                    <Insets top="18" right="18" bottom="18" left="18"/>
-                </padding>
-                <Label text="Estado de módulos" styleClass="section-title"/>
-                <VBox fx:id="modulesList" spacing="6"/>
-            </VBox>
+        <VBox fx:id="todayCheckInCard" spacing="8" styleClass="dash-panel-card"
+              HBox.hgrow="ALWAYS" maxWidth="Infinity" maxHeight="Infinity"
+              onMouseClicked="#onOpenTodayCheckIns">
+            <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="Recepción de hoy" styleClass="dash-impact-title" HBox.hgrow="ALWAYS"/>
+                <Label text="Abrir →" styleClass="dash-open-hint"/>
+            </HBox>
+            <Label text="Ingresos registrados en el día" styleClass="muted"/>
+            <Label fx:id="todayCheckInCountLabel" styleClass="dash-impact-value"/>
+            <Label fx:id="todayCheckInPreviewLabel" styleClass="dash-impact-meta" wrapText="true"/>
+            <VBox fx:id="todayTeaserBox" spacing="6" VBox.vgrow="ALWAYS"/>
         </VBox>
-    </GridPane>
+    </HBox>
+
+    <HBox spacing="12" VBox.vgrow="ALWAYS" alignment="TOP_CENTER">
+        <VBox fx:id="modulesStatusCard" spacing="8" styleClass="dash-panel-card"
+              HBox.hgrow="ALWAYS" maxWidth="Infinity" maxHeight="Infinity"
+              onMouseClicked="#onOpenModulesStatus">
+            <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="Estado de módulos" styleClass="dash-impact-title" HBox.hgrow="ALWAYS"/>
+                <Label text="Abrir →" styleClass="dash-open-hint"/>
+            </HBox>
+            <Label text="Qué está listo para operar" styleClass="muted"/>
+            <Label fx:id="modulesCountLabel" styleClass="dash-impact-value"/>
+            <Label fx:id="modulesPreviewLabel" styleClass="dash-impact-meta" wrapText="true"/>
+            <VBox fx:id="modulesTeaserBox" spacing="6" VBox.vgrow="ALWAYS"/>
+        </VBox>
+
+        <VBox fx:id="quickAccessCard" spacing="10" styleClass="dash-panel-card dash-panel-card-static"
+              HBox.hgrow="ALWAYS" maxWidth="Infinity" maxHeight="Infinity">
+            <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+            <Label text="Accesos rápidos" styleClass="dash-impact-title"/>
+            <Label text="Atajos a la operación del día" styleClass="muted"/>
+            <Region minHeight="4"/>
+            <GridPane hgap="8" vgap="8" VBox.vgrow="ALWAYS">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="50" hgrow="ALWAYS"/>
+                    <ColumnConstraints percentWidth="50" hgrow="ALWAYS"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints vgrow="ALWAYS" percentHeight="50"/>
+                    <RowConstraints vgrow="ALWAYS" percentHeight="50"/>
+                </rowConstraints>
+                <Button fx:id="newClientButton" text="Registrar cliente" onAction="#onOpenClients"
+                        styleClass="secondary-button" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Button text="Membresías" onAction="#onOpenMemberships"
+                        styleClass="ghost-button" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <Button text="Pagos" onAction="#onOpenPayments"
+                        styleClass="ghost-button" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Button text="Recepción" onAction="#onOpenCheckin"
+                        styleClass="ghost-button" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            </GridPane>
+        </VBox>
+    </HBox>
 </VBox>
