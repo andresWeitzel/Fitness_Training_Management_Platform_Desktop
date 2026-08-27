@@ -23,11 +23,7 @@ public class ClientQueryService {
     }
 
     public DashboardSnapshot loadSnapshot() {
-        List<ClientSummary> recent = clientRepository.findRecent(6).stream()
-                .map(client -> ClientSummary.from(
-                        client,
-                        credentialRepository.findClientNumber(client.getId()).orElse("")))
-                .toList();
+        List<ClientSummary> recent = listRecentClients(6);
         return new DashboardSnapshot(
                 clientRepository.countActive(),
                 clientRepository.countInactive(),
@@ -35,5 +31,14 @@ public class ClientQueryService {
                 credentialRepository.countActiveByType(CredentialType.QR),
                 recent
         );
+    }
+
+    public List<ClientSummary> listRecentClients(int limit) {
+        int size = Math.max(1, limit);
+        return clientRepository.findRecent(size).stream()
+                .map(client -> ClientSummary.from(
+                        client,
+                        credentialRepository.findClientNumber(client.getId()).orElse("")))
+                .toList();
     }
 }
