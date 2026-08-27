@@ -30,8 +30,10 @@ public final class NavigationCatalog {
                         "/views/assessments.fxml", true, "Historial de evaluaciones físicas por cliente."),
                 new NavItem("nutrition", "Nutrición", "Seguimiento", PermissionCode.NUTRITION_MANAGE,
                         "/views/nutrition.fxml", true, "Turnos, planes nutricionales y ficha de salud con historial."),
-                new NavItem("analytics", "Analytics", "Analytics", PermissionCode.ANALYTICS_VIEW,
-                        "/views/placeholder.fxml", false, "Ingresos y reportes. Aún no migrado."),
+                new NavItem("analytics", "Reportes", "Analytics", PermissionCode.ANALYTICS_VIEW,
+                        "/views/analytics.fxml", true, "Vencimientos, mora, ingresos y ocupación con export CSV."),
+                new NavItem("analytics-charts", "Gráficos", "Analytics", PermissionCode.ANALYTICS_VIEW,
+                        "/views/analytics-charts.fxml", true, "Vista gráfica de indicadores operativos."),
                 new NavItem("settings", "Base de datos", "Sistema", PermissionCode.SETTINGS_MANAGE,
                         "/views/database-settings.fxml", true, "Conexión PostgreSQL, migraciones y reconexión.")
         );

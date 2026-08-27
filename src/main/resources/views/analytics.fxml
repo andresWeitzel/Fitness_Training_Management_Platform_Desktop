@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fitnesstraining.controller.AnalyticsController"
+      styleClass="memberships-root analytics-root"
+      spacing="12"
+      maxWidth="Infinity"
+      maxHeight="Infinity">
+
+    <HBox fx:id="feedbackBanner" styleClass="feedback-banner" alignment="CENTER" spacing="12" visible="false" managed="false">
+        <Label fx:id="feedbackLabel" wrapText="true" HBox.hgrow="ALWAYS"/>
+        <Button fx:id="feedbackDismissButton" text="×" onAction="#onDismissFeedback" styleClass="feedback-dismiss"/>
+    </HBox>
+
+    <VBox spacing="4" styleClass="analytics-header">
+        <Label text="Reportes" styleClass="section-title"/>
+        <Label text="Vencimientos, mora, ingresos y ocupación. Exportá cada reporte a CSV."
+               styleClass="muted" wrapText="true"/>
+    </VBox>
+
+    <TabPane fx:id="analyticsTabs" styleClass="memberships-tabs" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
+
+        <Tab text="Por vencer">
+            <VBox spacing="12" styleClass="panel-card list-panel analytics-tab-body">
+                <padding>
+                    <Insets top="16" right="18" bottom="18" left="18"/>
+                </padding>
+
+                <HBox spacing="12" styleClass="analytics-kpi-row">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile analytics-kpi">
+                        <Label text="En ventana" styleClass="preview-caption"/>
+                        <Label fx:id="expiringCountKpi" text="—" styleClass="preview-value analytics-kpi-value"/>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile analytics-kpi">
+                        <Label text="Críticos (≤3 días)" styleClass="preview-caption"/>
+                        <Label fx:id="expiringCriticalKpi" text="—" styleClass="preview-value analytics-kpi-value"/>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile analytics-kpi">
+                        <Label text="Valor estimado planes" styleClass="preview-caption"/>
+                        <Label fx:id="expiringValueKpi" text="—" styleClass="preview-value analytics-kpi-value"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Ventana" styleClass="field-label"/>
+                    <HBox spacing="8" styleClass="filter-chip-row">
+                        <Button fx:id="expiring7Button" text="7 días" onAction="#onExpiringWindow7" styleClass="filter-chip chip-on"/>
+                        <Button fx:id="expiring14Button" text="14 días" onAction="#onExpiringWindow14" styleClass="filter-chip"/>
+                        <Button fx:id="expiring30Button" text="30 días" onAction="#onExpiringWindow30" styleClass="filter-chip"/>
+                    </HBox>
+                    <Label text="Personalizado" styleClass="muted"/>
+                    <Spinner fx:id="expiringDaysSpinner" editable="true" prefWidth="88"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Actualizar" onAction="#onGenerateExpiring" styleClass="primary-button"/>
+                    <Button text="Exportar CSV" onAction="#onExportExpiring" styleClass="secondary-button"/>
+                </HBox>
+                <Label fx:id="expiringSummaryLabel" styleClass="analytics-help" wrapText="true"/>
+
+                <TableView fx:id="expiringTable" VBox.vgrow="ALWAYS" styleClass="memberships-table">
+                    <columns>
+                        <TableColumn fx:id="expiringUrgencyColumn" text="Urgencia" prefWidth="90" minWidth="80"/>
+                        <TableColumn fx:id="expiringClientColumn" text="Cliente" prefWidth="170" minWidth="130"/>
+                        <TableColumn fx:id="expiringDocumentColumn" text="Documento" prefWidth="100" minWidth="90"/>
+                        <TableColumn fx:id="expiringPlanColumn" text="Plan" prefWidth="120" minWidth="90"/>
+                        <TableColumn fx:id="expiringPriceColumn" text="Precio" prefWidth="90" minWidth="80"/>
+                        <TableColumn fx:id="expiringEndsColumn" text="Vence" prefWidth="100" minWidth="90"/>
+                        <TableColumn fx:id="expiringDaysColumn" text="Días" prefWidth="60" minWidth="50"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+
+        <Tab text="Mora">
+            <VBox spacing="12" styleClass="panel-card list-panel analytics-tab-body">
+                <padding>
+                    <Insets top="16" right="18" bottom="18" left="18"/>
+                </padding>
+
+                <HBox spacing="12" styleClass="analytics-kpi-row">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile analytics-kpi">
+                        <Label text="Deudas abiertas" styleClass="preview-caption"/>
+                        <Label fx:id="debtCountKpi" text="—" styleClass="preview-value analytics-kpi-value"/>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile analytics-kpi">
+                        <Label text="Total en mora" styleClass="preview-caption"/>
+                        <Label fx:id="debtTotalKpi" text="—" styleClass="preview-value analytics-kpi-value"/>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile analytics-kpi">
+                        <Label text="Severidad alta" styleClass="preview-caption"/>
+                        <Label fx:id="debtHighKpi" text="—" styleClass="preview-value analytics-kpi-value"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Pendientes vencidos y recargos LATE_FEE. Doble clic o Ir a Pagos para regularizar."
+                           styleClass="analytics-help" wrapText="true" HBox.hgrow="ALWAYS"/>
+                    <Button text="Actualizar" onAction="#onGenerateDebt" styleClass="primary-button"/>
+                    <Button text="Ir a Pagos" onAction="#onOpenPaymentsFromDebt" styleClass="secondary-button"/>
+                    <Button text="Exportar CSV" onAction="#onExportDebt" styleClass="secondary-button"/>
+                </HBox>
+                <Label fx:id="debtSummaryLabel" styleClass="muted" wrapText="true"/>
+
+                <TableView fx:id="debtTable" VBox.vgrow="ALWAYS" styleClass="memberships-table">
+                    <columns>
+                        <TableColumn fx:id="debtSeverityColumn" text="Severidad" prefWidth="90" minWidth="80"/>
+                        <TableColumn fx:id="debtClientColumn" text="Cliente" prefWidth="170" minWidth="130"/>
+                        <TableColumn fx:id="debtDocumentColumn" text="Documento" prefWidth="100" minWidth="90"/>
+                        <TableColumn fx:id="debtTypeColumn" text="Tipo" prefWidth="120" minWidth="90"/>
+                        <TableColumn fx:id="debtAmountColumn" text="Monto" prefWidth="100" minWidth="80"/>
+                        <TableColumn fx:id="debtDueColumn" text="Vencimiento" prefWidth="110" minWidth="90"/>
+                        <TableColumn fx:id="debtDaysColumn" text="Días" prefWidth="60" minWidth="50"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+
+        <Tab text="Ingresos">
+            <VBox spacing="12" styleClass="panel-card list-panel analytics-tab-body">
+                <padding>
+                    <Insets top="16" right="18" bottom="18" left="18"/>
+                </padding>
+
+                <HBox spacing="12" styleClass="analytics-kpi-row">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile analytics-kpi">
+                        <Label text="Cobros" styleClass="preview-caption"/>
+                        <Label fx:id="revenueCountKpi" text="—" styleClass="preview-value analytics-kpi-value"/>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile analytics-kpi">
+                        <Label text="Total cobrado" styleClass="preview-caption"/>
+                        <Label fx:id="revenueTotalKpi" text="—" styleClass="preview-value analytics-kpi-value"/>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile analytics-kpi">
+                        <Label text="Promedio por cobro" styleClass="preview-caption"/>
+                        <Label fx:id="revenueAvgKpi" text="—" styleClass="preview-value analytics-kpi-value"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Desde" styleClass="field-label"/>
+                    <DatePicker fx:id="revenueFromPicker" prefWidth="140" styleClass="app-date-picker"/>
+                    <Label text="Hasta" styleClass="field-label"/>
+                    <DatePicker fx:id="revenueToPicker" prefWidth="140" styleClass="app-date-picker"/>
+                    <HBox spacing="8" styleClass="filter-chip-row">
+                        <Button text="7 días" onAction="#onRevenueLast7" styleClass="filter-chip"/>
+                        <Button text="30 días" onAction="#onRevenueLast30" styleClass="filter-chip"/>
+                    </HBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Actualizar" onAction="#onGenerateRevenue" styleClass="primary-button"/>
+                    <Button text="Exportar CSV" onAction="#onExportRevenue" styleClass="secondary-button"/>
+                </HBox>
+                <Label fx:id="revenueSummaryLabel" styleClass="analytics-help" wrapText="true"/>
+
+                <TableView fx:id="revenueTable" VBox.vgrow="ALWAYS" styleClass="memberships-table">
+                    <columns>
+                        <TableColumn fx:id="revenuePaidColumn" text="Cobrado" prefWidth="100" minWidth="90"/>
+                        <TableColumn fx:id="revenueClientColumn" text="Cliente" prefWidth="170" minWidth="130"/>
+                        <TableColumn fx:id="revenueDocumentColumn" text="Documento" prefWidth="100" minWidth="90"/>
+                        <TableColumn fx:id="revenueTypeColumn" text="Tipo" prefWidth="120" minWidth="90"/>
+                        <TableColumn fx:id="revenueAmountColumn" text="Monto" prefWidth="100" minWidth="80"/>
+                        <TableColumn fx:id="revenueMethodColumn" text="Medio" prefWidth="110" minWidth="90"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+
+        <Tab text="Ocupación">
+            <VBox spacing="12" styleClass="panel-card list-panel analytics-tab-body">
+                <padding>
+                    <Insets top="16" right="18" bottom="18" left="18"/>
+                </padding>
+
+                <HBox spacing="12" styleClass="analytics-kpi-row">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile analytics-kpi">
+                        <Label text="Ingresos totales" styleClass="preview-caption"/>
+                        <Label fx:id="occupancyEntriesKpi" text="—" styleClass="preview-value analytics-kpi-value"/>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile analytics-kpi">
+                        <Label text="Pico diario" styleClass="preview-caption"/>
+                        <Label fx:id="occupancyPeakKpi" text="—" styleClass="preview-value analytics-kpi-value"/>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile analytics-kpi">
+                        <Label text="Promedio diario" styleClass="preview-caption"/>
+                        <Label fx:id="occupancyAvgKpi" text="—" styleClass="preview-value analytics-kpi-value"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Desde" styleClass="field-label"/>
+                    <DatePicker fx:id="occupancyFromPicker" prefWidth="140" styleClass="app-date-picker"/>
+                    <Label text="Hasta" styleClass="field-label"/>
+                    <DatePicker fx:id="occupancyToPicker" prefWidth="140" styleClass="app-date-picker"/>
+                    <HBox spacing="8" styleClass="filter-chip-row">
+                        <Button text="7 días" onAction="#onOccupancyLast7" styleClass="filter-chip"/>
+                        <Button text="14 días" onAction="#onOccupancyLast14" styleClass="filter-chip"/>
+                    </HBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Actualizar" onAction="#onGenerateOccupancy" styleClass="primary-button"/>
+                    <Button text="Exportar CSV" onAction="#onExportOccupancy" styleClass="secondary-button"/>
+                </HBox>
+                <Label fx:id="occupancySummaryLabel" styleClass="analytics-help" wrapText="true"/>
+
+                <TableView fx:id="occupancyTable" VBox.vgrow="ALWAYS" styleClass="memberships-table">
+                    <columns>
+                        <TableColumn fx:id="occupancyDayColumn" text="Día" prefWidth="140" minWidth="110"/>
+                        <TableColumn fx:id="occupancyEntriesColumn" text="Ingresos" prefWidth="120" minWidth="90"/>
+                        <TableColumn fx:id="occupancyUniqueColumn" text="Clientes únicos" prefWidth="140" minWidth="110"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+    </TabPane>
+</VBox>
