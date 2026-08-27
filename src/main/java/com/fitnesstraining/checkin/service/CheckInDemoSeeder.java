@@ -65,7 +65,7 @@ public class CheckInDemoSeeder {
                 }
                 checkInService.register(lookup);
                 seeded++;
-                if (seeded >= 3) {
+                if (seeded >= 8) {
                     break;
                 }
             } catch (RuntimeException ex) {

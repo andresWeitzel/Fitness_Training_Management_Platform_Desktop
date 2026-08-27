@@ -31,7 +31,7 @@ Estado: **I** implementado · **P** planificado · **N** no se implementa en est
 | Entrenamiento | Ejercicios y rutinas estructuradas | **Cerrado (I)** |
 | Evaluaciones | Historial de evaluaciones físicas | **Cerrado (I)** |
 | Nutrición | Turnos, planes, ficha de salud con historial | **Cerrado (I)** |
-| Analytics | Indicadores, vencimientos, mora | P |
+| Analytics | Indicadores, vencimientos, mora, ingresos, ocupación | **Cerrado (I)** |
 | Liquidación de haberes | Sueldos | **N** en esta etapa |
 
 El alcance cubre la operación diaria del centro. Quedan **fuera de esta etapa** liquidación de haberes y asistencia de profesores.
@@ -66,7 +66,7 @@ Foto de cliente (`photo_path`) está en el esquema; la carga desde la UI **no** 
 
 **Pase diario (RF-11)** queda planificado y se resuelve con membresías o recepción, no como extensión de la ficha de cliente.
 
-### Planificados / fuera de etapa
+### Extendidos / fuera de etapa
 
 | ID | Descripción | Módulo | Estado |
 |----|-------------|--------|--------|
@@ -82,8 +82,8 @@ Foto de cliente (`photo_path`) está en el esquema; la carga desde la UI **no** 
 | RF-20 | Registrar evaluaciones físicas con historial | Evaluaciones | I |
 | RF-21 | Turnos y planes de nutrición | Nutrición | I |
 | RF-22 | Ficha de salud / restricciones (historial, no overwrite 1:1) | Nutrición | I |
-| RF-23 | Listados de vencimientos y mora | Analytics | P |
-| RF-24 | Reportes de operación (ingresos, ocupación) | Analytics | P |
+| RF-23 | Listados de vencimientos y mora | Analytics | I |
+| RF-24 | Reportes de operación (ingresos, ocupación) | Analytics | I |
 | RF-25 | Asistencia diaria de profesores | Personal | N |
 | RF-26 | Liquidar haberes mensuales | Personal | N |
 
@@ -107,9 +107,7 @@ Foto de cliente (`photo_path`) está en el esquema; la carga desde la UI **no** 
 | CU-08 | Generar QR de acceso | Admin, Recepción | `clients.fxml` | I |
 | CU-09 | Cerrar sesión | Personal interno | Shell | I |
 
-### Planificados
-
-Los ítems **Pronto** del menú ya se ven si el rol tiene permiso; muestran placeholder, no datos inventados.
+### Extendidos (cerrados salvo N)
 
 | CU | Nombre | Actor | Estado |
 |----|--------|-------|--------|
@@ -120,7 +118,7 @@ Los ítems **Pronto** del menú ya se ven si el rol tiene permiso; muestran plac
 | CU-14 | Armar rutina de entrenamiento | Admin, Entrenador | I |
 | CU-15 | Registrar evaluación física | Admin, Entrenador, Nutricionista | I |
 | CU-16 | Gestionar nutrición | Admin, Nutricionista | I |
-| CU-17 | Consultar analytics | Admin | P |
+| CU-17 | Consultar analytics | Admin | I |
 
 ---
 
@@ -192,8 +190,6 @@ Queda **cerrado para operación diaria** (admin y recepción) con este contrato:
 
 **Fuera de este cierre:** cupo por actividad/turno (no aplica a recepción libre del predio).
 
-Siguiente módulo natural: **Analytics** (RF-23/24, CU-17).
-
 ---
 
 ## 6d. Cierre del módulo Personal
@@ -220,8 +216,6 @@ Queda **cerrado** para Admin y Entrenador (`TRAINING_MANAGE`) con este contrato:
 4. Enfoque, fecha de inicio (programadas) y registro del entrenador en sesión al crear/editar.
 
 **Fuera de este cierre:** seguimiento de cumplimiento sesión a sesión y plantillas globales reutilizables.
-
-Siguiente módulo natural: **Analytics** (RF-23/24, CU-17).
 
 ---
 
@@ -250,7 +244,19 @@ Queda **cerrado** para Admin y Nutricionista (`NUTRITION_MANAGE`) con este contr
 
 **Fuera de este cierre:** agenda compartida con cupos, plantillas de menú y sync con wearables.
 
-Siguiente módulo natural: **Analytics** (RF-23/24, CU-17).
+---
+
+## 6h. Cierre del módulo Analytics
+
+Queda **cerrado** para Admin (`ANALYTICS_VIEW`) con este contrato:
+
+1. Listado de membresías por vencer (filtro 1–90 días) con resumen.
+2. Listado de mora / deuda que bloquea acceso (PENDING vencido o LATE_FEE pendiente), con atajo a Pagos.
+3. Reporte de ingresos cobrados por rango de fechas, con total.
+4. Reporte de ocupación diaria (ingresos y clientes únicos) por rango.
+5. Exportación CSV (`;`, UTF-8) de cada reporte.
+
+**Fuera de este cierre:** gráficos, Excel `.xlsx`, asistencia de profesores y liquidación de haberes (RF-25/26 = N).
 
 ---
 

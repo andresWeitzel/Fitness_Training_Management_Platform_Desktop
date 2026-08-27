@@ -1533,6 +1533,35 @@
     -fx-background-color: #F7FAFD;
 }
 
+.analytics-root {
+    -fx-padding: 0;
+}
+
+.analytics-header {
+    -fx-padding: 2 2 0 2;
+}
+
+.analytics-tab-body {
+    -fx-background-color: #FFFFFF;
+}
+
+.analytics-kpi-row {
+    -fx-padding: 0 0 2 0;
+}
+
+.analytics-kpi {
+    -fx-min-height: 64;
+}
+
+.analytics-kpi-value {
+    -fx-font-size: 18px;
+}
+
+.analytics-help {
+    -fx-text-fill: #5B6B7F;
+    -fx-font-size: 12px;
+}
+
 .detail-window-frame {
     -fx-background-color: rgba(15, 23, 36, 0.62);
 }

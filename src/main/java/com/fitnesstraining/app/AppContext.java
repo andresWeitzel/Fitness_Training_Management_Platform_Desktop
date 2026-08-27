@@ -1,11 +1,14 @@
 package com.fitnesstraining.app;
 
+import com.fitnesstraining.analytics.service.AnalyticsDemoSeeder;
+import com.fitnesstraining.analytics.service.AnalyticsService;
 import com.fitnesstraining.auth.repository.UserRepository;
 import com.fitnesstraining.auth.service.AuthService;
 import com.fitnesstraining.auth.service.AuthorizationService;
 import com.fitnesstraining.auth.service.DemoCredentialStore;
 import com.fitnesstraining.auth.service.DevDataSeeder;
 import com.fitnesstraining.auth.service.PasswordHasher;
+import com.fitnesstraining.controller.AnalyticsController;
 import com.fitnesstraining.controller.ClientsController;
 import com.fitnesstraining.controller.DashboardController;
 import com.fitnesstraining.auth.dto.PendingLoginFill;
@@ -92,6 +95,7 @@ public class AppContext {
     private TrainingService trainingService;
     private AssessmentService assessmentService;
     private NutritionService nutritionService;
+    private AnalyticsService analyticsService;
     private DemoCredentialStore demoCredentialStore = new DemoCredentialStore();
     private ShellController shellController;
     private PendingLoginFill pendingLogin;
@@ -298,6 +302,9 @@ public class AppContext {
         if (type == NutritionController.class) {
             return new NutritionController(nutritionService, sessionContext, authorizationService);
         }
+        if (type == AnalyticsController.class) {
+            return new AnalyticsController(analyticsService, this);
+        }
         if (type == PlaceholderController.class) {
             return new PlaceholderController();
         }
@@ -373,6 +380,11 @@ public class AppContext {
                 credentialRepository,
                 userRepository,
                 Clock.systemDefaultZone());
+        analyticsService = new AnalyticsService(
+                clientMembershipRepository,
+                paymentRepository,
+                checkInRepository,
+                Clock.systemDefaultZone());
         clientService = new ClientService(
                 clientRepository,
                 credentialRepository,
@@ -399,6 +411,14 @@ public class AppContext {
                 checkInRepository,
                 checkInService)
                 .seedIfEmpty();
+        new AnalyticsDemoSeeder(
+                clientRepository,
+                credentialRepository,
+                clientMembershipRepository,
+                paymentRepository,
+                checkInRepository,
+                Clock.systemDefaultZone())
+                .seedMissingSamples();
         new TrainingDemoSeeder(
                 exerciseRepository,
                 clientRepository,

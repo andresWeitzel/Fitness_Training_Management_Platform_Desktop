@@ -88,6 +88,24 @@ public class ClientMembershipRepository {
         });
     }
 
+    /** Membresías activas cuyo fin cae en [fromInclusive, toExclusive). */
+    public List<ClientMembership> listExpiringBetween(OffsetDateTime fromInclusive, OffsetDateTime toExclusive) {
+        return persistence.inTransaction(em ->
+                em.createQuery("""
+                                SELECT m FROM ClientMembership m
+                                JOIN FETCH m.client c
+                                JOIN FETCH m.plan p
+                                WHERE m.status = :status
+                                  AND m.endsAt >= :fromInclusive
+                                  AND m.endsAt < :toExclusive
+                                ORDER BY m.endsAt ASC, c.lastName, c.firstName
+                                """, ClientMembership.class)
+                        .setParameter("status", MembershipStatus.ACTIVE)
+                        .setParameter("fromInclusive", fromInclusive)
+                        .setParameter("toExclusive", toExclusive)
+                        .getResultList());
+    }
+
     public ClientMembership save(ClientMembership membership) {
         return persistence.inTransaction(em -> {
             if (membership.getId() == null) {

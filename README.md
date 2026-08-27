@@ -43,11 +43,11 @@ Cada módulo se apoya en el anterior. No hace falta un ecosistema de apps suelta
 | **Recepción** | Check-in con carnet/QR, histórico y bloqueo por deuda | **Disponible** |
 | Personal | Usuarios internos y roles | **Disponible** |
 | Entrenamiento | Ejercicios y rutinas estructuradas | **Disponible** |
-| Evaluaciones | Historial de evaluaciones físicas | En roadmap |
-| Nutrición | Turnos, planes y ficha de salud con historial | En roadmap |
-| Analytics | Vencimientos, mora, ocupación e ingresos | En roadmap |
+| Evaluaciones | Historial de evaluaciones físicas | **Disponible** |
+| Nutrición | Turnos, planes y ficha de salud con historial | **Disponible** |
+| Analytics | Vencimientos, mora, ocupación e ingresos (CSV) | **Disponible** |
 
-**Siguiente entrega de producto:** evaluaciones físicas y nutrición.
+**Fuera de esta etapa:** liquidación de haberes y asistencia de profesores.
 
 ---
 

@@ -127,6 +127,47 @@ public class PaymentRepository {
         return count == null ? 0L : count;
     }
 
+    /** Deuda que bloquea acceso: PENDING vencido o LATE_FEE pendiente. */
+    public List<Payment> listBlockingDebts(OffsetDateTime now) {
+        return persistence.inTransaction(em ->
+                em.createQuery("""
+                                SELECT p FROM Payment p
+                                JOIN FETCH p.client c
+                                LEFT JOIN FETCH p.clientMembership m
+                                LEFT JOIN FETCH m.plan
+                                WHERE p.status = :pending
+                                  AND (
+                                    p.type = :lateFee
+                                    OR (p.dueAt IS NOT NULL AND p.dueAt <= :now)
+                                  )
+                                ORDER BY COALESCE(p.dueAt, p.createdAt) ASC, c.lastName, c.firstName
+                                """, Payment.class)
+                        .setParameter("pending", PaymentStatus.PENDING)
+                        .setParameter("lateFee", com.fitnesstraining.payments.model.PaymentType.LATE_FEE)
+                        .setParameter("now", now)
+                        .getResultList());
+    }
+
+    /** Cobros PAID con paidAt en [fromInclusive, toExclusive). */
+    public List<Payment> listPaidBetween(OffsetDateTime fromInclusive, OffsetDateTime toExclusive) {
+        return persistence.inTransaction(em ->
+                em.createQuery("""
+                                SELECT p FROM Payment p
+                                JOIN FETCH p.client c
+                                LEFT JOIN FETCH p.clientMembership m
+                                LEFT JOIN FETCH m.plan
+                                WHERE p.status = :paid
+                                  AND p.paidAt IS NOT NULL
+                                  AND p.paidAt >= :fromInclusive
+                                  AND p.paidAt < :toExclusive
+                                ORDER BY p.paidAt DESC, c.lastName, c.firstName
+                                """, Payment.class)
+                        .setParameter("paid", PaymentStatus.PAID)
+                        .setParameter("fromInclusive", fromInclusive)
+                        .setParameter("toExclusive", toExclusive)
+                        .getResultList());
+    }
+
     public Payment save(Payment payment) {
         return persistence.inTransaction(em -> {
             if (payment.getId() == null) {

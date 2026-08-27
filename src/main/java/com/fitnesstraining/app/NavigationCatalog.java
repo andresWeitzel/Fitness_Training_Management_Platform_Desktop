@@ -31,7 +31,7 @@ public final class NavigationCatalog {
                 new NavItem("nutrition", "Nutrición", "Seguimiento", PermissionCode.NUTRITION_MANAGE,
                         "/views/nutrition.fxml", true, "Turnos, planes nutricionales y ficha de salud con historial."),
                 new NavItem("analytics", "Analytics", "Analytics", PermissionCode.ANALYTICS_VIEW,
-                        "/views/placeholder.fxml", false, "Ingresos y reportes. Aún no migrado."),
+                        "/views/analytics.fxml", true, "Vencimientos, mora, ingresos y ocupación con export CSV."),
                 new NavItem("settings", "Base de datos", "Sistema", PermissionCode.SETTINGS_MANAGE,
                         "/views/database-settings.fxml", true, "Conexión PostgreSQL, migraciones y reconexión.")
         );
