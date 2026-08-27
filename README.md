@@ -45,7 +45,8 @@ Cada módulo se apoya en el anterior. No hace falta un ecosistema de apps suelta
 | Entrenamiento | Ejercicios y rutinas estructuradas | **Disponible** |
 | Evaluaciones | Historial de evaluaciones físicas | **Disponible** |
 | Nutrición | Turnos, planes y ficha de salud con historial | **Disponible** |
-| Analytics | Vencimientos, mora, ocupación e ingresos (CSV) | **Disponible** |
+| Reportes | Vencimientos, mora, ocupación e ingresos (CSV) | **Disponible** |
+| Gráficos | Vista gráfica de indicadores (Analytics) | **Disponible** |
 
 **Fuera de esta etapa:** liquidación de haberes y asistencia de profesores.
 

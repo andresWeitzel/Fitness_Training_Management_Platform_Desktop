@@ -48,7 +48,8 @@ public class ShellController {
             Map.entry("training", "En"),
             Map.entry("assessments", "Ev"),
             Map.entry("nutrition", "Nu"),
-            Map.entry("analytics", "An"),
+            Map.entry("analytics", "Rp"),
+            Map.entry("analytics-charts", "Gr"),
             Map.entry("settings", "Db")
     );
 

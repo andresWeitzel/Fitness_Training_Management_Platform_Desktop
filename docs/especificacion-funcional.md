@@ -254,9 +254,10 @@ Queda **cerrado** para Admin (`ANALYTICS_VIEW`) con este contrato:
 2. Listado de mora / deuda que bloquea acceso (PENDING vencido o LATE_FEE pendiente), con atajo a Pagos.
 3. Reporte de ingresos cobrados por rango de fechas, con total.
 4. Reporte de ocupación diaria (ingresos y clientes únicos) por rango.
-5. Exportación CSV (`;`, UTF-8) de cada reporte.
+5. Exportación CSV (`;`, Windows-1252 para Excel) de cada reporte.
+6. Módulo **Gráficos** en el menú (sección Analytics): vista gráfica separada de Reportes.
 
-**Fuera de este cierre:** gráficos, Excel `.xlsx`, asistencia de profesores y liquidación de haberes (RF-25/26 = N).
+**Fuera de este cierre:** Excel `.xlsx`, asistencia de profesores y liquidación de haberes (RF-25/26 = N).
 
 ---
 

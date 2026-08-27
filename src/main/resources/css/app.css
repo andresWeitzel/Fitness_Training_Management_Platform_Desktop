@@ -1562,6 +1562,56 @@
     -fx-font-size: 12px;
 }
 
+.analytics-charts-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 0;
+}
+
+.analytics-charts-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.analytics-chart-row {
+    -fx-alignment: TOP_LEFT;
+}
+
+.analytics-chart-card {
+    -fx-background-color: #F7FAFD;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #E8EEF5;
+    -fx-border-width: 1;
+    -fx-padding: 12 14 14 14;
+}
+
+.analytics-chart-host {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #E8EEF5;
+    -fx-border-width: 1;
+    -fx-padding: 6;
+}
+
+.analytics-chart {
+    -fx-background-color: transparent;
+    -fx-padding: 4;
+}
+
+.analytics-chart .chart-plot-background {
+    -fx-background-color: #FFFFFF;
+}
+
+.analytics-chart .chart-vertical-grid-lines,
+.analytics-chart .chart-horizontal-grid-lines {
+    -fx-stroke: #E8EEF5;
+}
+
+.analytics-chart .chart-series-line {
+    -fx-stroke-width: 2px;
+}
+
 .detail-window-frame {
     -fx-background-color: rgba(15, 23, 36, 0.62);
 }

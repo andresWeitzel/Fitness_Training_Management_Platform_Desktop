@@ -27,8 +27,8 @@
     </HBox>
 
     <VBox spacing="4" styleClass="analytics-header">
-        <Label text="Analytics" styleClass="section-title"/>
-        <Label text="Vencimientos, mora, ingresos y ocupación del centro. Exportá cada reporte a CSV."
+        <Label text="Reportes" styleClass="section-title"/>
+        <Label text="Vencimientos, mora, ingresos y ocupación. Exportá cada reporte a CSV."
                styleClass="muted" wrapText="true"/>
     </VBox>
 

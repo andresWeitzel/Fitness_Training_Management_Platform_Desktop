@@ -8,6 +8,7 @@ import com.fitnesstraining.auth.service.AuthorizationService;
 import com.fitnesstraining.auth.service.DemoCredentialStore;
 import com.fitnesstraining.auth.service.DevDataSeeder;
 import com.fitnesstraining.auth.service.PasswordHasher;
+import com.fitnesstraining.controller.AnalyticsChartsController;
 import com.fitnesstraining.controller.AnalyticsController;
 import com.fitnesstraining.controller.ClientsController;
 import com.fitnesstraining.controller.DashboardController;
@@ -304,6 +305,9 @@ public class AppContext {
         }
         if (type == AnalyticsController.class) {
             return new AnalyticsController(analyticsService, this);
+        }
+        if (type == AnalyticsChartsController.class) {
+            return new AnalyticsChartsController(analyticsService);
         }
         if (type == PlaceholderController.class) {
             return new PlaceholderController();
