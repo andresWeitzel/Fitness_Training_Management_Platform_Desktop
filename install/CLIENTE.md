@@ -20,31 +20,42 @@ Son **dos piezas**: primero la base, después la app.
 | Windows | 10 o superior (64 bits) |
 | RAM | 4 GB mínimo recomendado |
 | Disco | ~500 MB app + espacio para la base |
-| **Opción A – Docker** | Docker Desktop instalado y en ejecución |
-| **Opción B – Sin Docker** | PostgreSQL 16 instalado en Windows |
-| **Java** | Solo si usa la carpeta portable `app/` (JDK 21). El instalador `.exe` futuro incluirá Java |
+| **Java** | No si el zip incluye `runtime\jdk\` (ver `docs\ENTREGA-PORTABLE.md`) |
+| **PostgreSQL** | No si el zip incluye `runtime\postgresql\` **o** usa Docker |
 
 ---
 
 ## Entrega al cliente (desde el proveedor)
 
-En desarrollo, generar la carpeta de entrega:
+En desarrollo, generar la **pieza de entrega** (carpeta + zip):
 
 ```bat
 package.bat
 ```
 
-Eso crea `target\client-dist\` con:
+Eso crea:
+
+| Artefacto | Contenido |
+|-----------|-----------|
+| `target\client-dist\` | Carpeta lista para copiar |
+| `target\FitnessTraining-client-win64.zip` | Mismo contenido comprimido |
 
 ```
 client-dist/
-  app/           → FitnessTraining.bat + librerías
-  db/            → docker-compose.yml + .env.example
-  scripts/       → start-db, stop-db, backup-db
-  docs/          → esta guía
+  Iniciar.bat              → UN SOLO CLIC: configura 1ª vez, levanta DB, abre app
+  configurar-primera-vez.bat → crea db\.env y conexión local automática
+  LEEME.txt                → instrucciones cortas
+  app/                     → FitnessTraining.bat + librerías JavaFX
+  runtime/jdk/             → (opcional) Java 21 portable
+  runtime/postgresql/      → (opcional) PostgreSQL 16 portable — sin Docker
+  db/                      → docker-compose.yml + .env.example
+  scripts/                 → start-db, stop-db, backup-db
+  docs/                    → esta guía
 ```
 
-Comprimir `client-dist` en un `.zip` y copiarlo a la PC del cliente.
+**Flujo para el cliente:** descomprimir zip → editar `db\.env` (contraseña) → doble clic **`Iniciar.bat`**.
+
+Con **zip completo** (Java + PostgreSQL en `runtime\`), no instala nada más. Guía del proveedor: `install\ENTREGA-PORTABLE.md` (incluida en `docs\` del zip).
 
 ---
 
@@ -75,19 +86,23 @@ Verificar que el contenedor `fitness-training-postgres` esté **running**.
 
 ### 5. Abrir la aplicación
 
-Doble clic en `app\FitnessTraining.bat`.
+Doble clic en **`Iniciar.bat`** (recomendado) o en `app\FitnessTraining.bat`.
 
-**Primera vez:** pantalla **Configurar conexión**
+`Iniciar.bat` levanta la base (Docker) y abre la app. La primera vez crea `db\.env` y la conexión local automáticamente.
+
+Si abre solo `app\FitnessTraining.bat` sin `Iniciar.bat`, use `scripts\start-db.bat` antes (Docker).
 
 | Campo | Valor |
 |-------|--------|
 | Servidor | `localhost` |
-| Puerto | `5432` (o el de `.env`) |
+| Puerto | `5432` (o el de `db\.env`) |
 | Base | `fitness_training` |
-| Usuario | el de `.env` |
-| Contraseña | la de `.env` |
+| Usuario | el de `db\.env` |
+| Contraseña | la de `db\.env` |
 
-Pulsar **Probar conexión** → **Continuar al login**.
+Solo si **no** se usó `Iniciar.bat` / configuración automática: pantalla **Configurar conexión** con los valores de la tabla.
+
+Pulsar **Probar conexión** → **Continuar al login** si hace falta completar manualmente.
 
 La app crea tablas (Flyway) y, si la base está vacía, usuarios de demostración.
 
@@ -128,8 +143,9 @@ Abrir puerto **5432** solo dentro de la red local (firewall).
 
 | Acción | Cómo |
 |--------|------|
+| Iniciar todo | **`Iniciar.bat`** |
 | Iniciar base (Docker) | `scripts\start-db.bat` |
-| Abrir sistema | `app\FitnessTraining.bat` |
+| Abrir solo app | `app\FitnessTraining.bat` |
 | Cerrar app | Botón × en la ventana |
 | Apagar PC | Opcional: `scripts\stop-db.bat` (Docker conserva datos en volumen) |
 

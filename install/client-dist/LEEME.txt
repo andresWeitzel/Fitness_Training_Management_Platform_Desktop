@@ -1,0 +1,25 @@
+Fitness Training Management Platform
+=====================================
+
+INSTALACION RAPIDA (Windows)
+
+1. Descomprimir en una carpeta fija, por ejemplo:
+   C:\FitnessTraining\
+
+2. (Primera vez) Editar db\.env y cambiar POSTGRES_PASSWORD.
+
+3. Doble clic en:  Iniciar.bat
+
+   Levanta la base y abre la aplicacion.
+
+SI EL ZIP INCLUYE runtime\jdk y runtime\postgresql:
+  - No hace falta instalar Java ni PostgreSQL ni Docker.
+
+SI NO INCLUYEN runtime:
+  - Java 21 en PATH, o copiar JRE en runtime\jdk\
+  - Docker Desktop, o copiar PG en runtime\postgresql\
+  Ver docs\ENTREGA-PORTABLE.md
+
+USO DIARIO:  Iniciar.bat
+DETENER BASE: scripts\stop-db.bat
+MAS DETALLE:  docs\CLIENTE.md
