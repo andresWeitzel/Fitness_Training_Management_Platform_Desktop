@@ -540,12 +540,12 @@
     -fx-font-size: 10px;
     -fx-font-weight: 800;
     -fx-letter-spacing: 1.1px;
-    -fx-padding: 12 6 4 6;
+    -fx-padding: 14 6 4 6;
 }
 
 .nav-group-box {
     -fx-spacing: 4;
-    -fx-padding: 0 0 2 0;
+    -fx-padding: 0 0 8 0;
 }
 
 .nav-button {
@@ -898,9 +898,52 @@
 
 .clients-split > .detail-panel,
 .clients-split > .assignment-panel {
-    -fx-min-width: 300;
-    -fx-pref-width: 360;
-    -fx-max-width: 400;
+    -fx-min-width: 320;
+    -fx-pref-width: 380;
+    -fx-max-width: 420;
+}
+
+.detail-panel-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.detail-panel-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.detail-panel-actions {
+    -fx-spacing: 8;
+    -fx-padding: 4 0 0 0;
+}
+
+.detail-panel-actions-row {
+    -fx-spacing: 8;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.detail-panel-actions .button {
+    -fx-min-height: 38;
+    -fx-pref-height: 38;
+    -fx-max-height: 38;
+    -fx-font-size: 13px;
+}
+
+.detail-panel-actions .primary-button {
+    -fx-padding: 10 14 10 14;
+}
+
+.detail-panel-actions .secondary-button,
+.detail-panel-actions .danger-button,
+.detail-panel-actions .ghost-button {
+    -fx-padding: 10 14 10 14;
+}
+
+.assessment-form-panel {
+    -fx-min-width: 420;
+    -fx-max-width: 520;
 }
 
 .table-view {

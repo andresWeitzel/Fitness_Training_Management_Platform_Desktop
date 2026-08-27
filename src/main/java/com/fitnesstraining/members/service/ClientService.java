@@ -1,5 +1,6 @@
 package com.fitnesstraining.members.service;
 
+import com.fitnesstraining.assessments.service.AssessmentService;
 import com.fitnesstraining.checkin.repository.CheckInRepository;
 import com.fitnesstraining.members.dto.ClientRequest;
 import com.fitnesstraining.members.dto.ClientSummary;
@@ -15,6 +16,7 @@ import com.fitnesstraining.members.validation.ClientValidator;
 import com.fitnesstraining.memberships.model.ClientMembership;
 import com.fitnesstraining.memberships.repository.ClientMembershipRepository;
 import com.fitnesstraining.memberships.service.MembershipService;
+import com.fitnesstraining.nutrition.service.NutritionService;
 import com.fitnesstraining.payments.service.PaymentService;
 import com.fitnesstraining.shared.exception.ValidationException;
 import com.fitnesstraining.training.model.TrainingRoutine;
@@ -40,13 +42,15 @@ public class ClientService {
     private final CheckInRepository checkInRepository;
     private final ClientMembershipRepository membershipRepository;
     private final TrainingRoutineRepository trainingRoutineRepository;
+    private final NutritionService nutritionService;
+    private final AssessmentService assessmentService;
     private final Clock clock;
 
     public ClientService(
             ClientRepository clientRepository,
             AccessCredentialRepository credentialRepository,
             Clock clock) {
-        this(clientRepository, credentialRepository, null, null, null, null, null, clock);
+        this(clientRepository, credentialRepository, null, null, null, null, null, null, null, clock);
     }
 
     public ClientService(
@@ -54,7 +58,7 @@ public class ClientService {
             AccessCredentialRepository credentialRepository,
             MembershipService membershipService,
             Clock clock) {
-        this(clientRepository, credentialRepository, membershipService, null, null, null, null, clock);
+        this(clientRepository, credentialRepository, membershipService, null, null, null, null, null, null, clock);
     }
 
     public ClientService(
@@ -66,6 +70,35 @@ public class ClientService {
             ClientMembershipRepository membershipRepository,
             TrainingRoutineRepository trainingRoutineRepository,
             Clock clock) {
+        this(clientRepository, credentialRepository, membershipService, paymentService,
+                checkInRepository, membershipRepository, trainingRoutineRepository, null, null, clock);
+    }
+
+    public ClientService(
+            ClientRepository clientRepository,
+            AccessCredentialRepository credentialRepository,
+            MembershipService membershipService,
+            PaymentService paymentService,
+            CheckInRepository checkInRepository,
+            ClientMembershipRepository membershipRepository,
+            TrainingRoutineRepository trainingRoutineRepository,
+            NutritionService nutritionService,
+            Clock clock) {
+        this(clientRepository, credentialRepository, membershipService, paymentService,
+                checkInRepository, membershipRepository, trainingRoutineRepository, nutritionService, null, clock);
+    }
+
+    public ClientService(
+            ClientRepository clientRepository,
+            AccessCredentialRepository credentialRepository,
+            MembershipService membershipService,
+            PaymentService paymentService,
+            CheckInRepository checkInRepository,
+            ClientMembershipRepository membershipRepository,
+            TrainingRoutineRepository trainingRoutineRepository,
+            NutritionService nutritionService,
+            AssessmentService assessmentService,
+            Clock clock) {
         this.clientRepository = clientRepository;
         this.credentialRepository = credentialRepository;
         this.membershipService = membershipService;
@@ -73,6 +106,8 @@ public class ClientService {
         this.checkInRepository = checkInRepository;
         this.membershipRepository = membershipRepository;
         this.trainingRoutineRepository = trainingRoutineRepository;
+        this.nutritionService = nutritionService;
+        this.assessmentService = assessmentService;
         this.clock = clock;
     }
 
@@ -159,6 +194,9 @@ public class ClientService {
         }
         if (trainingRoutineRepository != null) {
             trainingRoutineRepository.archiveActiveAndScheduledForClient(id, now);
+        }
+        if (nutritionService != null) {
+            nutritionService.closeForClientDeactivation(id);
         }
     }
 
@@ -264,6 +302,13 @@ public class ClientService {
             }
         }
 
+        String lastAssessment = assessmentService == null
+                ? null
+                : assessmentService.latestSummaryForClient(client.getId()).orElse(null);
+        String nutritionPlan = nutritionService == null
+                ? null
+                : nutritionService.activePlanTitleForClient(client.getId()).orElse(null);
+
         return ClientView.from(
                 client,
                 credentials,
@@ -273,7 +318,9 @@ public class ClientService {
                 blockingDebt,
                 lastCheckIn,
                 routineTitle,
-                routineFocus);
+                routineFocus,
+                lastAssessment,
+                nutritionPlan);
     }
 
     private void assignDefaultMembership(Long clientId) {

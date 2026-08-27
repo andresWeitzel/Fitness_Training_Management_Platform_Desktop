@@ -57,6 +57,16 @@
                 <Label fx:id="opsRoutineLabel" styleClass="preview-value" wrapText="true"/>
             </VBox>
         </HBox>
+        <HBox spacing="12">
+            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                <Label text="Última evaluación" styleClass="preview-caption"/>
+                <Label fx:id="opsAssessmentLabel" styleClass="preview-value" wrapText="true"/>
+            </VBox>
+            <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="preview-tile">
+                <Label text="Plan nutricional" styleClass="preview-caption"/>
+                <Label fx:id="opsNutritionLabel" styleClass="preview-value" wrapText="true"/>
+            </VBox>
+        </HBox>
 
         <Separator/>
 

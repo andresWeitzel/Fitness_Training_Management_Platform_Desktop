@@ -24,11 +24,13 @@ public record ClientView(
         boolean hasBlockingDebt,
         OffsetDateTime lastCheckInAt,
         String activeRoutineTitle,
-        String activeRoutineFocus
+        String activeRoutineFocus,
+        String lastAssessmentSummary,
+        String activeNutritionPlanTitle
 ) {
 
     public static ClientView from(Client client, List<CredentialView> credentials) {
-        return from(client, credentials, null, null, null, false, null, null, null);
+        return from(client, credentials, null, null, null, false, null, null, null, null, null);
     }
 
     public static ClientView from(
@@ -41,6 +43,32 @@ public record ClientView(
             OffsetDateTime lastCheckInAt,
             String activeRoutineTitle,
             String activeRoutineFocus) {
+        return from(
+                client,
+                credentials,
+                membershipPlanName,
+                membershipEndsOn,
+                membershipStatus,
+                hasBlockingDebt,
+                lastCheckInAt,
+                activeRoutineTitle,
+                activeRoutineFocus,
+                null,
+                null);
+    }
+
+    public static ClientView from(
+            Client client,
+            List<CredentialView> credentials,
+            String membershipPlanName,
+            LocalDate membershipEndsOn,
+            MembershipStatus membershipStatus,
+            boolean hasBlockingDebt,
+            OffsetDateTime lastCheckInAt,
+            String activeRoutineTitle,
+            String activeRoutineFocus,
+            String lastAssessmentSummary,
+            String activeNutritionPlanTitle) {
         return new ClientView(
                 client.getId(),
                 client.getDocumentNumber(),
@@ -57,7 +85,9 @@ public record ClientView(
                 hasBlockingDebt,
                 lastCheckInAt,
                 activeRoutineTitle,
-                activeRoutineFocus
+                activeRoutineFocus,
+                lastAssessmentSummary,
+                activeNutritionPlanTitle
         );
     }
 }
