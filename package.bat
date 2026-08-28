@@ -30,6 +30,7 @@ copy /Y "install\client-dist\scripts\start-db-silent.bat" "%DIST%\scripts\"
 copy /Y "install\client-dist\scripts\stop-db.bat" "%DIST%\scripts\"
 copy /Y "install\client-dist\scripts\backup-db.bat" "%DIST%\scripts\"
 copy /Y "install\CLIENTE.md" "%DIST%\docs\"
+copy /Y "install\CONFIGURAR-JAVA-POSTGRES.md" "%DIST%\docs\"
 
 set "ZIP=target\FitnessTraining-client-win64.zip"
 if exist "%ZIP%" del /f /q "%ZIP%"

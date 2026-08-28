@@ -22,3 +22,4 @@ CONEXION A LA BASE
 
 USO DIARIO:  Iniciar.bat  o  app\FitnessTraining.bat
 MAS DETALLE:  docs\CLIENTE.md
+CONFIGURAR:  docs\CONFIGURAR-JAVA-POSTGRES.md

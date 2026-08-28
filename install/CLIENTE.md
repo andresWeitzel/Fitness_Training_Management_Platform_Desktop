@@ -14,6 +14,12 @@ Guía para instalar **Fitness Training Management Platform** en el gimnasio o ce
 
 El zip de entrega **no incluye** Java ni PostgreSQL. El cliente los instala una vez en el sistema (o usa Docker).
 
+**Guía detallada:** [CONFIGURAR-JAVA-POSTGRES.md](./CONFIGURAR-JAVA-POSTGRES.md) — instalación de Java 21, PostgreSQL en el sistema, Docker y conexión en red.
+
+### ¿Funciona con Docker y con PostgreSQL del sistema?
+
+**Sí.** La app conecta por JDBC (`host`, puerto, base, usuario, contraseña). Da igual si PostgreSQL corre en un contenedor Docker, como servicio de Windows en la misma PC, o en un servidor de la red. Solo cambian los valores de **Servidor** y las credenciales en la pantalla de conexión (o en `database.properties`).
+
 ---
 
 ## Tres formas de conectar la base
@@ -26,12 +32,16 @@ El zip de entrega **no incluye** Java ni PostgreSQL. El cliente los instala una 
 
 ### Modo A — PostgreSQL con Docker
 
+Ver pasos completos en [CONFIGURAR-JAVA-POSTGRES.md](./CONFIGURAR-JAVA-POSTGRES.md#3-postgresql-con-docker-opcional).
+
 1. Instalar [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 2. En `db\`: copiar `.env.example` → `.env` y cambiar `POSTGRES_PASSWORD`.
 3. `Iniciar.bat` levanta el contenedor y abre la app.
 4. Conexión: `localhost`, puerto y credenciales de `db\.env`.
 
 ### Modo B — PostgreSQL instalado en la misma PC
+
+Ver pasos completos en [CONFIGURAR-JAVA-POSTGRES.md](./CONFIGURAR-JAVA-POSTGRES.md#2-instalar-y-configurar-postgresql-en-el-sistema-sin-docker).
 
 1. Instalar [PostgreSQL 16 para Windows](https://www.postgresql.org/download/windows/).
 2. Asegurarse de que el **servicio PostgreSQL** esté en ejecución.
@@ -43,14 +53,7 @@ No hace falta `scripts\start-db.bat` ni la carpeta `db\` (salvo que también qui
 
 ### Modo C — PostgreSQL en otra PC (varios mostradores)
 
-1. PostgreSQL en **una PC fija** (servidor), por ejemplo IP `192.168.1.50`.
-2. En cada mostrador: copiar el zip, instalar **Java 21**, ejecutar `Iniciar.bat` o `app\FitnessTraining.bat`.
-3. En la app: **Configurar conexión** (primera vez o desde ajustes de admin):
-   - **Servidor:** IP del servidor (no `localhost`)
-   - **Puerto / base / usuario / contraseña:** los del servidor
-4. Abrir puerto **5432** en el firewall solo dentro de la red local.
-
-En red, cada puesto solo necesita la carpeta `app\` si la conexión ya está guardada en `%USERPROFILE%\.fitness-training\database.properties`.
+Ver [CONFIGURAR-JAVA-POSTGRES.md](./CONFIGURAR-JAVA-POSTGRES.md#4-postgresql-en-otra-pc-red--varios-mostradores).
 
 ---
 
@@ -76,6 +79,7 @@ client-dist/
   db/                  → docker-compose + .env (solo si usa Docker)
   scripts/             → start-db, stop-db, backup (Docker)
   docs/CLIENTE.md
+  docs/CONFIGURAR-JAVA-POSTGRES.md
 ```
 
 **Cliente:** descomprime → instala Java y PostgreSQL (o Docker) → `Iniciar.bat`.

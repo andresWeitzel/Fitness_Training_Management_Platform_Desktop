@@ -15,6 +15,7 @@ Aplicación de escritorio para **centros de entrenamiento y gimnasios**: cliente
 * [¿Qué ejecutar? (entrega al cliente)](./install/QUE-EJECUTAR.md) — **empezar aquí si empaquetás el zip**
 * [Documentación](./docs/README.md) — capturas y especificación funcional
 * [Instalación en cliente](./install/CLIENTE.md)
+* [Configurar Java y PostgreSQL](./install/CONFIGURAR-JAVA-POSTGRES.md)
 * [Instalación para desarrollo](./install/DESARROLLO.md)
 * [Especificación funcional](./docs/especificacion-funcional.md)
 

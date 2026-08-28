@@ -27,7 +27,7 @@ run.bat
 
 ## Cliente — antes de usar el zip
 
-Instalar en la PC (una vez):
+Instalar en la PC (una vez) — guía paso a paso: **docs\CONFIGURAR-JAVA-POSTGRES.md**
 
 1. **Java 21** — [Adoptium](https://adoptium.net/)
 2. **PostgreSQL 16** — [postgresql.org](https://www.postgresql.org/download/windows/) **o** Docker Desktop (opcional)
