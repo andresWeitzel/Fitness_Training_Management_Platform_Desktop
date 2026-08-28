@@ -35,7 +35,7 @@ run.bat
 | `scripts/start-db.bat` | Igual, desde carpeta scripts |
 | `scripts/stop-db.bat` | Detiene contenedores |
 | `scripts/backup-db.bat` | Respaldo de la base |
-| `package.bat` | Genera `target\client-dist\` + zip `FitnessTraining-client-win64.zip` |
+| `package.bat` | Genera zip de entrega (`target\FitnessTraining-client-win64.zip`) |
 
 ## Maven manual
 

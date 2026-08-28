@@ -22,21 +22,19 @@ Aplicación de escritorio para **centros de entrenamiento y gimnasios**: cliente
 
 ## Entrega al gimnasio (proveedor)
 
-**Vos** generás el zip. El **gimnasio** solo descomprime y usa `Iniciar.bat`.
-
 ```bat
-package-full.bat
+package.bat
 ```
 
-Eso descarga Java + PostgreSQL portable (si faltan), compila la app y crea:
-
-`target\FitnessTraining-client-win64.zip` → **ese archivo se entrega al cliente**.
+Genera `target\FitnessTraining-client-win64.zip` con la **aplicación**. El gimnasio instala **Java 21** y **PostgreSQL 16** (o usa Docker si lo tiene).
 
 | Script | Quién | Uso |
 |--------|-------|-----|
-| `package-full.bat` | Desarrollador | Zip completo para el gimnasio |
+| `package.bat` | Desarrollador | Zip para entregar al gimnasio |
 | `run.bat` | Desarrollador | Probar cambios en tu PC |
 | `Iniciar.bat` | Cliente | Dentro del zip descomprimido |
+
+Conexión a la base: Docker (opcional), PostgreSQL local, o servidor en red — ver [install/CLIENTE.md](./install/CLIENTE.md).
 
 Detalle: [install/QUE-EJECUTAR.md](./install/QUE-EJECUTAR.md)
 
@@ -231,7 +229,7 @@ mvn javafx:run
 | Contenedor DB | Docker Compose |
 | Exportación | CSV (Windows-1252, compatible Excel) |
 | Pruebas | JUnit 5, Mockito |
-| Despliegue cliente | Scripts `package.bat`, carpeta portable, `Iniciar.bat` |
+| Despliegue cliente | `package.bat` → zip; cliente con Java 21 + PostgreSQL (Docker opcional) |
 
 ---
 

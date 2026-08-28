@@ -12,6 +12,7 @@ set "STAMP=!STAMP: =0!"
 set "DB=fitness_training"
 set "USER=postgres"
 set "PG_PORT=5432"
+set "PG_HOST=localhost"
 set "ENV_FILE=%DIST%\db\.env"
 
 if exist "%ENV_FILE%" (
@@ -26,31 +27,32 @@ if exist "%ENV_FILE%" (
 
 set "FILE=%BACKUP_DIR%\%DB%_%STAMP%.sql"
 
-if exist "%DIST%\runtime\postgresql\bin\pg_dump.exe" (
-    set "PGROOT=%DIST%\runtime\postgresql"
-    echo Backup portable de %DB% en %FILE% ...
-    set "PGPASSWORD="
-    if exist "%ENV_FILE%" (
-        for /f "usebackq eol=# tokens=1,* delims==" %%a in ("%ENV_FILE%") do (
-            if "%%a"=="POSTGRES_PASSWORD" set "PGPASSWORD=%%b"
-        )
-    )
-    "%PGROOT%\bin\pg_dump.exe" -h localhost -p %PG_PORT% -U %USER% %DB% > "%FILE%"
+where docker >nul 2>&1
+if not errorlevel 1 (
+    cd /d "%DIST%\db"
+    echo Backup Docker de %DB% en %FILE% ...
+    docker compose exec -T postgres pg_dump -U %USER% %DB% > "%FILE%"
     if errorlevel 1 goto :fail
     echo Listo: %FILE%
     pause
     exit /b 0
 )
 
-cd /d "%DIST%\db"
-echo Backup Docker de %DB% en %FILE% ...
-docker compose exec -T postgres pg_dump -U %USER% %DB% > "%FILE%"
-if errorlevel 1 goto :fail
-echo Listo: %FILE%
+where pg_dump >nul 2>&1
+if not errorlevel 1 (
+    echo Backup PostgreSQL local de %DB% en %FILE% ...
+    pg_dump -h %PG_HOST% -p %PG_PORT% -U %USER% %DB% > "%FILE%"
+    if errorlevel 1 goto :fail
+    echo Listo: %FILE%
+    pause
+    exit /b 0
+)
+
+echo [ERROR] Necesita Docker en ejecucion o pg_dump en PATH ^(cliente PostgreSQL^).
 pause
-exit /b 0
+exit /b 1
 
 :fail
-echo [ERROR] Fallo el backup. ¿Esta levantada la base? Ejecute Iniciar.bat
+echo [ERROR] Fallo el backup. ¿Esta levantada la base?
 pause
 exit /b 1

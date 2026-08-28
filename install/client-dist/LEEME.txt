@@ -1,25 +1,24 @@
 Fitness Training Management Platform
 =====================================
 
-INSTALACION RAPIDA (Windows)
+REQUISITOS EN LA PC
+  - Java 21 instalado (java en PATH)
+  - PostgreSQL 16 instalado y en ejecucion, O Docker Desktop
 
-1. Descomprimir en una carpeta fija, por ejemplo:
-   C:\FitnessTraining\
+INSTALACION
 
-2. (Primera vez) Editar db\.env y cambiar POSTGRES_PASSWORD.
+1. Descomprimir en C:\FitnessTraining\ (o carpeta fija)
 
-3. Doble clic en:  Iniciar.bat
+2. Si usa Docker: editar db\.env y cambiar POSTGRES_PASSWORD
 
-   Levanta la base y abre la aplicacion.
+3. Doble clic en Iniciar.bat
+   - Con Docker: levanta la base y abre la app
+   - Sin Docker: abre la app (PostgreSQL del sistema debe estar activo)
 
-SI EL ZIP INCLUYE runtime\jdk y runtime\postgresql:
-  - No hace falta instalar Java ni PostgreSQL ni Docker.
+CONEXION A LA BASE
+  - Misma PC (Docker o PostgreSQL local): localhost
+  - Otra PC en la red: configurar IP del servidor en la app
+  Ver docs\CLIENTE.md
 
-SI NO INCLUYEN runtime:
-  - Java 21 en PATH, o copiar JRE en runtime\jdk\
-  - Docker Desktop, o copiar PG en runtime\postgresql\
-  Ver docs\ENTREGA-PORTABLE.md
-
-USO DIARIO:  Iniciar.bat
-DETENER BASE: scripts\stop-db.bat
+USO DIARIO:  Iniciar.bat  o  app\FitnessTraining.bat
 MAS DETALLE:  docs\CLIENTE.md

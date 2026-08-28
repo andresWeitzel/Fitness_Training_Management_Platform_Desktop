@@ -1,7 +1,5 @@
-# Java portable — ver ENTREGA-PORTABLE.md
+# Java portable — entrega normal
 
-La guía completa (Java + PostgreSQL en el zip, sin instalar en la PC del cliente) está en:
+La entrega habitual **no** incluye Java en el zip. El cliente instala **Java 21** en Windows.
 
-**[install/ENTREGA-PORTABLE.md](./ENTREGA-PORTABLE.md)**
-
-Resumen Java: copiar Temurin JRE 21 en `runtime/jdk/` antes de `package.bat`.
+Entrega opcional con runtime embebido: [optional/README.md](./optional/README.md)
