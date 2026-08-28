@@ -1,6 +1,6 @@
 <div align="center">
 
-![Fitness Training Management Platform](./docs/assets/app-hero.png)
+![Fitness Training Management Platform](../docs/assets/app-hero.png)
 
 </div>
 
@@ -10,8 +10,8 @@
   <img width="25" height="25" src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL" />
   <img width="25" height="25" src="https://img.shields.io/badge/Maven-3.9-C71A36?logo=apachemaven&logoColor=white" alt="Maven" />
   <img width="25" height="25" src="https://img.shields.io/badge/Flyway-migrations-CC0200?logo=flyway&logoColor=white" alt="Flyway" />
-  <img width="25" height="25" src="./docs/assets/icons/devops/png/docker.png" alt="Docker" />
-  <img width="25" height="25" src="./docs/assets/icons/devops/png/git.png" alt="Git" />
+  <img width="25" height="25" src="../docs/assets/icons/devops/png/docker.png" alt="Docker" />
+  <img width="25" height="25" src="../docs/assets/icons/devops/png/git.png" alt="Git" />
 </div>
 
 <br>
@@ -19,11 +19,11 @@
 <br>
 
 <div align="right">
-  <a href="./translations/README.es.md" target="_blank">
-    <img src="./docs/assets/translation/arg-flag.svg" width="65" height="40" alt="Español" />
+  <a href="./README.es.md" target="_blank">
+    <img src="../docs/assets/translation/arg-flag.svg" width="65" height="40" alt="Español" />
   </a>
-  <a href="./README.md" target="_blank">
-    <img src="./docs/assets/translation/eeuu-flag.svg" width="65" height="40" alt="English" />
+  <a href="../README.md" target="_blank">
+    <img src="../docs/assets/translation/eeuu-flag.svg" width="65" height="40" alt="English" />
   </a>
 </div>
 
@@ -31,18 +31,18 @@
 
 <div align="center">
 
-# Fitness Training Management Platform ![(status-completed)](./docs/assets/icons/badges/status-completed.svg)
+# Fitness Training Management Platform ![(status-completed)](../docs/assets/icons/badges/status-completed.svg)
 
 </div>
 
 Aplicación de escritorio para **centros de entrenamiento y gimnasios**: clientes, membresías, pagos, recepción (check-in), personal, entrenamiento, evaluaciones, nutrición y **analytics** (reportes tabulares y gráficos). Implementada con **Java 21**, **JavaFX**, **PostgreSQL 16**, **Flyway**, **Maven** y despliegue portable o con instalador para Windows.
 
-* [¿Qué ejecutar? (entrega al cliente)](./install/QUE-EJECUTAR.md) — **empezar aquí si empaquetás el zip**
-* [Documentación](./docs/README.md) — capturas y especificación funcional
-* [Instalación en cliente](./install/CLIENTE.md)
-* [Configurar Java y PostgreSQL](./install/CONFIGURAR-JAVA-POSTGRES.md)
-* [Instalación para desarrollo](./install/DESARROLLO.md)
-* [Especificación funcional](./docs/especificacion-funcional.md)
+* [¿Qué ejecutar? (entrega al cliente)](../install/QUE-EJECUTAR.md) — **empezar aquí si empaquetás el zip**
+* [Documentación](../docs/README.md) — capturas y especificación funcional
+* [Instalación en cliente](../install/CLIENTE.md)
+* [Configurar Java y PostgreSQL](../install/CONFIGURAR-JAVA-POSTGRES.md)
+* [Instalación para desarrollo](../install/DESARROLLO.md)
+* [Especificación funcional](../docs/especificacion-funcional.md)
 
 <br>
 
@@ -152,7 +152,7 @@ La aplicación sigue una **arquitectura por capas** con módulos de dominio y un
 4. Servicios de dominio y repositorios JDBC
 5. Persistencia en PostgreSQL con esquema versionado por **Flyway**
 
-**Fuera de alcance en esta etapa:** liquidación de haberes y asistencia de profesores (ver [especificación funcional](./docs/especificacion-funcional.md)).
+**Fuera de alcance en esta etapa:** liquidación de haberes y asistencia de profesores (ver [especificación funcional](../docs/especificacion-funcional.md)).
 
 <br>
 
@@ -190,7 +190,7 @@ O usar el script de desarrollo:
 run.bat
 ```
 
-La primera ejecución puede abrir **Configurar conexión** si no existe `.env` o la base no responde. Valores por defecto en [.env.example](./.env.example).
+La primera ejecución puede abrir **Configurar conexión** si no existe `.env` o la base no responde. Valores por defecto en [.env.example](../.env.example).
 
 <br>
 
@@ -254,7 +254,7 @@ mvn javafx:run
 | `POSTGRES_USER` | Usuario | `postgres` |
 | `POSTGRES_PASSWORD` | Contraseña | *(cambiar en producción)* |
 
-`docker-compose.yml` levanta PostgreSQL 16 con volumen persistente. Detalle de instalación en PC del cliente: [install/CLIENTE.md](./install/CLIENTE.md).
+`docker-compose.yml` levanta PostgreSQL 16 con volumen persistente. Detalle de instalación en PC del cliente: [install/CLIENTE.md](../install/CLIENTE.md).
 
 <br>
 
@@ -303,7 +303,7 @@ mvn javafx:run
 | **Analytics — Reportes** | Vencimientos, mora, ingresos, ocupación + CSV | Admin |
 | **Analytics — Gráficos** | Charts JavaFX de los mismos indicadores | Admin |
 
-Estado detallado de requerimientos (RF) y casos de uso: [docs/especificacion-funcional.md](./docs/especificacion-funcional.md).
+Estado detallado de requerimientos (RF) y casos de uso: [docs/especificacion-funcional.md](../docs/especificacion-funcional.md).
 
 <br>
 
@@ -367,19 +367,19 @@ mvn compile
   <summary>Ver detalle</summary>
   <br>
 
-Capturas actualizadas al **27/08/2026**. Más detalle en [docs/README.md](./docs/README.md).
+Capturas actualizadas al **27/08/2026**. Más detalle en [docs/README.md](../docs/README.md).
 
 | Panel | Login | Recepción |
 |:---:|:---:|:---:|
-| ![Panel](./docs/img/panel-inicio.png) | ![Login](./docs/img/login-iniciar-sesion.png) | ![Recepción](./docs/img/recepcion-control-ingreso.png) |
+| ![Panel](../docs/img/panel-inicio.png) | ![Login](../docs/img/login-iniciar-sesion.png) | ![Recepción](../docs/img/recepcion-control-ingreso.png) |
 
 | Pagos | Nutrición | Analytics — Reportes |
 |:---:|:---:|:---:|
-| ![Pagos](./docs/img/pagos-listado-cobro.png) | ![Nutrición](./docs/img/nutricion-turno-detalle.png) | ![Reportes](./docs/img/analytics-reportes-mora.png) |
+| ![Pagos](../docs/img/pagos-listado-cobro.png) | ![Nutrición](../docs/img/nutricion-turno-detalle.png) | ![Reportes](../docs/img/analytics-reportes-mora.png) |
 
 | Analytics — Gráficos |
 |:---:|
-| ![Gráficos](./docs/img/analytics-graficos.png) |
+| ![Gráficos](../docs/img/analytics-graficos.png) |
 
 Para reemplazar imágenes: agrega archivos en `docs/img/` con nombre descriptivo y actualiza `docs/assets/app-hero.png` si cambia el banner principal.
 
@@ -441,10 +441,10 @@ Disponibles cuando los seeders de desarrollo están activos:
 
 | Recurso | Enlace |
 |---------|--------|
-| Documentación de capturas | [docs/README.md](./docs/README.md) |
-| Especificación funcional | [docs/especificacion-funcional.md](./docs/especificacion-funcional.md) |
-| Instalación cliente | [install/CLIENTE.md](./install/CLIENTE.md) |
-| Instalación desarrollo | [install/DESARROLLO.md](./install/DESARROLLO.md) |
+| Documentación de capturas | [docs/README.md](../docs/README.md) |
+| Especificación funcional | [docs/especificacion-funcional.md](../docs/especificacion-funcional.md) |
+| Instalación cliente | [install/CLIENTE.md](../install/CLIENTE.md) |
+| Instalación desarrollo | [install/DESARROLLO.md](../install/DESARROLLO.md) |
 | Ejemplo de README (estructura) | [ApiRest_Electronic_Devices_ExpressJS](https://github.com/andresWeitzel/ApiRest_Electronic_Devices_ExpressJS) |
 | Referencia Club Deportivo (C#) | `DSOO_ClubDeportivo_ref` (módulo Reportes) |
 
@@ -470,9 +470,9 @@ Genera `target\FitnessTraining-client-win64.zip` con la **aplicación**. El gimn
 | `run.bat` | Desarrollador | Probar cambios en tu PC |
 | `Iniciar.bat` | Cliente | Dentro del zip descomprimido |
 
-Conexión a la base: Docker (opcional), PostgreSQL local, o servidor en red — ver [install/CLIENTE.md](./install/CLIENTE.md).
+Conexión a la base: Docker (opcional), PostgreSQL local, o servidor en red — ver [install/CLIENTE.md](../install/CLIENTE.md).
 
-Detalle: [install/QUE-EJECUTAR.md](./install/QUE-EJECUTAR.md)
+Detalle: [install/QUE-EJECUTAR.md](../install/QUE-EJECUTAR.md)
 
 <br>
 
@@ -482,4 +482,4 @@ Detalle: [install/QUE-EJECUTAR.md](./install/QUE-EJECUTAR.md)
 
 ## Licencia
 
-GPL-3.0 — ver [LICENSE](./LICENSE).
+GPL-3.0 — ver [LICENSE](../LICENSE).
