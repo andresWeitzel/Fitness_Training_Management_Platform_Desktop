@@ -5,20 +5,14 @@
 </div>
 
 <div align="right">
-  <img width="25" height="25" src="https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white" alt="Java" />
-  <img width="25" height="25" src="https://img.shields.io/badge/JavaFX-21-007396?logo=openjdk&logoColor=white" alt="JavaFX" />
-  <img width="25" height="25" src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL" />
-  <img width="25" height="25" src="https://img.shields.io/badge/Maven-3.9-C71A36?logo=apachemaven&logoColor=white" alt="Maven" />
-  <img width="25" height="25" src="https://img.shields.io/badge/Flyway-migrations-CC0200?logo=flyway&logoColor=white" alt="Flyway" />
+  <img width="25" height="25" src="./docs/assets/icons/backend/java/png/java.png" alt="Java" />
+  <img width="25" height="25" src="./docs/assets/icons/backend/java/png/jsf.png" alt="JavaFX" />
+  <img width="25" height="25" src="./docs/assets/icons/database/png/postgres.png" alt="PostgreSQL" />
+  <img width="25" height="25" src="./docs/assets/icons/devops/png/maven.png" alt="Maven" />
+  <img width="25" height="25" src="./docs/assets/icons/devops/png/ci-circle.png" alt="Flyway" />
   <img width="25" height="25" src="./docs/assets/icons/devops/png/docker.png" alt="Docker" />
   <img width="25" height="25" src="./docs/assets/icons/devops/png/git.png" alt="Git" />
-</div>
-
-<br>
-
-<br>
-
-<div align="right">
+  &nbsp;&nbsp;
   <a href="./translations/README.es.md" target="_blank">
     <img src="./docs/assets/translation/arg-flag.svg" width="65" height="40" alt="Español" />
   </a>
@@ -35,14 +29,9 @@
 
 </div>
 
-Aplicación de escritorio para **centros de entrenamiento y gimnasios**: clientes, membresías, pagos, recepción (check-in), personal, entrenamiento, evaluaciones, nutrición y **analytics** (reportes tabulares y gráficos). Implementada con **Java 21**, **JavaFX**, **PostgreSQL 16**, **Flyway**, **Maven** y despliegue portable o con instalador para Windows.
+Aplicación de escritorio para centros de entrenamiento y gimnasios: clientes, membresías, pagos, recepción, personal, entrenamiento, evaluaciones, nutrición y analytics.
 
-* [¿Qué ejecutar? (entrega al cliente)](./install/QUE-EJECUTAR.md) — **empezar aquí si empaquetás el zip**
-* [Documentación](./docs/README.md) — capturas y especificación funcional
-* [Instalación en cliente](./install/CLIENTE.md)
-* [Configurar Java y PostgreSQL](./install/CONFIGURAR-JAVA-POSTGRES.md)
-* [Instalación para desarrollo](./install/DESARROLLO.md)
-* [Especificación funcional](./docs/especificacion-funcional.md)
+Java 21, JavaFX, PostgreSQL 16, Flyway, Maven, Docker Compose y despliegue portable para Windows.
 
 <br>
 
@@ -57,22 +46,17 @@ Aplicación de escritorio para **centros de entrenamiento y gimnasios**: cliente
 
 </div>
 
-### Sección 1) Descripción, configuración y tecnologías
+### Sección 1) Descripción y configuración
 
 * [1.0) Descripción del proyecto](#10-descripción-del-proyecto-)
-* [1.1) Ejecución del proyecto](#11-ejecución-del-proyecto-)
-* [1.2) Configuración desde cero](#12-configuración-desde-cero-)
-* [1.3) Base de datos (Docker / PostgreSQL)](#13-base-de-datos-docker--postgresql-)
-* [1.4) Tecnologías](#14-tecnologías-)
-* [1.5) Módulos disponibles](#15-módulos-disponibles-)
+* [1.1) Desarrollo y configuración](#11-desarrollo-y-configuración-)
+* [1.2) Tecnologías y módulos](#12-tecnologías-y-módulos-)
 
 ### Sección 2) Pruebas
 
-* [2.0) Resumen de pruebas](#20-resumen-de-pruebas-)
-* [2.1) Comandos](#21-comandos-)
-* [2.2) Cobertura y tipos](#22-cobertura-y-tipos-)
+* [2.0) Pruebas](#20-pruebas-)
 
-### Sección 3) Capturas de la aplicación
+### Sección 3) Capturas
 
 * [3.0) Galería de pantallas](#30-galería-de-pantallas-)
 
@@ -80,8 +64,10 @@ Aplicación de escritorio para **centros de entrenamiento y gimnasios**: cliente
 
 * [4.0) Cuentas demo](#40-cuentas-demo-)
 * [4.1) Estructura del repositorio](#41-estructura-del-repositorio-)
-* [4.2) Referencias](#42-referencias-)
+* [4.2) Documentación](#42-documentación-)
 * [4.3) Entrega al gimnasio](#43-entrega-al-gimnasio-)
+* [4.4) Pruebas funcionales (YouTube)](#44-pruebas-funcionales-youtube-)
+* [4.5) Licencia](#45-licencia-)
 
 <br>
 
@@ -89,7 +75,7 @@ Aplicación de escritorio para **centros de entrenamiento y gimnasios**: cliente
 
 <br>
 
-## Sección 1) Descripción, configuración y tecnologías
+## Sección 1) Descripción y configuración
 
 ### 1.0) Descripción del proyecto [🔝](#index-)
 
@@ -97,170 +83,43 @@ Aplicación de escritorio para **centros de entrenamiento y gimnasios**: cliente
   <summary>Ver detalle</summary>
   <br>
 
-#### 1.0.0) Descripción general
+Fitness Training Management Platform es una aplicación de escritorio (Windows) para la operación diaria de un centro de entrenamiento: clientes y credenciales (carnet, QR), membresías, pagos, recepción, personal, entrenamiento, evaluaciones, nutrición y analytics (reportes + gráficos).
 
-**Fitness Training Management Platform** es una aplicación **de escritorio (Windows)** para la operación diaria de un centro de entrenamiento. Centraliza la gestión de clientes y credenciales (carnet y QR), membresías y vencimientos, cobros y mora, control de acceso en recepción, staff interno, rutinas y ejercicios, evaluaciones físicas, nutrición y reportes de gestión.
+Características: multi-rol (admin, recepción, entrenador, nutricionista), check-in con bloqueo por mora, exportación CSV para Excel, conexión a PostgreSQL (Docker, sistema o red) y migraciones Flyway.
 
-**Características principales:**
+Fuera de alcance en esta etapa: liquidación de haberes y asistencia de profesores ([especificación funcional](./docs/especificacion-funcional.md)).
 
-- **Multi-rol:** administrador, recepción, entrenador y nutricionista con menú filtrado por permisos
-- **Clientes y credenciales:** alta/edición, baja lógica, carnet con vencimiento, QR para check-in
-- **Membresías y pagos:** planes, cobros, mora, reactivación de acceso
-- **Recepción:** check-in por carnet/QR, histórico, bloqueo por deuda
-- **Entrenamiento y evaluaciones:** ejercicios, rutinas e historial de evaluaciones
-- **Nutrición:** turnos, planes y ficha de salud
-- **Analytics:** reportes (vencimientos, mora, ingresos, ocupación) con exportación CSV para Excel y gráficos JavaFX
-- **Instalación guiada:** primera conexión a PostgreSQL, migraciones Flyway y paquete portable para el cliente
-
-**Usuarios objetivo:**
-
-- Dueños y administradores de gimnasios / centros de entrenamiento
-- Personal de recepción y mostrador
-- Entrenadores y nutricionistas del staff
-- Proveedores que despliegan la solución en la PC del cliente
-
-#### 1.0.1) Arquitectura y operación
-
-La aplicación sigue una **arquitectura por capas** con módulos de dominio y una shell JavaFX común:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Presentación (JavaFX)                    │
-│  ┌──────────────┐  ┌──────────────┐  ┌────────────────────┐ │
-│  │  Shell / Nav │  │  FXML Views  │  │  Controllers       │ │
-│  └──────────────┘  └──────────────┘  └────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
-┌─────────────────────────────────────────────────────────────┐
-│                    Lógica de negocio                        │
-│  ┌──────────────┐  ┌──────────────┐  ┌────────────────────┐ │
-│  │   Services   │  │   DTOs       │  │  Seeders / Export  │ │
-│  └──────────────┘  └──────────────┘  └────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
-┌─────────────────────────────────────────────────────────────┐
-│                    Acceso a datos                           │
-│  ┌──────────────┐  ┌──────────────┐  ┌────────────────────┐ │
-│  │ Repositories │  │   JDBC       │  │  PostgreSQL 16     │ │
-│  └──────────────┘  └──────────────┘  └────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**Flujo típico:**
-
-1. Login con usuario/contraseña (BCrypt) y sesión por rol
-2. Navegación lateral según permisos (`NavigationCatalog`)
-3. Pantallas FXML + controladores por módulo
-4. Servicios de dominio y repositorios JDBC
-5. Persistencia en PostgreSQL con esquema versionado por **Flyway**
-
-**Fuera de alcance en esta etapa:** liquidación de haberes y asistencia de profesores (ver [especificación funcional](./docs/especificacion-funcional.md)).
+Arquitectura por capas: JavaFX (FXML) → servicios de dominio → JDBC → PostgreSQL 16.
 
 <br>
 
 </details>
 
-### 1.1) Ejecución del proyecto [🔝](#index-)
+### 1.1) Desarrollo y configuración [🔝](#index-)
 
 <details>
   <summary>Ver detalle</summary>
   <br>
 
-#### Requisitos previos
+Requisitos: JDK 21, Maven 3.9+, Windows 10/11. Base de datos: Docker Desktop o PostgreSQL 16 instalado en el sistema.
 
-| Requisito | Detalle |
-|-----------|---------|
-| **Java** | JDK 21 ([Adoptium](https://adoptium.net/) u OpenJDK) |
-| **Maven** | 3.9+ |
-| **Docker** (opción recomendada) | Docker Desktop para PostgreSQL local |
-| **PostgreSQL** (alternativa) | 16 instalado en Windows sin Docker |
-| **SO** | Windows 10/11 (64 bits) |
-
-#### Inicio rápido (desarrollo)
-
-```bat
-# 1. Base de datos con Docker
-docker compose up -d
-
-# 2. Compilar y ejecutar
-mvn javafx:run
-```
-
-O usar el script de desarrollo:
-
-```bat
-run.bat
-```
-
-La primera ejecución puede abrir **Configurar conexión** si no existe `.env` o la base no responde. Valores por defecto en [.env.example](./.env.example).
-
-<br>
-
-</details>
-
-### 1.2) Configuración desde cero [🔝](#index-)
-
-<details>
-  <summary>Ver detalle</summary>
-  <br>
-
-#### Paso 1: Clonar el repositorio
-
-```bat
-git clone <url-del-repositorio>
-cd Fitness_Training_Management_Platform-Desktop
-```
-
-#### Paso 2: Variables de entorno
+Probar en tu PC (desarrollo):
 
 ```bat
 copy .env.example .env
-```
-
-Editar `.env` con puerto, nombre de base, usuario y contraseña de PostgreSQL.
-
-#### Paso 3: Base de datos y migraciones
-
-Con Docker:
-
-```bat
 docker compose up -d
+run.bat
 ```
 
-Flyway se ejecuta al iniciar la aplicación (o con el perfil Maven correspondiente en desarrollo).
+`run.bat` compila y ejecuta la app desde el código fuente. No genera el zip del cliente.
 
-#### Paso 4: Datos demo (opcional)
-
-Al arrancar en modo desarrollo se pueden cargar usuarios, clientes, membresías, pagos y datos de analytics de demostración (seeders en `com.fitnesstraining.bootstrap`).
-
-#### Paso 5: Ejecutar la aplicación
-
-```bat
-mvn javafx:run
-```
+Variables en `.env`: `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`. Flyway corre al iniciar la app. En desarrollo se cargan datos demo (seeders).
 
 <br>
 
 </details>
 
-### 1.3) Base de datos (Docker / PostgreSQL) [🔝](#index-)
-
-<details>
-  <summary>Ver detalle</summary>
-  <br>
-
-| Variable | Descripción | Ejemplo |
-|----------|-------------|---------|
-| `POSTGRES_PORT` | Puerto PostgreSQL | `5432` |
-| `POSTGRES_DB` | Nombre de la base | `fitness_training` |
-| `POSTGRES_USER` | Usuario | `postgres` |
-| `POSTGRES_PASSWORD` | Contraseña | *(cambiar en producción)* |
-
-`docker-compose.yml` levanta PostgreSQL 16 con volumen persistente. Detalle de instalación en PC del cliente: [install/CLIENTE.md](./install/CLIENTE.md).
-
-<br>
-
-</details>
-
-### 1.4) Tecnologías [🔝](#index-)
+### 1.2) Tecnologías y módulos [🔝](#index-)
 
 <details>
   <summary>Ver detalle</summary>
@@ -268,98 +127,43 @@ mvn javafx:run
 
 | Área | Tecnología |
 |------|------------|
-| Runtime | Java 21 |
-| UI | JavaFX 21, FXML |
+| Runtime / UI | Java 21, JavaFX 21, FXML |
 | Build | Maven |
-| Base de datos | PostgreSQL 16 |
-| Migraciones | Flyway |
-| Seguridad | BCrypt (contraseñas) |
-| Contenedor DB | Docker Compose |
-| Exportación | CSV (Windows-1252, compatible Excel) |
+| Base de datos | PostgreSQL 16, Flyway |
+| Seguridad | BCrypt |
+| Contenedor DB | Docker Compose (opcional) |
 | Pruebas | JUnit 5, Mockito |
-| Despliegue cliente | `package.bat` → zip; cliente con Java 21 + PostgreSQL (Docker opcional) |
+
+| Módulo | Rol típico |
+|--------|------------|
+| Panel, Clientes, Membresías, Pagos | Admin, Recepción |
+| Recepción (check-in) | Recepción |
+| Personal | Admin |
+| Entrenamiento, Evaluaciones | Admin, Entrenador |
+| Nutrición | Admin, Nutricionista |
+| Analytics (reportes y gráficos) | Admin |
 
 <br>
 
 </details>
 
-### 1.5) Módulos disponibles [🔝](#index-)
-
-<details>
-  <summary>Ver detalle</summary>
-  <br>
-
-| Módulo | Descripción | Rol típico |
-|--------|-------------|------------|
-| **Panel** | KPIs: clientes activos, carnets, QR, bajas | Todos (según permiso) |
-| **Clientes** | Ficha, listado, filtros, baja lógica, carnet, QR | Admin, Recepción |
-| **Membresías** | Planes, altas, vencimientos | Admin, Recepción |
-| **Pagos** | Cobros, mora, reactivación | Admin, Recepción |
-| **Recepción** | Check-in carnet/QR, histórico | Recepción |
-| **Personal** | ABM usuarios internos y roles | Admin |
-| **Entrenamiento** | Ejercicios y rutinas | Admin, Entrenador |
-| **Evaluaciones** | Historial de evaluaciones físicas | Admin, Entrenador |
-| **Nutrición** | Turnos, planes, ficha de salud | Admin, Nutricionista |
-| **Analytics — Reportes** | Vencimientos, mora, ingresos, ocupación + CSV | Admin |
-| **Analytics — Gráficos** | Charts JavaFX de los mismos indicadores | Admin |
-
-Estado detallado de requerimientos (RF) y casos de uso: [docs/especificacion-funcional.md](./docs/especificacion-funcional.md).
-
 <br>
-
-</details>
 
 ## Sección 2) Pruebas
 
-### 2.0) Resumen de pruebas [🔝](#index-)
+### 2.0) Pruebas [🔝](#index-)
 
-<details>
-  <summary>Ver detalle</summary>
-  <br>
-
-El proyecto incluye pruebas unitarias y de servicio en `src/test/java`, con foco en lógica de negocio, exportación CSV y analytics.
-
-<br>
-
-</details>
-
-### 2.1) Comandos [🔝](#index-)
-
-<details>
-  <summary>Ver detalle</summary>
-  <br>
+Pruebas en `src/test/java` (lógica de negocio, CSV, analytics).
 
 ```bat
-# Todas las pruebas
 mvn test
-
-# Una clase
 mvn test -Dtest=CsvExporterTest
-
-# Compilar sin ejecutar
 mvn compile
 ```
 
 <br>
 
-</details>
-
-### 2.2) Cobertura y tipos [🔝](#index-)
-
-<details>
-  <summary>Ver detalle</summary>
-  <br>
-
-| Tipo | Ubicación | Ejemplos |
-|------|-----------|----------|
-| Unitarias | `src/test/java` | `CsvExporterTest`, servicios de dominio |
-| Integración ligera | Servicios + repositorios con DB de test | Según perfil Maven / testcontainers si está configurado |
-
-<br>
-
-</details>
-
-## Sección 3) Capturas de la aplicación
+## Sección 3) Capturas
 
 ### 3.0) Galería de pantallas [🔝](#index-)
 
@@ -367,7 +171,7 @@ mvn compile
   <summary>Ver detalle</summary>
   <br>
 
-Capturas actualizadas al **27/08/2026**. Más detalle en [docs/README.md](./docs/README.md).
+Capturas: 27/08/2026 — [docs/README.md](./docs/README.md)
 
 | Panel | Login | Recepción |
 |:---:|:---:|:---:|
@@ -381,21 +185,17 @@ Capturas actualizadas al **27/08/2026**. Más detalle en [docs/README.md](./docs
 |:---:|
 | ![Gráficos](./docs/img/analytics-graficos.png) |
 
-Para reemplazar imágenes: agrega archivos en `docs/img/` con nombre descriptivo y actualiza `docs/assets/app-hero.png` si cambia el banner principal.
-
 <br>
 
 </details>
+
+<br>
 
 ## Sección 4) Referencias y entrega
 
 ### 4.0) Cuentas demo [🔝](#index-)
 
-<details>
-  <summary>Ver detalle</summary>
-  <br>
-
-Disponibles cuando los seeders de desarrollo están activos:
+Con seeders de desarrollo activos (no usar en producción):
 
 | Usuario | Contraseña | Rol |
 |---------|------------|-----|
@@ -404,82 +204,49 @@ Disponibles cuando los seeders de desarrollo están activos:
 | `juan_prof` | `prof123` | Entrenador |
 | `maria_nutri` | `nutri123` | Nutricionista |
 
-**No usar estas credenciales en producción.**
-
-<br>
-
-</details>
-
 ### 4.1) Estructura del repositorio [🔝](#index-)
 
-<details>
-  <summary>Ver detalle</summary>
-  <br>
-
 ```
-├── docs/                    # Especificación, capturas, assets del README
-│   ├── assets/              # app-hero.png, badges
-│   ├── img/                 # Capturas por módulo (nombre descriptivo)
-│   └── especificacion-funcional.md
-├── install/                 # Guías CLIENTE y DESARROLLO
-├── src/main/java/           # Código Java (módulos por paquete)
-├── src/main/resources/      # FXML, estilos, migraciones Flyway
-├── docker-compose.yml
-├── package.bat              # Genera entrega para cliente
-└── pom.xml
+├── docs/           # Especificación, capturas, assets
+├── install/        # Guías de instalación
+├── src/            # Código, FXML, migraciones Flyway
+├── run.bat         # Desarrollo: compilar y ejecutar
+├── package.bat     # Generar zip para el gimnasio
+└── docker-compose.yml
 ```
 
-<br>
+### 4.2) Documentación [🔝](#index-)
 
-</details>
-
-### 4.2) Referencias [🔝](#index-)
-
-<details>
-  <summary>Ver detalle</summary>
-  <br>
-
-| Recurso | Enlace |
-|---------|--------|
-| Documentación de capturas | [docs/README.md](./docs/README.md) |
-| Especificación funcional | [docs/especificacion-funcional.md](./docs/especificacion-funcional.md) |
-| Instalación cliente | [install/CLIENTE.md](./install/CLIENTE.md) |
-| Instalación desarrollo | [install/DESARROLLO.md](./install/DESARROLLO.md) |
-| Ejemplo de README (estructura) | [ApiRest_Electronic_Devices_ExpressJS](https://github.com/andresWeitzel/ApiRest_Electronic_Devices_ExpressJS) |
-| Referencia Club Deportivo (C#) | `DSOO_ClubDeportivo_ref` (módulo Reportes) |
-
-<br>
-
-</details>
+* [¿Qué ejecutar?](./install/QUE-EJECUTAR.md)
+* [Capturas y assets](./docs/README.md)
+* [Instalación cliente](./install/CLIENTE.md)
+* [Configurar Java y PostgreSQL](./install/CONFIGURAR-JAVA-POSTGRES.md)
+* [Desarrollo](./install/DESARROLLO.md)
+* [Especificación funcional](./docs/especificacion-funcional.md)
+* [README de referencia (estructura)](https://github.com/andresWeitzel/ApiRest_Electronic_Devices_ExpressJS)
 
 ### 4.3) Entrega al gimnasio [🔝](#index-)
 
-<details>
-  <summary>Ver detalle</summary>
-  <br>
+| Script | Quién | Qué hace |
+|--------|-------|----------|
+| `run.bat` | Desarrollador | Prueba la app en tu PC (Maven + código fuente). No genera zip. |
+| `package.bat` | Desarrollador | Compila y crea `target\FitnessTraining-client-win64.zip` (solo la app). |
+| `Iniciar.bat` | Cliente | Dentro del zip: abre la app (+ Docker si está instalado). |
 
-```bat
-package.bat
-```
+El zip no incluye Java ni PostgreSQL. El gimnasio los instala una vez en el sistema (o usa Docker). Guía: [CONFIGURAR-JAVA-POSTGRES.md](./install/CONFIGURAR-JAVA-POSTGRES.md).
 
-Genera `target\FitnessTraining-client-win64.zip` con la **aplicación**. El gimnasio instala **Java 21** y **PostgreSQL 16** (o usa Docker si lo tiene).
+Conexión a la base: Docker (opcional), PostgreSQL local o servidor en red — [CLIENTE.md](./install/CLIENTE.md).
 
-| Script | Quién | Uso |
-|--------|-------|-----|
-| `package.bat` | Desarrollador | Zip para entregar al gimnasio |
-| `run.bat` | Desarrollador | Probar cambios en tu PC |
-| `Iniciar.bat` | Cliente | Dentro del zip descomprimido |
+### 4.4) Pruebas funcionales (YouTube) [🔝](#index-)
 
-Conexión a la base: Docker (opcional), PostgreSQL local, o servidor en red — ver [install/CLIENTE.md](./install/CLIENTE.md).
+Playlist de pruebas funcionales (próximamente).
 
-Detalle: [install/QUE-EJECUTAR.md](./install/QUE-EJECUTAR.md)
+<!-- Agregar enlace cuando esté publicado:
+* [Playlist YouTube](https://www.youtube.com/...) <img src="./docs/assets/icons/social-networks/yt.svg" width="25" />
+-->
 
-<br>
-
-</details>
-
----
-
-## Licencia
+### 4.5) Licencia [🔝](#index-)
 
 GPL-3.0 — ver [LICENSE](./LICENSE).
+
+<br>

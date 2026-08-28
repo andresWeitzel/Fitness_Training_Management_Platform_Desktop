@@ -15,13 +15,15 @@
 package.bat
 ```
 
-Crea `target\FitnessTraining-client-win64.zip` con la **aplicación** (sin Java ni PostgreSQL dentro).
+Compila la app y crea `target\FitnessTraining-client-win64.zip` (solo la aplicación, sin Java ni PostgreSQL dentro).
 
-Desarrollo día a día:
+Probar en tu PC (no es la entrega al cliente):
 
 ```bat
 run.bat
 ```
+
+`run.bat` compila desde el código fuente y abre la app. No genera el zip.
 
 ---
 

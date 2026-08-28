@@ -8,7 +8,23 @@ Galería de la aplicación **Fitness Training Management Platform** (versión ac
 
 | Archivo | Uso |
 |---------|-----|
-| [`assets/app-hero.png`](./assets/app-hero.png) | Banner principal del README (copia de `panel-inicio.png`) |
+| [`assets/app-hero.png`](./assets/app-hero.png) | Banner principal del README |
+
+## Íconos del README (stack tecnológico)
+
+Ruta: [`assets/icons/`](./assets/icons/) — mismo esquema que ApiRest (`backend/`, `database/`, `devops/`), **25×25 px** en el README.
+
+| Ícono | Archivo |
+|-------|---------|
+| Java | `icons/backend/java/png/java.png` |
+| JavaFX | `icons/backend/java/png/jsf.png` |
+| PostgreSQL | `icons/database/png/postgres.png` |
+| Maven | `icons/devops/png/maven.png` |
+| Flyway | `icons/devops/png/ci-circle.png` |
+| Docker | `icons/devops/png/docker.png` |
+| Git | `icons/devops/png/git.png` |
+
+Banderas: `assets/translation/arg-flag.svg`, `eeuu-flag.svg`.
 
 Para cambiar la imagen del README, reemplaza `docs/assets/app-hero.png` o copia otra captura desde `img/`.
 
