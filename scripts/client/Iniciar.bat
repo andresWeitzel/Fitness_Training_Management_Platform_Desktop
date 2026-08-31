@@ -12,13 +12,44 @@ echo   Carpeta: %~dp0
 echo.
 
 if not exist "%~dp0app\FitnessTraining.bat" (
+    set "REPO_ROOT=%~dp0..\..\"
+    set "CLIENT_DIST=%REPO_ROOT%target\client-dist\Iniciar.bat"
+
+  REM Ejecutado desde scripts\client del repositorio (desarrollo)
+    if exist "%CLIENT_DIST%" (
+        echo [INFO] Repositorio detectado. Usando entrega empaquetada en target\client-dist\
+        echo.
+        call "%CLIENT_DIST%"
+        exit /b %ERRORLEVEL%
+    )
+
     echo [ERROR] No se encuentra app\FitnessTraining.bat
     echo.
-    echo  Ejecute Iniciar.bat desde la carpeta del zip descomprimido
-    echo  ^(Iniciar.bat, app\ y scripts\ en el mismo nivel^).
+    echo  Carpeta actual: %~dp0
     echo.
-    echo  Desarrollo: scripts\dev\client\start-client-dist.bat
-    echo  Empaquetar: scripts\dev\build\package.bat
+
+    echo %~dp0 | findstr /i "\\scripts\\client\\" >nul
+    if not errorlevel 1 (
+        echo  Ejecuto desde scripts\client del REPOSITORIO, no del zip de entrega.
+        echo.
+        echo  Para probar como cliente ^(gimnasio^):
+        echo    1. En la PC de desarrollo: scripts\dev\build\package.bat
+        echo    2. Copiar target\FitnessTraining.zip a esta PC
+        echo    3. Descomprimir en C:\FitnessTraining ^(ruta corta^)
+        echo    4. Ejecutar C:\FitnessTraining\Iniciar.bat
+        echo.
+        echo  El repositorio Git NO es la entrega al gimnasio.
+        echo.
+        echo  Para desarrollo en este repo ^(con Maven^):
+        echo    scripts\dev\build\package.bat   ^(genera el zip primero^)
+        echo    scripts\dev\client\start-client-dist.bat
+    ) else (
+        echo  Ejecute Iniciar.bat desde la carpeta del ZIP descomprimido
+        echo  ^(Iniciar.bat, app\ y scripts\ en el mismo nivel^).
+        echo.
+        echo  Ejemplo: C:\FitnessTraining\Iniciar.bat
+        echo  Ver DESCOMPRIMIR.txt si Windows dice "ruta demasiado larga".
+    )
     goto :fin_error
 )
 

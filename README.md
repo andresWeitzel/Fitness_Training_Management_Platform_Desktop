@@ -117,13 +117,15 @@ Mapa completo: [scripts/README.md](./scripts/README.md) · [¿Qué ejecutar?](./
 
 ### Cliente (gimnasio)
 
-Descomprimir el zip y ejecutar:
+El gimnasio recibe **`target\FitnessTraining.zip`**, no el repositorio Git. Descomprimir en `C:\FitnessTraining` y ejecutar:
 
 ```bat
 Iniciar.bat
 ```
 
-**Windows:** descomprimir en una ruta corta (`C:\FitnessTraining`). Si aparece *ruta de acceso demasiado larga*, no descomprimir dentro de `scripts\client\` ni carpetas profundas del proyecto — mover el zip a `C:\` y extraer allí. Ver `DESCOMPRIMIR.txt` en el zip.
+**Windows:** descomprimir en una ruta corta (`C:\FitnessTraining`). Si aparece *ruta de acceso demasiado larga*, mover el zip a `C:\` y extraer allí. Ver `DESCOMPRIMIR.txt` en el zip.
+
+**No ejecutar** `scripts\client\Iniciar.bat` del repo clonado: ahí no está `app\`. Si clonaste el repo para probar, primero `scripts\dev\build\package.bat` y usa el zip, o `scripts\dev\client\start-client-dist.bat` tras empaquetar.
 
 | Acción | Comando |
 |--------|---------|
