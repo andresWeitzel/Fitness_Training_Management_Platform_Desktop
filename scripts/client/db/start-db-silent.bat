@@ -51,9 +51,13 @@ if not exist ".env" (
 echo Levantando PostgreSQL con docker compose...
 docker compose up -d
 if errorlevel 1 (
-    echo [ERROR] docker compose up -d fallo.
-    endlocal
-    exit /b 1
+    docker start fitness-training-postgres >nul 2>&1
+    if errorlevel 1 (
+        echo [ERROR] docker compose up -d fallo.
+        endlocal
+        exit /b 1
+    )
+    echo [OK] Contenedor fitness-training-postgres ya existia, iniciado.
 )
 
 docker compose ps

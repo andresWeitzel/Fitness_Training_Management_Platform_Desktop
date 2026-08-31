@@ -1,8 +1,14 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 
-title Fitness Training
+title Fitness Training - Iniciando...
 set "FT_AUTO_INSTALL=1"
+set "ERR=0"
+
+echo.
+echo  Iniciando Fitness Training...
+echo  Carpeta script: %~dp0
+echo.
 
 set "ROOT="
 set "CUR=%~dp0"
@@ -38,7 +44,7 @@ for /L %%n in (1,1,10) do (
 )
 
 :repo_found
-echo [INFO] Primera ejecucion desde GitHub: instalando herramientas si faltan...
+echo [INFO] Primera ejecucion: instalando herramientas si faltan...
 echo.
 
 call "!REPO!scripts\client\java\check-java.bat"
@@ -47,7 +53,7 @@ if errorlevel 1 goto :show_help
 call "!REPO!scripts\client\maven\check-maven.bat"
 if errorlevel 1 goto :show_help
 
-echo [INFO] Compilando aplicacion...
+echo [INFO] Compilando aplicacion ^(puede tardar varios minutos^)...
 call "!REPO!scripts\dev\build\assemble-client.bat"
 if errorlevel 1 goto :show_help
 
@@ -59,6 +65,8 @@ goto :show_help
 
 :root_ok
 cd /d "!ROOT!"
+echo [INFO] Usando carpeta: !ROOT!
+echo.
 
 :deliver
 echo  ============================================
@@ -66,17 +74,32 @@ echo   Fitness Training Management Platform
 echo  ============================================
 echo.
 
+if not exist "%ROOT%scripts\setup\validate-package.bat" (
+    echo [ERROR] Paquete incompleto. Falta scripts\setup\validate-package.bat
+    set "ERR=1"
+    goto :fin
+)
+
 call "%ROOT%scripts\setup\validate-package.bat"
-if errorlevel 1 goto :fail
+if errorlevel 1 (
+    set "ERR=1"
+    goto :fin
+)
 
 call "%ROOT%scripts\setup\setup-first-run.bat"
-if errorlevel 1 goto :fail
+if errorlevel 1 (
+    set "ERR=1"
+    goto :fin
+)
 echo [OK] Configuracion inicial.
 echo.
 
 echo [1/5] Verificando Java 21...
 call "%ROOT%scripts\java\check-java.bat"
-if errorlevel 1 goto :fail
+if errorlevel 1 (
+    set "ERR=1"
+    goto :fin
+)
 echo.
 
 echo [2/5] Verificando Docker ^(PostgreSQL^)...
@@ -100,24 +123,22 @@ if not errorlevel 1 (
 
 echo [4/5] Abriendo aplicacion...
 call "%ROOT%app\FitnessTraining.bat"
-if errorlevel 1 goto :fail
+if errorlevel 1 set "ERR=1"
 
-echo.
-echo  Proceso completado.
-pause
-exit /b 0
+goto :fin
 
 :show_help
 echo.
 echo  No se pudo preparar la aplicacion.
-echo  Verifique conexion a internet ^(winget^) y permisos de instalacion.
-echo  Luego ejecute Iniciar.bat de nuevo.
 echo.
-pause
-exit /b 1
+echo  - Ejecute desde la carpeta descomprimida de GitHub
+echo  - Verifique internet ^(winget instala Java, Maven y Docker^)
+echo  - Acepte permisos de administrador si Windows los pide
+echo  - Vuelva a ejecutar Iniciar.bat
+echo.
+set "ERR=1"
+goto :fin
 
-:fail
-echo.
-echo  El inicio no se completo. Revise los mensajes arriba.
-pause
-exit /b 1
+:fin
+endlocal & set "ERR=%ERR%"
+exit /b %ERR%
