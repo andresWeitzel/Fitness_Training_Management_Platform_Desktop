@@ -16,12 +16,11 @@ Iniciar.bat
 
 | Paso (automático) | Qué hace |
 |-------------------|----------|
-| 1 | Compila si es la primera vez desde GitHub |
-| 2 | Configuración local (primera vez) |
-| 3 | Verifica Java 21; ofrece winget si falta |
-| 4 | Verifica Docker (opcional) |
-| 5 | Levanta PostgreSQL si hay Docker |
-| 6 | Abre la app |
+| 1 | Instala Java 21, Maven y Docker con winget si faltan |
+| 2 | Compila la primera vez desde GitHub |
+| 3 | Configuración local |
+| 4 | Levanta PostgreSQL en Docker |
+| 5 | Abre la app |
 
 Solo la app: `app\FitnessTraining.bat`.
 
@@ -29,10 +28,11 @@ Solo la app: `app\FitnessTraining.bat`.
 
 | Requisito | Detalle |
 |-----------|---------|
-| Windows | 10 o superior (64 bits) |
-| Java 21 | Primera vez desde GitHub; `Iniciar.bat` puede instalarlo con winget |
-| Maven | Solo la primera compilación desde GitHub |
-| PostgreSQL 16 | Servicio Windows o Docker |
+| Windows | 10/11 (64 bits) |
+| Internet | Para winget (Java, Maven, Docker) |
+| Permisos | Instalación con winget (admin recomendado) |
+
+`Iniciar.bat` instala Java 21, Maven y Docker automáticamente si no están.
 
 Con Docker: editar `db\.env` (`POSTGRES_PASSWORD`) antes del primer `Iniciar.bat`.
 

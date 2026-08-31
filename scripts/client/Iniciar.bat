@@ -2,6 +2,7 @@
 setlocal EnableExtensions EnableDelayedExpansion
 
 title Fitness Training
+set "FT_AUTO_INSTALL=1"
 
 set "ROOT="
 set "CUR=%~dp0"
@@ -37,12 +38,19 @@ for /L %%n in (1,1,10) do (
 )
 
 :repo_found
-where mvn >nul 2>&1
+echo [INFO] Primera ejecucion desde GitHub: instalando herramientas si faltan...
+echo.
+
+call "!REPO!scripts\client\java\check-java.bat"
 if errorlevel 1 goto :show_help
 
-echo [INFO] Primera ejecucion: compilando aplicacion...
+call "!REPO!scripts\client\maven\check-maven.bat"
+if errorlevel 1 goto :show_help
+
+echo [INFO] Compilando aplicacion...
 call "!REPO!scripts\dev\build\assemble-client.bat"
 if errorlevel 1 goto :show_help
+
 if exist "!REPO!target\client-dist\app\FitnessTraining.bat" (
     set "ROOT=!REPO!target\client-dist\"
     goto :root_ok
@@ -66,34 +74,31 @@ if errorlevel 1 goto :fail
 echo [OK] Configuracion inicial.
 echo.
 
-echo [1/4] Verificando Java 21...
+echo [1/5] Verificando Java 21...
 call "%ROOT%scripts\java\check-java.bat"
 if errorlevel 1 goto :fail
-echo [OK] Java verificado.
 echo.
 
-echo [2/4] Verificando Docker ^(opcional^)...
-where docker >nul 2>&1
-if errorlevel 1 (
-    if exist "%ROOT%scripts\docker\check-docker.bat" call "%ROOT%scripts\docker\check-docker.bat"
-) else (
-    echo [OK] Docker detectado en PATH.
-)
+echo [2/5] Verificando Docker ^(PostgreSQL^)...
+if exist "%ROOT%scripts\docker\check-docker.bat" call "%ROOT%scripts\docker\check-docker.bat"
 echo.
 
 where docker >nul 2>&1
 if not errorlevel 1 (
-    echo [3/4] Levantando PostgreSQL ^(Docker^)...
+    echo [3/5] Levantando PostgreSQL ^(Docker^)...
     call "%ROOT%scripts\db\start-db-silent.bat"
-    if errorlevel 1 echo [AVISO] Base Docker no levantada.
-    else echo [OK] Base de datos Docker lista.
+    if errorlevel 1 (
+        echo [AVISO] Base no levantada. Abra Docker Desktop y vuelva a ejecutar Iniciar.bat.
+    ) else (
+        echo [OK] Base de datos lista.
+    )
     echo.
 ) else (
-    echo [3/4] Sin Docker - PostgreSQL del sistema debe estar activo.
+    echo [3/5] Sin Docker - PostgreSQL del sistema debe estar activo.
     echo.
 )
 
-echo [4/4] Abriendo aplicacion...
+echo [4/5] Abriendo aplicacion...
 call "%ROOT%app\FitnessTraining.bat"
 if errorlevel 1 goto :fail
 
@@ -104,8 +109,9 @@ exit /b 0
 
 :show_help
 echo.
-echo  Ejecute Iniciar.bat desde la carpeta descomprimida de GitHub.
-echo  Requiere Java 21 y Maven instalados ^(solo la primera vez^).
+echo  No se pudo preparar la aplicacion.
+echo  Verifique conexion a internet ^(winget^) y permisos de instalacion.
+echo  Luego ejecute Iniciar.bat de nuevo.
 echo.
 pause
 exit /b 1

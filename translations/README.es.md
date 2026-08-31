@@ -160,7 +160,7 @@ Descargar de GitHub, descomprimir en `C:\FitnessTraining` y ejecutar:
 Iniciar.bat
 ```
 
-Un solo script: compila la primera vez si hace falta, configura, Java/Docker, base y app.
+Un solo script: instala Java, Maven y Docker con winget si faltan, compila, configura, levanta PostgreSQL y abre la app.
 
 | Acción | Comando |
 |--------|---------|

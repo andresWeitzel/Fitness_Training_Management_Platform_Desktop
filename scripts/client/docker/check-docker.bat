@@ -8,22 +8,24 @@ if not errorlevel 1 (
     exit /b 0
 )
 
-echo [INFO] Docker no detectado. Puede usar PostgreSQL instalado en Windows sin Docker.
+echo [INFO] Docker no detectado ^(PostgreSQL en Docker^).
 
 where winget >nul 2>&1
 if errorlevel 1 (
-    echo [INFO] winget no disponible. Instale Docker manualmente o use PostgreSQL nativo.
+    echo [AVISO] winget no disponible. Instale Docker o PostgreSQL manualmente.
     endlocal
     exit /b 0
 )
 
-echo.
-echo ¿Instalar Docker Desktop con winget? ^(requiere permisos de administrador^)
-set /p INSTALL_DOCKER="Escriba S para instalar, N para continuar sin Docker: "
-if /i not "%INSTALL_DOCKER%"=="S" (
-    echo [INFO] Continuando sin Docker.
-    endlocal
-    exit /b 0
+if /i not "%FT_AUTO_INSTALL%"=="1" (
+    echo.
+    echo ¿Instalar Docker Desktop con winget?
+    set /p INSTALL_DOCKER="Escriba S para instalar, N para continuar sin Docker: "
+    if /i not "%INSTALL_DOCKER%"=="S" (
+        echo [INFO] Continuando sin Docker.
+        endlocal
+        exit /b 0
+    )
 )
 
 echo.
@@ -35,8 +37,6 @@ if errorlevel 1 (
     exit /b 0
 )
 
-echo.
-echo [OK] Docker instalado. Inicie Docker Desktop desde el menu Inicio
-echo      y vuelva a ejecutar Iniciar.bat.
+echo [OK] Docker instalado. Si no inicia, abra Docker Desktop desde el menu Inicio.
 endlocal
 exit /b 0

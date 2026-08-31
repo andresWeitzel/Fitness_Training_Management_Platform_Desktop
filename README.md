@@ -158,17 +158,7 @@ Descargar de GitHub, descomprimir en `C:\FitnessTraining` (ruta corta) y ejecuta
 Iniciar.bat
 ```
 
-`Iniciar.bat` hace todo: compila la primera vez si hace falta, valida el paquete, configura, verifica Java/Docker, levanta la base y abre la app.
-
-| Acción | Comando |
-|--------|---------|
-| Instalar y abrir todo | `Iniciar.bat` |
-| Solo la aplicación | `app\FitnessTraining.bat` |
-| Levantar base (Docker, manual) | `scripts\db\start-db.bat` |
-| Detener base (Docker, manual) | `scripts\db\stop-db.bat` |
-| Respaldo de la base | `scripts\db\backup-db.bat` |
-
-Primera vez desde GitHub: Java 21 y Maven en la PC del cliente. Con Docker: editar `db\.env` antes de `Iniciar.bat`.
+`Iniciar.bat` hace todo: instala Java, Maven y Docker con winget si faltan, compila la primera vez, levanta PostgreSQL y abre la app.
 
 Más detalle: [CLIENTE.md](./install/CLIENTE.md)
 
