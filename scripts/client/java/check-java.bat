@@ -1,5 +1,17 @@
 @echo off
-setlocal EnableExtensions
+setlocal EnableExtensions EnableDelayedExpansion
+
+if not where java >nul 2>&1 (
+    for /d %%d in ("%ProgramFiles%\Eclipse Adoptium\jdk-21*") do (
+        if exist "%%d\bin\java.exe" set "PATH=%%d\bin;!PATH!"
+    )
+    for /d %%d in ("%ProgramFiles%\Eclipse Adoptium\jre-21*") do (
+        if exist "%%d\bin\java.exe" set "PATH=%%d\bin;!PATH!"
+    )
+    for /d %%d in ("%LocalAppData%\Programs\Eclipse Adoptium\jdk-21*") do (
+        if exist "%%d\bin\java.exe" set "PATH=%%d\bin;!PATH!"
+    )
+)
 
 where java >nul 2>&1
 if not errorlevel 1 (

@@ -53,16 +53,9 @@ if not exist "%~dp0app\FitnessTraining.bat" (
     goto :fin_error
 )
 
-if not exist "%~dp0scripts\setup\setup-first-run.bat" (
-    echo [ERROR] No se encuentra scripts\setup\setup-first-run.bat
-    echo  La carpeta scripts\ esta incompleta o corrupta.
-    goto :fin_error
-)
-
-if not exist "%~dp0scripts\java\check-java.bat" (
-    echo [ERROR] No se encuentra scripts\java\check-java.bat
-    goto :fin_error
-)
+echo [Validacion] Comprobando paquete...
+call "%~dp0scripts\setup\validate-package.bat"
+if errorlevel 1 goto :fin_error
 
 echo [Setup] Configuracion inicial...
 call "%~dp0scripts\setup\setup-first-run.bat"

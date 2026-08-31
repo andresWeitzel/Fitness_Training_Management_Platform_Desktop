@@ -26,6 +26,11 @@ if errorlevel 1 (
     exit /b 1
 )
 
+netstat -ano 2>nul | findstr /r /c:":5432 .*LISTENING" >nul
+if not errorlevel 1 (
+    echo [INFO] Puerto 5432 ya en uso. Si falla el contenedor, detenga otro PostgreSQL.
+)
+
 if not exist "docker-compose.yml" (
     echo [ERROR] No se encuentra docker-compose.yml en db\
     endlocal

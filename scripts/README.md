@@ -26,6 +26,7 @@ scripts\dev\client\start-client-dist.bat
 |---------|--------|-----------|
 | *(raíz)* | `Iniciar.bat` | Raíz del zip |
 | `setup/` | `setup-first-run.bat` | `scripts\setup\` |
+| `setup/` | `validate-package.bat` | `scripts\setup\` (pre-checks al iniciar) |
 | `java/` | `check-java.bat` | `scripts\java\` |
 | `docker/` | `check-docker.bat` | `scripts\docker\` |
 | `db/` | `start-db.bat` | `scripts\db\` |

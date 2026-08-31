@@ -42,7 +42,14 @@ if exist "%ENV_FILE%" (
 )
 
 echo [Setup] Configurando conexion local ^(primera vez^)...
-if not exist "%CONFIG_DIR%" mkdir "%CONFIG_DIR%"
+if not exist "%CONFIG_DIR%" (
+    mkdir "%CONFIG_DIR%" 2>nul
+    if not exist "%CONFIG_DIR%" (
+        echo [ERROR] No se pudo crear %CONFIG_DIR%
+        endlocal
+        exit /b 1
+    )
+)
 
 > "%CONFIG_FILE%" (
     echo db.host=localhost
@@ -50,6 +57,12 @@ if not exist "%CONFIG_DIR%" mkdir "%CONFIG_DIR%"
     echo db.name=!PG_DB!
     echo db.user=!PG_USER!
     echo db.password=!PG_PASS!
+)
+
+if not exist "%CONFIG_FILE%" (
+    echo [ERROR] No se pudo crear %CONFIG_FILE%
+    endlocal
+    exit /b 1
 )
 
 echo [Setup] Listo: %CONFIG_FILE%

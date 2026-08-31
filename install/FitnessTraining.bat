@@ -35,6 +35,14 @@ if not defined JAR (
 echo [OK] JAR: %JAR%
 echo.
 
+for %%j in (javafx-base-win.jar javafx-graphics-win.jar javafx-controls-win.jar javafx-fxml-win.jar) do (
+    if not exist "%APP_DIR%lib\%%j" (
+        echo [ERROR] Falta app\lib\%%j - paquete incompleto
+        endlocal
+        exit /b 1
+    )
+)
+
 set "MODULE_PATH=%APP_DIR%lib\javafx-base-win.jar;%APP_DIR%lib\javafx-graphics-win.jar;%APP_DIR%lib\javafx-controls-win.jar;%APP_DIR%lib\javafx-fxml-win.jar"
 
 java --module-path "%MODULE_PATH%" --add-modules javafx.controls,javafx.fxml ^
