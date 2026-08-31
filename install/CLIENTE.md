@@ -88,7 +88,7 @@ Genera:
 | Artefacto | Contenido |
 |-----------|-----------|
 | `target\client-dist\` | Carpeta lista para copiar |
-| `target\FitnessTraining-client-win64.zip` | Zip para entregar |
+| `target\FitnessTraining.zip` | Zip para entregar |
 
 ```
 client-dist/
@@ -115,7 +115,7 @@ client-dist/
 
 ### 1. Copiar archivos
 
-Descomprimir en `C:\FitnessTraining\` (o carpeta fija).
+1. Descomprimir el zip en **`C:\FitnessTraining\`** (ruta corta; ver `DESCOMPRIMIR.txt` si Windows dice *ruta demasiado larga*).
 
 ### 2. Configurar contraseña
 

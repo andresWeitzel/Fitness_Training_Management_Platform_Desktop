@@ -201,7 +201,7 @@ scripts\dev\app\run.bat
 scripts\dev\build\package.bat
 ```
 
-Salida: `target\client-dist\` y `target\FitnessTraining-client-win64.zip`.
+Salida: `target\client-dist\` y `target\FitnessTraining.zip`.
 
 **Probar la entrega como el gimnasio (launcher completo):**
 
@@ -414,7 +414,7 @@ Con seeders de desarrollo activos (no usar en producción):
 | Script | Quién | Qué hace |
 |--------|-------|----------|
 | `scripts\dev\app\run.bat` | Desarrollador | Compila y ejecuta la app (Maven). No genera zip. |
-| `scripts\dev\build\package.bat` | Desarrollador | Crea `target\FitnessTraining-client-win64.zip` |
+| `scripts\dev\build\package.bat` | Desarrollador | Crea `target\FitnessTraining.zip` |
 | `Iniciar.bat` | Cliente | Launcher único: ejecuta setup, Java, Docker, DB y abre la app |
 
 El zip no incluye Java ni PostgreSQL. `Iniciar.bat` puede ofrecer instalarlos con winget — [CONFIGURAR-JAVA-POSTGRES.md](../install/CONFIGURAR-JAVA-POSTGRES.md).

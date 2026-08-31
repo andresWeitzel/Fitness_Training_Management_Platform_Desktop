@@ -24,7 +24,8 @@ if errorlevel 1 (
 )
 
 set "JAR="
-for %%f in ("%APP_DIR%fitness-training-desktop-*.jar") do set "JAR=%%f"
+if exist "%APP_DIR%FitnessTraining.jar" set "JAR=%APP_DIR%FitnessTraining.jar"
+if not defined JAR for %%f in ("%APP_DIR%fitness-training-desktop-*.jar") do set "JAR=%%f"
 if not defined JAR (
     echo [ERROR] No se encontro fitness-training-desktop-*.jar en %APP_DIR%
     endlocal

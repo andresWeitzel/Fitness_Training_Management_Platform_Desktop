@@ -34,7 +34,7 @@ Generar entrega:
 scripts\dev\build\package.bat
 ```
 
-Crea `target\client-dist\` y `target\FitnessTraining-client-win64.zip` (solo la app, sin Java ni PostgreSQL dentro).
+Crea `target\client-dist\` y `target\FitnessTraining.zip` (solo la app, sin Java ni PostgreSQL dentro).
 
 Probar como el gimnasio (launcher completo):
 

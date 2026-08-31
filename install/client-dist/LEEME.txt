@@ -1,13 +1,17 @@
 Fitness Training Management Platform
 =====================================
 
+IMPORTANTE (Windows)
+  Descomprimir en una ruta CORTA: C:\FitnessTraining
+  Ver DESCOMPRIMIR.txt si falla la extraccion.
+
 REQUISITOS EN LA PC
   - Java 21 (Iniciar.bat puede ofrecer instalarlo con winget)
   - PostgreSQL 16 en ejecucion, O Docker Desktop (Iniciar.bat puede ofrecer instalarlo)
 
 INSTALACION
 
-1. Descomprimir el zip
+1. Descomprimir el zip en C:\FitnessTraining\ (ruta corta)
 2. Si usa Docker: editar db\.env (POSTGRES_PASSWORD)
 3. Ejecutar Iniciar.bat
 

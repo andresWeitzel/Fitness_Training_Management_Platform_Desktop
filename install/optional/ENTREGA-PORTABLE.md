@@ -126,6 +126,6 @@ scripts\dev\build\package.bat
 Salida:
 
 - `target\client-dist\`
-- `target\FitnessTraining-client-win64.zip`
+- `target\FitnessTraining.zip`
 
 Cliente: descomprimir → editar `db\.env` (contraseña) → **`Iniciar.bat`**.

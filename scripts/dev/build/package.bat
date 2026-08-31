@@ -29,6 +29,7 @@ copy /Y "docker-compose.yml" "%DIST%\db\"
 copy /Y ".env.example" "%DIST%\db\"
 copy /Y "%CLIENT%\Iniciar.bat" "%DIST%\"
 copy /Y "install\client-dist\LEEME.txt" "%DIST%\"
+copy /Y "install\client-dist\DESCOMPRIMIR.txt" "%DIST%\"
 copy /Y "%CLIENT%\setup\setup-first-run.bat" "%DIST%\scripts\setup\"
 copy /Y "%CLIENT%\java\check-java.bat" "%DIST%\scripts\java\"
 copy /Y "%CLIENT%\docker\check-docker.bat" "%DIST%\scripts\docker\"
@@ -40,7 +41,7 @@ copy /Y "install\CLIENTE.md" "%DIST%\docs\"
 copy /Y "install\CONFIGURAR-JAVA-POSTGRES.md" "%DIST%\docs\"
 copy /Y "install\QUE-EJECUTAR.md" "%DIST%\docs\"
 
-set "ZIP=target\FitnessTraining-client-win64.zip"
+set "ZIP=target\FitnessTraining.zip"
 if exist "%ZIP%" del /f /q "%ZIP%"
 
 powershell -NoProfile -Command "Compress-Archive -Path '%DIST%\*' -DestinationPath '%ZIP%' -Force"
@@ -54,6 +55,9 @@ echo.
 echo === Entrega al cliente ===
 echo   Carpeta: %DIST%
 echo   Zip:     %ZIP%
+echo.
+echo   IMPORTANTE: el cliente debe descomprimir en ruta corta (C:\FitnessTraining)
+echo   Ver DESCOMPRIMIR.txt en el zip si Windows dice "ruta demasiado larga"
 echo.
 echo   Iniciar.bat  - verifica Java/Docker, levanta DB y abre la app
 echo   docs\CLIENTE.md
