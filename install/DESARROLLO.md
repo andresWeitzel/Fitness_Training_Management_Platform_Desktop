@@ -1,4 +1,4 @@
-# Instalación para desarrollo
+﻿# Instalación para desarrollo
 
 Guía para levantar **Fitness Training Management Platform** en tu PC de desarrollo.
 
@@ -17,25 +17,25 @@ Guía para levantar **Fitness Training Management Platform** en tu PC de desarro
 ```bat
 # 1. Variables de entorno
 copy .env.example .env
-
-# 2. Base de datos
-start-db.bat
+scripts\dev\db\start-db.bat
 # o: docker compose up -d
 
 # 3. Compilar y ejecutar (limpia + compile + javafx:run)
-run.bat
+scripts\dev\app\run.bat
 ```
 
 ## Scripts útiles
 
 | Script | Uso |
 |--------|-----|
-| `run.bat` | Desarrollo: `mvn clean compile javafx:run` |
-| `start-db.bat` | Levanta PostgreSQL con Docker Compose |
-| `scripts/start-db.bat` | Igual, desde carpeta scripts |
-| `scripts/stop-db.bat` | Detiene contenedores |
-| `scripts/backup-db.bat` | Respaldo de la base |
-| `package.bat` | Genera zip de entrega (`target\FitnessTraining-client-win64.zip`) |
+| `scripts/dev/app/run.bat` | Compilar y ejecutar |
+| `scripts/dev/build/package.bat` | Generar zip de entrega |
+| `scripts/dev/db/start-db.bat` | Levanta PostgreSQL con Docker |
+| `scripts/dev/db/stop-db.bat` | Detiene contenedores |
+| `scripts/dev/client/start-client-dist.bat` | Probar `Iniciar.bat` en `target\client-dist\` |
+| `scripts/dev/app/start-app-packaged.bat` | Solo app en `target\client-dist\app\` |
+
+Índice de instalación: [README.md](./README.md) · Mapa de scripts: [scripts/README.md](../scripts/README.md)
 
 ## Maven manual
 

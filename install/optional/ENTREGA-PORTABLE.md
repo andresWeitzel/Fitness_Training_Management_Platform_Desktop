@@ -1,6 +1,6 @@
-# Entrega portable — Java y PostgreSQL sin instalar en la PC del cliente
+﻿# Entrega portable — Java y PostgreSQL sin instalar en la PC del cliente
 
-La pieza de entrega (`package.bat` → zip) puede incluir **todo lo necesario** para ejecutar la app sin que el gimnasio instale Java ni PostgreSQL por separado.
+La pieza de entrega (`scripts\dev\build\package.bat` → zip) puede incluir **todo lo necesario** para ejecutar la app sin que el gimnasio instale Java ni PostgreSQL por separado.
 
 ## Resumen
 
@@ -31,7 +31,7 @@ runtime/
       java.exe
 ```
 
-3. `package.bat` copia `runtime\jdk` al zip. `FitnessTraining.bat` usa ese `java.exe` **antes** que el Java del sistema.
+3. `scripts\dev\build\package.bat` puede copiar `runtime\jdk` al zip si existe en el proyecto. Hoy `FitnessTraining.bat` usa el Java del **PATH** del sistema; el uso de JRE embebido en esa variante es **experimental**.
 
 **Resultado:** el cliente **no necesita** Java instalado en Windows.
 
@@ -45,7 +45,7 @@ Con **jpackage**, el JRE va **dentro del instalador** (misma idea: no depende de
 
 Igual que Java: binarios dentro de la entrega, datos en `db\data\pgdata`.
 
-### Preparación (proveedor, antes de `package.bat`)
+### Preparación (proveedor, antes de `scripts\dev\build\package.bat`)
 
 1. Descargar **PostgreSQL 16 binaries** para Windows x64 (zip, sin instalador):
    [PostgreSQL Binaries (EDB)](https://www.enterprisedb.com/download-postgresql-binaries)
@@ -64,25 +64,29 @@ runtime/
     share/
 ```
 
-3. Ejecutar `package.bat`. Se incluye `runtime\postgresql` en el zip.
+3. Ejecutar `scripts\dev\build\package.bat`. Se incluye `runtime\postgresql` en el zip.
 
-### Qué hace `Iniciar.bat`
+### Qué hace `Iniciar.bat` (flujo estándar del zip)
 
-1. Si existe `runtime\postgresql` → **PostgreSQL portable** (prioridad)
-   - Primera vez: `initdb` en `db\data\pgdata`
-   - Arranca con `pg_ctl` en el puerto de `db\.env`
-2. Si no hay PG portable pero hay **Docker** → contenedor como antes
-3. Si no hay ninguno → aviso (servicio Windows o instalar Docker)
+Con la entrega normal (`scripts\dev\build\package.bat` sin runtime embebido):
 
-Los datos quedan en `db\data\pgdata` (persisten al cerrar la app).
+1. Configuración primera vez (`scripts\setup\setup-first-run.bat`)
+2. Verificar / instalar Java con winget (`scripts\java\check-java.bat`)
+3. Verificar / instalar Docker con winget (`scripts\docker\check-docker.bat`, opcional)
+4. Si hay Docker → `scripts\db\start-db-silent.bat` levanta el contenedor
+5. `app\FitnessTraining.bat` abre la aplicación (Flyway al conectar)
 
-### Detener / backup
+### PostgreSQL portable (experimental)
+
+Objetivo de esta variante: incluir `runtime\postgresql` en el zip y arrancar PG sin Docker ni instalador. La preparación de binarios está en `install\optional\prepare-runtime.bat`; la integración completa en `Iniciar.bat` es **experimental**. Para producción hoy: Docker o PostgreSQL del sistema.
+
+### Detener / backup (zip del cliente)
 
 | Acción | Script |
 |--------|--------|
-| Detener base portable | `scripts\stop-db.bat` |
-| Backup | `scripts\backup-db.bat` (detecta portable o Docker) |
-| Solo levantar PG portable | `scripts\start-db-portable.bat` |
+| Detener Docker | `scripts\db\stop-db.bat` |
+| Backup | `scripts\db\backup-db.bat` |
+| Solo levantar base (Docker) | `scripts\db\start-db.bat` |
 
 ---
 
@@ -116,7 +120,7 @@ Para **un solo mostrador** en el gimnasio, PG portable + JRE en el zip es la opc
 ```bat
 REM 1. (Opcional) Colocar runtime\jdk y runtime\postgresql
 REM 2. Empaquetar
-package.bat
+scripts\dev\build\package.bat
 ```
 
 Salida:

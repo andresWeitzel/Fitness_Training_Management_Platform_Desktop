@@ -1,21 +1,26 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 
-set "ROOT=%~dp0"
+set "ROOT=%~dp0..\..\"
 set "ENV_FILE=%ROOT%db\.env"
 set "ENV_EXAMPLE=%ROOT%db\.env.example"
 set "CONFIG_DIR=%USERPROFILE%\.fitness-training"
 set "CONFIG_FILE=%CONFIG_DIR%\database.properties"
 
+if not exist "%ROOT%db" (
+    echo [AVISO] Carpeta db\ no encontrada ^(solo necesaria con Docker^).
+)
+
 if not exist "%ENV_FILE%" (
     if exist "%ENV_EXAMPLE%" (
         echo [Setup] Creando db\.env desde plantilla...
         copy /Y "%ENV_EXAMPLE%" "%ENV_FILE%" >nul
-        echo [Setup] Edite db\.env y cambie POSTGRES_PASSWORD antes del uso en produccion.
+        echo [Setup] Edite db\.env y cambie POSTGRES_PASSWORD antes de produccion.
     )
 )
 
 if exist "%CONFIG_FILE%" (
+    echo [Setup] Conexion ya configurada: %CONFIG_FILE%
     endlocal
     exit /b 0
 )

@@ -1,4 +1,4 @@
-# Documentación — capturas de pantalla
+﻿# Documentación — capturas de pantalla
 
 Galería de la aplicación **Fitness Training Management Platform** (versión actual).
 
@@ -8,11 +8,14 @@ Galería de la aplicación **Fitness Training Management Platform** (versión ac
 
 | Archivo | Uso |
 |---------|-----|
-| [`assets/app-hero.png`](./assets/app-hero.png) | Banner principal del README |
+| [`img/recepcion-control-ingreso.png`](./img/recepcion-control-ingreso.png) | Banner principal del README |
+| [`assets/app-hero.png`](./assets/app-hero.png) | Copia sincronizada del banner (opcional) |
 
 ## Íconos del README (stack tecnológico)
 
-Ruta: [`assets/icons/`](./assets/icons/) — mismo esquema que ApiRest (`backend/`, `database/`, `devops/`), **25×25 px** en el README.
+Ruta: [`assets/icons/`](./assets/icons/) — **18×18 px** en el README (debajo de la captura principal, alineados a la derecha).
+
+Banderas de idioma: bloque separado (**65×40 px**, PNG), en [`assets/translation/`](./assets/translation/).
 
 | Ícono | Archivo |
 |-------|---------|
@@ -20,13 +23,11 @@ Ruta: [`assets/icons/`](./assets/icons/) — mismo esquema que ApiRest (`backend
 | JavaFX | `icons/backend/java/png/jsf.png` |
 | PostgreSQL | `icons/database/png/postgres.png` |
 | Maven | `icons/devops/png/maven.png` |
-| Flyway | `icons/devops/png/ci-circle.png` |
 | Docker | `icons/devops/png/docker.png` |
-| Git | `icons/devops/png/git.png` |
 
 Banderas: `assets/translation/arg-flag.svg`, `eeuu-flag.svg`.
 
-Para cambiar la imagen del README, reemplaza `docs/assets/app-hero.png` o copia otra captura desde `img/`.
+Para cambiar la imagen del README, actualiza `docs/img/recepcion-control-ingreso.png` (y opcionalmente `docs/assets/app-hero.png`).
 
 ## Galería por módulo
 
@@ -43,7 +44,7 @@ Para cambiar la imagen del README, reemplaza `docs/assets/app-hero.png` o copia 
 ## Cómo agregar nuevas fotos
 
 1. Guarda la captura en `docs/img/` con nombre descriptivo en minúsculas y guiones (ej. `clientes-listado.png`).
-2. Si es la imagen principal del README, copia también a `docs/assets/app-hero.png`.
+2. Si es la imagen principal del README, actualiza `recepcion-control-ingreso.png` (banner por defecto).
 3. Actualiza la tabla de esta página y la sección **Capturas** del [README](../README.md).
 
 ## Otros documentos
@@ -51,5 +52,9 @@ Para cambiar la imagen del README, reemplaza `docs/assets/app-hero.png` o copia 
 | Documento | Contenido |
 |-----------|-----------|
 | [Especificación funcional](./especificacion-funcional.md) | RF, casos de uso, matriz de roles |
+| [Índice instalación](../install/README.md) | Guías y scripts (dev vs cliente) |
+| [¿Qué ejecutar?](../install/QUE-EJECUTAR.md) | Roles: desarrollador vs gimnasio |
+| [Mapa de scripts](../scripts/README.md) | `scripts/dev/` y `scripts/client/` |
 | [Instalación cliente](../install/CLIENTE.md) | Despliegue en PC del gimnasio |
-| [Instalación desarrollo](../install/DESARROLLO.md) | Setup local (`run.bat`, Docker, Maven) |
+| [Java y PostgreSQL](../install/CONFIGURAR-JAVA-POSTGRES.md) | Instalación manual y winget |
+| [Desarrollo](../install/DESARROLLO.md) | Setup local (`scripts/dev/app/run.bat`, Docker, Maven) |

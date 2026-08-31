@@ -1,6 +1,24 @@
-# Configurar Java 21 y PostgreSQL para la aplicación
+﻿# Configurar Java 21 y PostgreSQL para la aplicación
 
 La **Fitness Training Management Platform** se conecta a PostgreSQL por **red JDBC** (servidor, puerto, base, usuario y contraseña). No importa si PostgreSQL corre en Docker, como servicio de Windows o en otra PC: la app usa los mismos datos de conexión.
+
+## Launcher del zip: `Iniciar.bat`
+
+En la entrega al gimnasio, **`Iniciar.bat`** (raíz del zip) orquesta la instalación y el arranque:
+
+| Paso | Acción |
+|------|--------|
+| 1 | `scripts\setup\setup-first-run.bat` — primera vez: `db\.env` y `database.properties` |
+| 2 | `scripts\java\check-java.bat` — si falta Java 21, ofrece instalar Temurin con **winget** |
+| 3 | `scripts\docker\check-docker.bat` — si no hay Docker, ofrece instalar Docker Desktop (opcional) |
+| 4 | Si hay Docker → `scripts\db\start-db-silent.bat` levanta PostgreSQL |
+| 5 | `app\FitnessTraining.bat` — abre la app; **Flyway** migra al conectar |
+
+Requisitos para winget: Windows 10/11, permisos de instalación. Si winget falla, instalar manualmente (secciones 1 y 3 más abajo).
+
+Scripts manuales en el zip: `scripts\db\start-db.bat`, `scripts\db\stop-db.bat`, `scripts\db\backup-db.bat`.
+
+En el **repositorio** (desarrollo), los equivalentes están en `scripts\dev\` — ver [DESARROLLO.md](./DESARROLLO.md) y [scripts/README.md](../scripts/README.md).
 
 ---
 
@@ -25,7 +43,17 @@ La app:
 
 ## 1) Instalar y configurar Java 21
 
-### Descarga
+### Opción A — Automática (desde el zip)
+
+Ejecutar **`Iniciar.bat`**. Si Java no está en PATH, `scripts\java\check-java.bat` ofrece:
+
+```bat
+winget install -e --id EclipseAdoptium.Temurin.21.JRE
+```
+
+Tras instalar, cerrar la ventana, abrir una nueva y volver a ejecutar `Iniciar.bat`.
+
+### Opción B — Manual
 
 1. Ir a [Adoptium Temurin 21](https://adoptium.net/temurin/releases/?version=21&os=windows&arch=x64&package=jre)
 2. Descargar **JRE 21** (o JDK 21) para Windows x64
@@ -117,7 +145,7 @@ La app crea la base `fitness_training` si no existe y aplica las tablas (Flyway)
 
 Con PostgreSQL del sistema:
 
-- No uses `scripts\start-db.bat` (es solo para Docker)
+- No uses `scripts\db\start-db.bat` (es solo para Docker)
 - `Iniciar.bat` abre directamente la aplicación
 
 ---
@@ -127,6 +155,10 @@ Con PostgreSQL del sistema:
 Usar este modo si **no** quieres instalar PostgreSQL en Windows pero sí tienes Docker Desktop.
 
 ### Instalar Docker Desktop
+
+**Opción A — Automática:** `Iniciar.bat` llama a `scripts\docker\check-docker.bat` si Docker no está instalado (winget).
+
+**Opción B — Manual:**
 
 1. [Docker Desktop para Windows](https://www.docker.com/products/docker-desktop/)
 2. Instalar y reiniciar si pide
@@ -160,7 +192,7 @@ Iniciar.bat
 O solo la base:
 
 ```bat
-scripts\start-db.bat
+scripts\db\start-db.bat
 ```
 
 Verificar:
@@ -182,7 +214,7 @@ Contenedor `fitness-training-postgres` en estado **running**.
 | Usuario | `postgres` |
 | Contraseña | La de `POSTGRES_PASSWORD` en `.env` |
 
-`configurar-primera-vez.bat` (al usar `Iniciar.bat`) puede crear esta conexión automáticamente leyendo `db\.env`.
+`scripts\setup\setup-first-run.bat` (al usar `Iniciar.bat`) puede crear esta conexión automáticamente leyendo `db\.env`.
 
 ---
 
