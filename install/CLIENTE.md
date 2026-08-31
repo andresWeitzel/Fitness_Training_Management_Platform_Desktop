@@ -1,17 +1,6 @@
-# Instalación en la PC del cliente
+﻿# Instalación en la PC del cliente
 
-Guía para instalar **Fitness Training Management Platform** en el gimnasio o centro de entrenamiento. Se actualiza junto con el producto.
-
-## Qué se instala
-
-| Componente | Qué hace |
-|------------|----------|
-| **PostgreSQL** | Guarda clientes, usuarios y datos del negocio |
-| **Aplicación JavaFX** | Pantallas de recepción, admin, entrenadores, etc. |
-
-Son **dos piezas**: primero la base, después la app.
-
----
+Guía para instalar **Fitness Training Management Platform** en el gimnasio o centro de entrenamiento.
 
 ## Requisitos en la PC
 
@@ -19,108 +8,143 @@ Son **dos piezas**: primero la base, después la app.
 |-----------|---------|
 | Windows | 10 o superior (64 bits) |
 | RAM | 4 GB mínimo recomendado |
-| Disco | ~500 MB app + espacio para la base |
-| **Opción A – Docker** | Docker Desktop instalado y en ejecución |
-| **Opción B – Sin Docker** | PostgreSQL 16 instalado en Windows |
-| **Java** | Solo si usa la carpeta portable `app/` (JDK 21). El instalador `.exe` futuro incluirá Java |
+| **Java 21** | JDK o JRE — `Iniciar.bat` puede instalarlo con winget, o manual: [Adoptium](https://adoptium.net/) |
+| **PostgreSQL 16** | Servicio Windows **o** Docker — `Iniciar.bat` puede ofrecer instalar Docker con winget |
+| Docker Desktop | **Opcional.** Si está instalado, `Iniciar.bat` lo usa para levantar la base |
+
+El zip de entrega **no incluye** Java ni PostgreSQL. `Iniciar.bat` puede ayudar a instalar Java y Docker con winget; PostgreSQL del sistema se instala manualmente si no usas Docker.
+
+**Guías:** [CONFIGURAR-JAVA-POSTGRES.md](./CONFIGURAR-JAVA-POSTGRES.md) · [QUE-EJECUTAR.md](./QUE-EJECUTAR.md) · [README.md](./README.md)
+
+### ¿Funciona con Docker y con PostgreSQL del sistema?
+
+**Sí.** La app conecta por JDBC (`host`, puerto, base, usuario, contraseña). Da igual si PostgreSQL corre en un contenedor Docker, como servicio de Windows en la misma PC, o en un servidor de la red. Solo cambian los valores de **Servidor** y las credenciales en la pantalla de conexión (o en `database.properties`).
 
 ---
 
-## Entrega al cliente (desde el proveedor)
-
-En desarrollo, generar la carpeta de entrega:
+## Launcher: `Iniciar.bat`
 
 ```bat
-package.bat
+Iniciar.bat
 ```
 
-Eso crea `target\client-dist\` con:
+**Launcher único del cliente.** El gimnasio solo debe ejecutar este script en el día a día. `Iniciar.bat` llama en orden a los scripts en `scripts\setup\`, `scripts\java\`, `scripts\docker\` y `scripts\db\`, y abre la aplicación — no hace falta ejecutar esos `.bat` por separado.
+
+| Paso (interno) | Qué hace |
+|----------------|----------|
+| 1 | Primera vez: `db\.env` y conexión local |
+| 2 | Verifica Java 21; ofrece winget si falta |
+| 3 | Verifica Docker (opcional); ofrece winget si falta |
+| 4 | Si hay Docker, levanta PostgreSQL |
+| 5 | Abre la app; Flyway migra al conectar |
+
+Solo la app, sin verificar requisitos: `app\FitnessTraining.bat`.
+
+---
+
+## Tres formas de conectar la base
+
+| Modo | Dónde está PostgreSQL | Docker | Qué hace `Iniciar.bat` |
+|------|----------------------|--------|-------------------------|
+| **A — Docker** | Contenedor en esta PC | Sí | Levanta Docker + abre la app |
+| **B — Local** | Servicio Windows en esta PC | No | Solo abre la app (PG ya debe estar activo) |
+| **C — Red** | Otra PC servidor en la LAN | No | Solo abre la app; configurar IP del servidor |
+
+### Modo A — PostgreSQL con Docker
+
+Ver pasos completos en [CONFIGURAR-JAVA-POSTGRES.md](./CONFIGURAR-JAVA-POSTGRES.md#3-postgresql-con-docker-opcional).
+
+1. Instalar [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+2. En `db\`: copiar `.env.example` → `.env` y cambiar `POSTGRES_PASSWORD`.
+3. `Iniciar.bat` levanta el contenedor y abre la app.
+4. Conexión: `localhost`, puerto y credenciales de `db\.env`.
+
+### Modo B — PostgreSQL instalado en la misma PC
+
+Ver pasos completos en [CONFIGURAR-JAVA-POSTGRES.md](./CONFIGURAR-JAVA-POSTGRES.md#2-instalar-y-configurar-postgresql-en-el-sistema-sin-docker).
+
+1. Instalar [PostgreSQL 16 para Windows](https://www.postgresql.org/download/windows/).
+2. Asegurarse de que el **servicio PostgreSQL** esté en ejecución.
+3. La app puede crear la base `fitness_training` al configurar conexión (primera vez).
+4. `Iniciar.bat` abre la app directamente (no usa Docker).
+5. Conexión: `localhost`, puerto `5432`, usuario y contraseña del instalador de PostgreSQL.
+
+No hace falta `scripts\db\start-db.bat` ni la carpeta `db\` (salvo que también quieras Docker como alternativa).
+
+### Modo C — PostgreSQL en otra PC (varios mostradores)
+
+Ver [CONFIGURAR-JAVA-POSTGRES.md](./CONFIGURAR-JAVA-POSTGRES.md#4-postgresql-en-otra-pc-red--varios-mostradores).
+
+---
+
+## Entrega al cliente (proveedor)
+
+```bat
+scripts\dev\build\package.bat
+```
+
+Genera:
+
+| Artefacto | Contenido |
+|-----------|-----------|
+| `target\client-dist\` | Carpeta lista para copiar |
+| `target\FitnessTraining.zip` | Zip para entregar |
 
 ```
 client-dist/
-  app/           → FitnessTraining.bat + librerías
-  db/            → docker-compose.yml + .env.example
-  scripts/       → start-db, stop-db, backup-db
-  docs/          → esta guía
+  Iniciar.bat          → launcher (desde scripts/client/Iniciar.bat)
+  LEEME.txt
+  app/                 → aplicación + JavaFX
+  db/                  → docker-compose + .env (solo si usa Docker)
+  scripts/
+    setup/             → setup-first-run.bat
+    java/              → check-java.bat
+    docker/            → check-docker.bat
+    db/                → start-db, stop-db, backup-db, start-db-silent
+  docs/
+    CLIENTE.md
+    CONFIGURAR-JAVA-POSTGRES.md
+    QUE-EJECUTAR.md
 ```
 
-Comprimir `client-dist` en un `.zip` y copiarlo a la PC del cliente.
+**Cliente:** descomprime → `Iniciar.bat` (o instala Java/PG manualmente si prefiere).
 
 ---
 
-## Instalación paso a paso (Docker)
+## Instalación paso a paso (Docker — modo A)
 
 ### 1. Copiar archivos
 
-Descomprimir el zip en una carpeta fija, por ejemplo:
+1. Descomprimir el zip en **`C:\FitnessTraining\`** (ruta corta; ver `DESCOMPRIMIR.txt` si Windows dice *ruta demasiado larga*).
 
-`C:\FitnessTraining\`
+### 2. Configurar contraseña
 
-### 2. Configurar contraseña de la base
+En `db\`: copiar `.env.example` → `.env`, editar `POSTGRES_PASSWORD`.
 
-En `db\`:
+### 3. Abrir la aplicación
 
-1. Copiar `.env.example` → `.env`
-2. Editar `.env` y cambiar `POSTGRES_PASSWORD` (no dejar `postgres` en producción)
+Doble clic en **`Iniciar.bat`**.
 
-### 3. Instalar Docker Desktop
-
-Si no está instalado: [Docker Desktop para Windows](https://www.docker.com/products/docker-desktop/).
-
-### 4. Levantar PostgreSQL
-
-Doble clic en `scripts\start-db.bat` (o desde `db\`: `docker compose up -d`).
-
-Verificar que el contenedor `fitness-training-postgres` esté **running**.
-
-### 5. Abrir la aplicación
-
-Doble clic en `app\FitnessTraining.bat`.
-
-**Primera vez:** pantalla **Configurar conexión**
+La primera vez crea `db\.env` (si falta) y la conexión local en `%USERPROFILE%\.fitness-training\database.properties`.
 
 | Campo | Valor |
 |-------|--------|
 | Servidor | `localhost` |
-| Puerto | `5432` (o el de `.env`) |
+| Puerto | `5432` (o el de `db\.env`) |
 | Base | `fitness_training` |
-| Usuario | el de `.env` |
-| Contraseña | la de `.env` |
+| Usuario / contraseña | los de `db\.env` |
 
-Pulsar **Probar conexión** → **Continuar al login**.
+Si hace falta completar manualmente: **Probar conexión** → **Continuar al login**.
 
 La app crea tablas (Flyway) y, si la base está vacía, usuarios de demostración.
 
-### 6. Primer login y seguridad
+### 4. Primer login
 
-1. Entrar como administrador (credenciales entregadas por el proveedor).
-2. **Cambiar contraseñas** de usuarios demo antes de uso real.
+1. Entrar como administrador (credenciales del proveedor).
+2. **Cambiar contraseñas** demo antes de uso real.
 3. Cargar clientes desde **Clientes**.
 
-La configuración queda en:
-
-`%USERPROFILE%\.fitness-training\database.properties`
-
----
-
-## Instalación sin Docker (PostgreSQL nativo)
-
-1. Instalar [PostgreSQL 16 para Windows](https://www.postgresql.org/download/windows/).
-2. Crear base `fitness_training` y un usuario con permiso DDL/DML.
-3. Abrir `app\FitnessTraining.bat`.
-4. En configurar conexión, usar host `localhost` y los datos del paso 2.
-
-No hace falta `scripts\start-db.bat`; PostgreSQL debe estar como **servicio de Windows** iniciado.
-
----
-
-## Varias PCs en la misma red
-
-- PostgreSQL en **una PC fija** (servidor), por ejemplo IP `192.168.1.50`.
-- En cada puesto: solo copiar carpeta `app\` e instalar Java 21 si es portable.
-- En configurar conexión: **Servidor** = IP del servidor (no `localhost`).
-
-Abrir puerto **5432** solo dentro de la red local (firewall).
+Configuración guardada en: `%USERPROFILE%\.fitness-training\database.properties`
 
 ---
 
@@ -128,28 +152,19 @@ Abrir puerto **5432** solo dentro de la red local (firewall).
 
 | Acción | Cómo |
 |--------|------|
-| Iniciar base (Docker) | `scripts\start-db.bat` |
-| Abrir sistema | `app\FitnessTraining.bat` |
-| Cerrar app | Botón × en la ventana |
-| Apagar PC | Opcional: `scripts\stop-db.bat` (Docker conserva datos en volumen) |
+| Abrir sistema | **`Iniciar.bat`** o `app\FitnessTraining.bat` |
+| Levantar base (solo Docker) | `scripts\db\start-db.bat` |
+| Detener base (solo Docker) | `scripts\db\stop-db.bat` |
+| Cambiar conexión (admin) | Menú → configuración de base de datos |
 
 ---
 
 ## Backup
 
-Ejecutar `scripts\backup-db.bat` (con Docker levantado).
+- **Docker:** `scripts\db\backup-db.bat` (con contenedor activo).
+- **PostgreSQL local:** mismo script si `pg_dump` está en PATH, o backup con herramientas de PostgreSQL.
 
-Genera un archivo `.sql` en la carpeta `backups\`.
-
-**Recomendación:** backup semanal o antes de actualizaciones.
-
----
-
-## Actualizar versión
-
-1. Backup (`backup-db.bat`).
-2. Reemplazar carpeta `app\` con la nueva entrega.
-3. Si hay cambios de base, la app aplica migraciones Flyway al iniciar.
+Archivos en `backups\`. Recomendación: backup semanal.
 
 ---
 
@@ -157,18 +172,13 @@ Genera un archivo `.sql` en la carpeta `backups\`.
 
 | Problema | Qué hacer |
 |----------|-----------|
-| *Connection refused* | Base no levantada → `start-db.bat` o servicio PostgreSQL |
-| Puerto 5432 ocupado | Otro PostgreSQL en Windows → detenerlo o cambiar `POSTGRES_PORT` en `.env` |
-| *Java no encontrado* | Instalar JDK 21 o usar instalador con JRE incluido |
-| Login falla | Verificar usuario/contraseña; en demo usar **Mostrar cuentas de prueba** |
+| *Connection refused* | PostgreSQL no está activo → servicio Windows, Docker, o IP incorrecta en red |
+| Puerto 5432 ocupado | Otro PostgreSQL en la PC → cambiar puerto o detener el otro servicio |
+| *Java no encontrado* | Instalar Java 21 y verificar `java -version` en cmd |
+| Login falla | Verificar credenciales; en demo: **Mostrar cuentas de prueba** |
 
 ---
 
-## Pendiente / próximas mejoras de instalación
+## Entrega opcional (runtime embebido)
 
-- [ ] Instalador `.msi` / `.exe` con JRE embebido (jpackage)
-- [ ] Forzar cambio de contraseña admin en primer login
-- [ ] Ocultar cuentas demo en builds de producción
-- [ ] Script de restauración desde backup
-
-Estos ítems se irán cerrando en el mismo repositorio.
+Scripts para zip con Java y PostgreSQL incluidos (no es el flujo normal): `install\optional\`.

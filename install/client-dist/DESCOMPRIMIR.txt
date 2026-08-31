@@ -1,0 +1,20 @@
+IMPORTANTE - Descomprimir en Windows
+=====================================
+
+Windows limita la longitud de las rutas (~260 caracteres).
+
+DESCOMPRIMIR EN UNA RUTA CORTA, por ejemplo:
+
+  C:\FitnessTraining
+
+Pasos recomendados:
+  1. Copiar el zip a C:\  (o al disco local, no dentro del proyecto)
+  2. Descomprimir alli
+  3. Ejecutar Iniciar.bat
+
+NO descomprimir dentro de carpetas profundas como:
+  ...\scripts\client\
+  ...\Fitness_Training_Management_Platform-Desktop\...
+
+Si aparece el error "la ruta de acceso de destino es demasiado larga":
+  mueva el zip a C:\FitnessTraining.zip, descomprima y ejecute Iniciar.bat.

@@ -1,11 +1,11 @@
-<div align="center">
-<img src="./docs/img/recepcion-control-ingreso.png" alt="Fitness Training — Recepción, control de ingreso" />
+﻿<div align="center">
+<img src="../docs/img/recepcion-control-ingreso.png" alt="Fitness Training — Recepción, control de ingreso" />
 <div align="right">
-  <img width="18" height="18" src="./docs/assets/icons/backend/java/png/java.png" alt="Java" />
-  <img width="18" height="18" src="./docs/assets/icons/devops/png/maven.png" alt="Maven" />
-  <img width="18" height="18" src="./docs/assets/icons/database/png/postgres.png" alt="PostgreSQL" />
-  <img width="18" height="18" src="./docs/assets/icons/backend/java/png/jsf.png" alt="JavaFX" />
-  <img width="18" height="18" src="./docs/assets/icons/devops/png/docker.png" alt="Docker" />
+  <img width="18" height="18" src="../docs/assets/icons/backend/java/png/java.png" alt="Java" />
+  <img width="18" height="18" src="../docs/assets/icons/devops/png/maven.png" alt="Maven" />
+  <img width="18" height="18" src="../docs/assets/icons/database/png/postgres.png" alt="PostgreSQL" />
+  <img width="18" height="18" src="../docs/assets/icons/backend/java/png/jsf.png" alt="JavaFX" />
+  <img width="18" height="18" src="../docs/assets/icons/devops/png/docker.png" alt="Docker" />
 </div>
 </div>
 
@@ -14,17 +14,17 @@
 <br>
 
 <div align="right">
-  <a href="./translations/README.es.md" title="Español">
-    <img src="./docs/assets/translation/arg-flag.png" width="65" height="40" alt="Español" title="Español" />
+  <a href="./README.es.md" title="Español">
+    <img src="../docs/assets/translation/arg-flag.png" width="65" height="40" alt="Español" title="Español" />
   </a>
-  <a href="./README.md" title="English">
-    <img src="./docs/assets/translation/eeuu-flag.png" width="65" height="40" alt="English" title="English" />
+  <a href="../README.md" title="English">
+    <img src="../docs/assets/translation/eeuu-flag.png" width="65" height="40" alt="English" title="English" />
   </a>
 </div>
 
 <div align="center">
 
-# Fitness Training Management Platform ![(status-completed)](./docs/assets/icons/badges/status-completed.svg)
+# Fitness Training Management Platform ![(status-completed)](../docs/assets/icons/badges/status-completed.svg)
 
 </div>
 
@@ -97,7 +97,7 @@ Fitness Training Management Platform es una aplicación de escritorio (Windows) 
 
 Características: multi-rol (admin, recepción, entrenador, nutricionista), check-in con bloqueo por mora, exportación CSV para Excel, conexión a PostgreSQL (Docker, sistema o red) y migraciones Flyway.
 
-Fuera de alcance en esta etapa: liquidación de haberes y asistencia de profesores ([especificación funcional](./docs/especificacion-funcional.md)).
+Fuera de alcance en esta etapa: liquidación de haberes y asistencia de profesores ([especificación funcional](../docs/especificacion-funcional.md)).
 
 Arquitectura por capas: JavaFX (FXML) → servicios de dominio → JDBC → PostgreSQL 16.
 
@@ -111,7 +111,7 @@ Arquitectura por capas: JavaFX (FXML) → servicios de dominio → JDBC → Post
   <summary>Ver detalle</summary>
   <br>
 
-Mapa completo: [scripts/README.md](./scripts/README.md) · [¿Qué ejecutar?](./install/QUE-EJECUTAR.md)
+Mapa completo: [scripts/README.md](../scripts/README.md) · [¿Qué ejecutar?](../install/QUE-EJECUTAR.md)
 
 <br>
 
@@ -122,8 +122,6 @@ Descomprimir el zip y ejecutar:
 ```bat
 Iniciar.bat
 ```
-
-**Windows:** descomprimir en una ruta corta (`C:\FitnessTraining`). Si aparece *ruta de acceso demasiado larga*, no descomprimir dentro de `scripts\client\` ni carpetas profundas del proyecto — mover el zip a `C:\` y extraer allí. Ver `DESCOMPRIMIR.txt` en el zip.
 
 | Acción | Comando |
 |--------|---------|
@@ -147,7 +145,7 @@ Primera instalación con Docker: editar `db\.env` (`POSTGRES_PASSWORD`) antes de
 
 Si algo falla: Java → volver a `Iniciar.bat` o instalar Java 21; `Connection refused` → Docker/PostgreSQL activo; puerto 5432 ocupado → usar solo Docker o solo PostgreSQL del sistema.
 
-Más detalle: [CLIENTE.md](./install/CLIENTE.md) · [CONFIGURAR-JAVA-POSTGRES.md](./install/CONFIGURAR-JAVA-POSTGRES.md)
+Más detalle: [CLIENTE.md](../install/CLIENTE.md) · [CONFIGURAR-JAVA-POSTGRES.md](../install/CONFIGURAR-JAVA-POSTGRES.md)
 
 <br>
 
@@ -225,7 +223,7 @@ Si algo falla:
 * `Connection refused` → `scripts\dev\db\start-db.bat` o revisar `.env`.
 * Puerto 5432 ocupado → detener otro PostgreSQL o cambiar puerto en `.env`.
 
-Más detalle: [DESARROLLO.md](./install/DESARROLLO.md)
+Más detalle: [DESARROLLO.md](../install/DESARROLLO.md)
 
 <br>
 
@@ -266,7 +264,7 @@ copy .env.example .env
 
 Flyway corre al iniciar la app. En desarrollo se cargan datos demo (seeders).
 
-Guía extendida: [DESARROLLO.md](./install/DESARROLLO.md)
+Guía extendida: [DESARROLLO.md](../install/DESARROLLO.md)
 
 <br>
 
@@ -282,7 +280,7 @@ La app conecta por JDBC. PostgreSQL puede estar en **Docker**, como **servicio W
 
 | Modo | Docker | Ejecución típica |
 |------|--------|------------------|
-| Docker en esta PC | Sí | `scripts\dev\db\start-db.bat` o `target\client-dist\Iniciar.bat` (tras empaquetar) |
+| Docker en esta PC | Sí | `scripts\dev\db\start-db.bat` o `Iniciar.bat` (cliente) |
 | PostgreSQL del sistema | No | Servicio Windows activo + `scripts\dev\app\run.bat` |
 | Servidor en red | No | `FitnessTraining.bat` con IP del servidor |
 
@@ -296,7 +294,7 @@ scripts\dev\db\stop-db.bat
 
 **Cliente con Docker:** `Iniciar.bat` levanta el contenedor automáticamente.
 
-Guía completa (winget, instalación manual, red): [CONFIGURAR-JAVA-POSTGRES.md](./install/CONFIGURAR-JAVA-POSTGRES.md)
+Guía completa (winget, instalación manual, red): [CONFIGURAR-JAVA-POSTGRES.md](../install/CONFIGURAR-JAVA-POSTGRES.md)
 
 <br>
 
@@ -354,19 +352,19 @@ mvn compile
   <summary>Ver detalle</summary>
   <br>
 
-Capturas: 27/08/2026 — [docs/README.md](./docs/README.md)
+Capturas: 27/08/2026 — [docs/README.md](../docs/README.md)
 
 | Panel | Login | Recepción |
 |:---:|:---:|:---:|
-| ![Panel](./docs/img/panel-inicio.png) | ![Login](./docs/img/login-iniciar-sesion.png) | ![Recepción](./docs/img/recepcion-control-ingreso.png) |
+| ![Panel](../docs/img/panel-inicio.png) | ![Login](../docs/img/login-iniciar-sesion.png) | ![Recepción](../docs/img/recepcion-control-ingreso.png) |
 
 | Pagos | Nutrición | Analytics — Reportes |
 |:---:|:---:|:---:|
-| ![Pagos](./docs/img/pagos-listado-cobro.png) | ![Nutrición](./docs/img/nutricion-turno-detalle.png) | ![Reportes](./docs/img/analytics-reportes-mora.png) |
+| ![Pagos](../docs/img/pagos-listado-cobro.png) | ![Nutrición](../docs/img/nutricion-turno-detalle.png) | ![Reportes](../docs/img/analytics-reportes-mora.png) |
 
 | Analytics — Gráficos |
 |:---:|
-| ![Gráficos](./docs/img/analytics-graficos.png) |
+| ![Gráficos](../docs/img/analytics-graficos.png) |
 
 <br>
 
@@ -401,14 +399,14 @@ Con seeders de desarrollo activos (no usar en producción):
 
 ### 4.2) Documentación [🔝](#index-)
 
-* [Índice instalación](./install/README.md)
-* [¿Qué ejecutar?](./install/QUE-EJECUTAR.md)
-* [Mapa de scripts](./scripts/README.md)
-* [Capturas y assets](./docs/README.md)
-* [Instalación cliente](./install/CLIENTE.md)
-* [Configurar Java y PostgreSQL](./install/CONFIGURAR-JAVA-POSTGRES.md)
-* [Desarrollo](./install/DESARROLLO.md)
-* [Especificación funcional](./docs/especificacion-funcional.md)
+* [Índice instalación](../install/README.md)
+* [¿Qué ejecutar?](../install/QUE-EJECUTAR.md)
+* [Mapa de scripts](../scripts/README.md)
+* [Capturas y assets](../docs/README.md)
+* [Instalación cliente](../install/CLIENTE.md)
+* [Configurar Java y PostgreSQL](../install/CONFIGURAR-JAVA-POSTGRES.md)
+* [Desarrollo](../install/DESARROLLO.md)
+* [Especificación funcional](../docs/especificacion-funcional.md)
 * [README de referencia (estructura)](https://github.com/andresWeitzel/ApiRest_Electronic_Devices_ExpressJS)
 
 ### 4.3) Entrega al gimnasio [🔝](#index-)
@@ -419,20 +417,20 @@ Con seeders de desarrollo activos (no usar en producción):
 | `scripts\dev\build\package.bat` | Desarrollador | Crea `target\FitnessTraining.zip` |
 | `Iniciar.bat` | Cliente | Launcher único: ejecuta setup, Java, Docker, DB y abre la app |
 
-El zip no incluye Java ni PostgreSQL. `Iniciar.bat` puede ofrecer instalarlos con winget — [CONFIGURAR-JAVA-POSTGRES.md](./install/CONFIGURAR-JAVA-POSTGRES.md).
+El zip no incluye Java ni PostgreSQL. `Iniciar.bat` puede ofrecer instalarlos con winget — [CONFIGURAR-JAVA-POSTGRES.md](../install/CONFIGURAR-JAVA-POSTGRES.md).
 
-Conexión a la base: Docker (opcional), PostgreSQL local o servidor en red — [CLIENTE.md](./install/CLIENTE.md).
+Conexión a la base: Docker (opcional), PostgreSQL local o servidor en red — [CLIENTE.md](../install/CLIENTE.md).
 
 ### 4.4) Pruebas funcionales (YouTube) [🔝](#index-)
 
 Playlist de pruebas funcionales (próximamente).
 
 <!-- Agregar enlace cuando esté publicado:
-* [Playlist YouTube](https://www.youtube.com/...) <img src="./docs/assets/icons/social-networks/yt.svg" width="25" />
+* [Playlist YouTube](https://www.youtube.com/...) <img src="../docs/assets/icons/social-networks/yt.svg" width="25" />
 -->
 
 ### 4.5) Licencia [🔝](#index-)
 
-GPL-3.0 — ver [LICENSE](./LICENSE).
+GPL-3.0 — ver [LICENSE](../LICENSE).
 
 <br>

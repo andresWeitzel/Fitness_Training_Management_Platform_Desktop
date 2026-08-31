@@ -1,0 +1,31 @@
+Fitness Training Management Platform
+=====================================
+
+IMPORTANTE (Windows)
+  Descomprimir en una ruta CORTA: C:\FitnessTraining
+  Ver DESCOMPRIMIR.txt si falla la extraccion.
+
+REQUISITOS EN LA PC
+  - Java 21 (Iniciar.bat puede ofrecer instalarlo con winget)
+  - PostgreSQL 16 en ejecucion, O Docker Desktop (Iniciar.bat puede ofrecer instalarlo)
+
+INSTALACION
+
+1. Descomprimir el zip en C:\FitnessTraining\ (ruta corta)
+2. Si usa Docker: editar db\.env (POSTGRES_PASSWORD)
+3. Ejecutar Iniciar.bat
+
+Iniciar.bat es el launcher unico del cliente. Ejecuta en orden
+scripts\setup\, scripts\java\, scripts\docker\ y scripts\db\, y abre la app.
+No hace falta ejecutar esos .bat por separado.
+
+CONEXION A LA BASE
+  - Misma PC (Docker o PostgreSQL local): localhost
+  - Otra PC en la red: configurar IP del servidor en la app
+  Ver docs\CLIENTE.md
+
+USO DIARIO:  Iniciar.bat  o  app\FitnessTraining.bat
+MANUAL DB:   scripts\db\start-db.bat, scripts\db\stop-db.bat, scripts\db\backup-db.bat
+GUIA RAPIDA: docs\QUE-EJECUTAR.md
+MAS DETALLE: docs\CLIENTE.md
+CONFIGURAR:  docs\CONFIGURAR-JAVA-POSTGRES.md

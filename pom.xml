@@ -123,7 +123,7 @@
     </build>
 
     <profiles>
-        <!-- Empaqueta carpeta portable para cliente (Windows). Ver package.bat -->
+        <!-- Empaqueta carpeta portable para cliente (Windows). Ver scripts/dev/build/package.bat -->
         <profile>
             <id>client-package</id>
             <build>
@@ -202,7 +202,7 @@
                                     <target>
                                         <mkdir dir="${project.build.directory}/client"/>
                                         <copy file="${project.build.directory}/${project.build.finalName}.jar"
-                                              tofile="${project.build.directory}/client/${project.build.finalName}.jar"/>
+                                              tofile="${project.build.directory}/client/FitnessTraining.jar"/>
                                         <copy file="${project.basedir}/install/FitnessTraining.bat"
                                               tofile="${project.build.directory}/client/FitnessTraining.bat"/>
                                     </target>
