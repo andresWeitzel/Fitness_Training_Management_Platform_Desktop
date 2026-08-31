@@ -1,16 +1,11 @@
 Fitness Training Management Platform
 =====================================
 
-INSTALACION
+1. Descomprimir en C:\FitnessTraining\
+2. Ejecutar:  Iniciar.bat
 
-  Descomprimir de GitHub en C:\FitnessTraining\
-  Ejecutar:  Iniciar.bat
-
-  Iniciar.bat instala automaticamente (winget) si faltan:
-    - Java 21
-    - Maven (primera compilacion desde GitHub)
-    - Docker Desktop (PostgreSQL en contenedor)
-
-  Luego compila, configura, levanta la base y abre la app.
+Iniciar.bat comprueba Java, Maven y PostgreSQL/Docker.
+Si falta algo, muestra en pantalla que instalar y donde descargarlo.
+Cuando todo esta listo, abre la aplicacion.
 
 USO DIARIO:  Iniciar.bat

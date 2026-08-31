@@ -158,7 +158,7 @@ Descargar de GitHub, descomprimir en `C:\FitnessTraining` (ruta corta) y ejecuta
 Iniciar.bat
 ```
 
-`Iniciar.bat` hace todo: instala Java, Maven y Docker con winget si faltan, compila la primera vez, levanta PostgreSQL y abre la app.
+`Iniciar.bat` comprueba Java, Maven (solo la primera compilación) y Docker/PostgreSQL. Si falta algo, lo indica en CMD con enlaces para descargarlo manualmente. Cuando todo está listo, compila (si hace falta), levanta la base y abre la app.
 
 Más detalle: [CLIENTE.md](./install/CLIENTE.md)
 
@@ -231,7 +231,7 @@ scripts\dev\db\stop-db.bat
 
 **Cliente con Docker:** `Iniciar.bat` levanta el contenedor automáticamente.
 
-Guía completa (winget, instalación manual, red): [CONFIGURAR-JAVA-POSTGRES.md](./install/CONFIGURAR-JAVA-POSTGRES.md)
+Guía completa (instalación manual, red): [CONFIGURAR-JAVA-POSTGRES.md](./install/CONFIGURAR-JAVA-POSTGRES.md)
 
 <br>
 

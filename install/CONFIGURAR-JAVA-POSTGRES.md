@@ -8,13 +8,13 @@ En la entrega al gimnasio, **`Iniciar.bat`** (raíz del zip) orquesta la instala
 
 | Paso | Acción |
 |------|--------|
-| 1 | `scripts\setup\setup-first-run.bat` — primera vez: `db\.env` y `database.properties` |
-| 2 | `scripts\java\check-java.bat` — si falta Java 21, ofrece instalar Temurin con **winget** |
-| 3 | `scripts\docker\check-docker.bat` — si no hay Docker, ofrece instalar Docker Desktop (opcional) |
-| 4 | Si hay Docker → `scripts\db\start-db-silent.bat` levanta PostgreSQL |
+| 1 | `scripts\setup\check-requirements.bat` — comprueba Java, Maven (compilar) y Docker/PostgreSQL |
+| 2 | Si falta algo crítico → `[FALTA]` + enlace de descarga en CMD; instalar manualmente y volver a ejecutar |
+| 3 | `scripts\setup\setup-first-run.bat` — primera vez: `db\.env` y `database.properties` |
+| 4 | Si hay Docker activo → `scripts\db\start-db-silent.bat` levanta PostgreSQL |
 | 5 | `app\FitnessTraining.bat` — abre la app; **Flyway** migra al conectar |
 
-Requisitos para winget: Windows 10/11, permisos de instalación. Si winget falla, instalar manualmente (secciones 1 y 3 más abajo).
+Instalación manual si falta algo: secciones 1 y 3 más abajo (Adoptium, Maven, Docker o PostgreSQL).
 
 Scripts manuales en el zip: `scripts\db\start-db.bat`, `scripts\db\stop-db.bat`, `scripts\db\backup-db.bat`.
 

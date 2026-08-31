@@ -19,6 +19,7 @@ if not exist "scripts\client\Iniciar.bat" (
     goto :fin
 )
 
+set "FT_SKIP_PAUSE=1"
 call "scripts\client\Iniciar.bat"
 set "ERR=%ERRORLEVEL%"
 
