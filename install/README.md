@@ -18,19 +18,30 @@ scripts\dev\db\start-db.bat
 scripts\dev\app\run.bat
 ```
 
+Launcher en la raíz: **`Iniciar.bat`** — prueba el flujo del cliente (usa `target\client-dist\` si existe).
+
 | Script | Uso |
 |--------|-----|
 | `scripts/dev/app/run.bat` | Compilar y ejecutar (Maven) |
 | `scripts/dev/build/package.bat` | Generar zip de entrega |
+| `Iniciar.bat` | Probar launcher del cliente |
 | `scripts/dev/db/start-db.bat` | Levantar PostgreSQL (Docker) |
 | `scripts/dev/db/stop-db.bat` | Detener contenedores |
 | `scripts/dev/app/start-app-packaged.bat` | Probar build empaquetado |
 
 Detalle: [DESARROLLO.md](./DESARROLLO.md) · Mapa completo: [scripts/README.md](../scripts/README.md)
 
-## Cliente (zip descomprimido)
+## Cliente — instalación en el gimnasio
 
-Un solo launcher: **`Iniciar.bat`** en la raíz del zip (fuente: `scripts/client/Iniciar.bat`).
+Instalación en la **PC del cliente** (proveedor/desarrollador). El gimnasio no empaqueta; solo usa `Iniciar.bat` a diario.
+
+| Paso | Acción |
+|------|--------|
+| 1 | Llevar `FitnessTraining.zip` a la PC del cliente |
+| 2 | Descomprimir en `C:\FitnessTraining` |
+| 3 | `Iniciar.bat` (configurar `db\.env` si usa Docker) |
+
+Un solo launcher en el zip: **`Iniciar.bat`** (fuente: `scripts/client/Iniciar.bat`).
 
 | Paso | Script interno | Qué hace |
 |------|----------------|----------|

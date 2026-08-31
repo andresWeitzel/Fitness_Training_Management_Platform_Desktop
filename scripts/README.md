@@ -1,6 +1,6 @@
 # Scripts
 
-Todo el batch del proyecto está en `scripts/`. No hay `.bat` en la raíz del repositorio.
+Batch en `scripts/` y launcher **`Iniciar.bat`** en la raíz del repo (delega al flujo cliente).
 
 ## Desarrollo (`scripts/dev/`)
 
@@ -26,7 +26,7 @@ scripts\dev\client\start-client-dist.bat
 |---------|--------|-----------|
 | *(raíz)* | `Iniciar.bat` | Raíz del zip |
 | `setup/` | `setup-first-run.bat` | `scripts\setup\` |
-| `setup/` | `validate-package.bat` | `scripts\setup\` (pre-checks al iniciar) |
+| `setup/` | `validate-package.bat` | Pre-checks; busca `app\` + `scripts\` automaticamente |
 | `java/` | `check-java.bat` | `scripts\java\` |
 | `docker/` | `check-docker.bat` | `scripts\docker\` |
 | `db/` | `start-db.bat` | `scripts\db\` |
@@ -34,7 +34,7 @@ scripts\dev\client\start-client-dist.bat
 | `db/` | `stop-db.bat` | `scripts\db\` |
 | `db/` | `backup-db.bat` | `scripts\db\` |
 
-`Iniciar.bat` no se ejecuta desde `scripts\client\` en el repo: va en la raíz del zip (o en `target\client-dist\` tras empaquetar).
+`Iniciar.bat` incluye un **mapeador automatico**: sube carpetas hasta encontrar `app\` + `scripts\`, o `target\client-dist\`, sin importar si se ejecuta desde la raiz del zip, `scripts\client\` del repo, etc.
 
 ## Opcional
 

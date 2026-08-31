@@ -115,41 +115,34 @@ Mapa completo: [scripts/README.md](./scripts/README.md) · [¿Qué ejecutar?](./
 
 <br>
 
-### Cliente (gimnasio)
+### Desarrollador (este repositorio)
 
-El gimnasio recibe **`target\FitnessTraining.zip`**, no el repositorio Git. Descomprimir en `C:\FitnessTraining` y ejecutar:
+Clonar el repo, preparar entorno y ejecutar desde la **raíz del proyecto**:
 
 ```bat
-Iniciar.bat
+copy .env.example .env
+scripts\dev\db\start-db.bat
+scripts\dev\app\run.bat
 ```
-
-**Windows:** descomprimir en una ruta corta (`C:\FitnessTraining`). Si aparece *ruta de acceso demasiado larga*, mover el zip a `C:\` y extraer allí. Ver `DESCOMPRIMIR.txt` en el zip.
-
-**No ejecutar** `scripts\client\Iniciar.bat` del repo clonado: ahí no está `app\`. Si clonaste el repo para probar, primero `scripts\dev\build\package.bat` y usa el zip, o `scripts\dev\client\start-client-dist.bat` tras empaquetar.
 
 | Acción | Comando |
 |--------|---------|
-| Instalar y abrir todo (recomendado) | `Iniciar.bat` |
-| Solo la aplicación | `app\FitnessTraining.bat` |
-| Levantar base (Docker, manual) | `scripts\db\start-db.bat` |
-| Detener base (Docker, manual) | `scripts\db\stop-db.bat` |
-| Respaldo de la base | `scripts\db\backup-db.bat` |
+| Compilar y abrir la app (Maven) | `scripts\dev\app\run.bat` |
+| Levantar base (Docker) | `scripts\dev\db\start-db.bat` |
+| Detener base (Docker) | `scripts\dev\db\stop-db.bat` |
+| Generar zip para el cliente | `scripts\dev\build\package.bat` |
+| Probar flujo del cliente | `Iniciar.bat` o `scripts\dev\client\start-client-dist.bat` |
+| Solo app empaquetada | `scripts\dev\app\start-app-packaged.bat` |
 
-**`Iniciar.bat` es el launcher del cliente** — el único script que el gimnasio debe usar en el día a día. Ejecuta en orden los scripts de `scripts\setup\`, `scripts\java\`, `scripts\docker\` y `scripts\db\`, y abre la aplicación. No hace falta ejecutar esos `.bat` por separado; los de la tabla (excepto `Iniciar.bat`) son solo para casos puntuales.
+Flujo típico para **preparar la entrega**:
 
-Al ejecutar `Iniciar.bat`:
+```bat
+scripts\dev\build\package.bat
+```
 
-1. Primera vez: configuración local (`scripts\setup\`).
-2. Verifica Java 21; si falta, ofrece instalarlo con winget.
-3. Verifica Docker (opcional); si falta, ofrece instalarlo con winget.
-4. Si hay Docker, levanta PostgreSQL (`scripts\db\`).
-5. Abre la app (`app\FitnessTraining.bat`); Flyway migra al conectar.
+Genera `target\client-dist\` y `target\FitnessTraining.zip`.
 
-Primera instalación con Docker: editar `db\.env` (`POSTGRES_PASSWORD`) antes de `Iniciar.bat`. Sin Docker, PostgreSQL del sistema debe estar activo.
-
-Si algo falla: Java → volver a `Iniciar.bat` o instalar Java 21; `Connection refused` → Docker/PostgreSQL activo; puerto 5432 ocupado → usar solo Docker o solo PostgreSQL del sistema.
-
-Más detalle: [CLIENTE.md](./install/CLIENTE.md) · [CONFIGURAR-JAVA-POSTGRES.md](./install/CONFIGURAR-JAVA-POSTGRES.md)
+Verificar login: `admin` / `1234` (cuentas en [4.0](#40-cuentas-demo-)). Más detalle: [DESARROLLO.md](./install/DESARROLLO.md).
 
 <br>
 
@@ -157,77 +150,27 @@ Más detalle: [CLIENTE.md](./install/CLIENTE.md) · [CONFIGURAR-JAVA-POSTGRES.md
 
 <br>
 
-### Desarrollador — repositorio
+### Cliente (instalación en el gimnasio)
+
+Descargar de GitHub, descomprimir en `C:\FitnessTraining` (ruta corta) y ejecutar un solo script:
+
+```bat
+Iniciar.bat
+```
+
+`Iniciar.bat` hace todo: compila la primera vez si hace falta, valida el paquete, configura, verifica Java/Docker, levanta la base y abre la app.
 
 | Acción | Comando |
 |--------|---------|
-| Levantar base (Docker) | `scripts\dev\db\start-db.bat` |
-| Compilar y abrir la app | `scripts\dev\app\run.bat` |
-| Generar zip para el gimnasio | `scripts\dev\build\package.bat` |
-| Probar launcher del cliente | `scripts\dev\client\start-client-dist.bat` |
-| Solo app empaquetada | `scripts\dev\app\start-app-packaged.bat` |
-| Detener base (Docker) | `scripts\dev\db\stop-db.bat` |
+| Instalar y abrir todo | `Iniciar.bat` |
+| Solo la aplicación | `app\FitnessTraining.bat` |
+| Levantar base (Docker, manual) | `scripts\db\start-db.bat` |
+| Detener base (Docker, manual) | `scripts\db\stop-db.bat` |
+| Respaldo de la base | `scripts\db\backup-db.bat` |
 
-Abrir Docker Desktop (Engine en ejecución) antes de levantar la base.
+Primera vez desde GitHub: Java 21 y Maven en la PC del cliente. Con Docker: editar `db\.env` antes de `Iniciar.bat`.
 
-**Paso 1 — Variables de entorno**
-
-```bat
-copy .env.example .env
-```
-
-**Paso 2 — Base de datos**
-
-| Opción | Comando |
-|--------|---------|
-| Script (recomendado) | `scripts\dev\db\start-db.bat` |
-| Manual | `docker compose up -d` |
-
-Verificar: `docker compose ps` — contenedor PostgreSQL en estado running.
-
-**Paso 3 — Ejecutar la aplicación**
-
-```bat
-scripts\dev\app\run.bat
-```
-
-`scripts\dev\app\run.bat` hace `mvn clean compile javafx:run`. No genera el zip del cliente.
-
-**Paso 4 — Verificar**
-
-1. Se abre la ventana de login.
-2. Si no hay conexión válida, aparece Configurar conexión (usar valores de `.env`).
-3. Entrar con `admin` / `1234` (cuentas demo en [4.0](#40-cuentas-demo-)).
-
-**Generar entrega (opcional):**
-
-```bat
-scripts\dev\build\package.bat
-```
-
-Salida: `target\client-dist\` y `target\FitnessTraining.zip`.
-
-**Probar la entrega como el gimnasio (launcher completo):**
-
-```bat
-scripts\dev\client\start-client-dist.bat
-```
-
-Equivale a `target\client-dist\Iniciar.bat` (Java, Docker, base y app).
-
-**Solo la app empaquetada (sin launcher):**
-
-```bat
-scripts\dev\app\start-app-packaged.bat
-```
-
-Si algo falla:
-
-* Docker no encontrado → instalar Docker Desktop.
-* `Connection refused` → `scripts\dev\db\start-db.bat` o revisar `.env`.
-* Puerto 5432 ocupado → detener otro PostgreSQL o cambiar puerto en `.env`.
-
-Más detalle: [DESARROLLO.md](./install/DESARROLLO.md)
+Más detalle: [CLIENTE.md](./install/CLIENTE.md)
 
 <br>
 
@@ -392,12 +335,13 @@ Con seeders de desarrollo activos (no usar en producción):
 ### 4.1) Estructura del repositorio [🔝](#index-)
 
 ```
+├── Iniciar.bat     # Launcher (repo: prueba cliente; zip: gimnasio)
 ├── docs/           # Especificación, capturas, assets
 ├── src/            # Código, FXML, migraciones Flyway
 ├── scripts/
 │   ├── dev/        # Desarrollo: run, package, start-db...
-│   └── client/     # Scripts del zip para el gimnasio
-├── install/        # Guías y plantillas (Iniciar.bat)
+│   └── client/     # Fuente del launcher y scripts del zip
+├── install/        # Guías y plantillas
 └── docker-compose.yml
 ```
 
@@ -413,17 +357,11 @@ Con seeders de desarrollo activos (no usar en producción):
 * [Especificación funcional](./docs/especificacion-funcional.md)
 * [README de referencia (estructura)](https://github.com/andresWeitzel/ApiRest_Electronic_Devices_ExpressJS)
 
-### 4.3) Entrega al gimnasio [🔝](#index-)
+### 4.3) Instalación en el cliente [🔝](#index-)
 
-| Script | Quién | Qué hace |
-|--------|-------|----------|
-| `scripts\dev\app\run.bat` | Desarrollador | Compila y ejecuta la app (Maven). No genera zip. |
-| `scripts\dev\build\package.bat` | Desarrollador | Crea `target\FitnessTraining.zip` |
-| `Iniciar.bat` | Cliente | Launcher único: ejecuta setup, Java, Docker, DB y abre la app |
+Descargar de GitHub → descomprimir en `C:\FitnessTraining` → `Iniciar.bat`.
 
-El zip no incluye Java ni PostgreSQL. `Iniciar.bat` puede ofrecer instalarlos con winget — [CONFIGURAR-JAVA-POSTGRES.md](./install/CONFIGURAR-JAVA-POSTGRES.md).
-
-Conexión a la base: Docker (opcional), PostgreSQL local o servidor en red — [CLIENTE.md](./install/CLIENTE.md).
+Opcional: `scripts\dev\build\package.bat` genera un zip para llevar en USB.
 
 ### 4.4) Pruebas funcionales (YouTube) [🔝](#index-)
 
